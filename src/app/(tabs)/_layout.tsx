@@ -1,10 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Tabs } from "expo-router";
 import { GlassView } from "expo-glass-effect";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Tabs } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import { Keyboard, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setIsKeyboardVisible(false);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  if (isKeyboardVisible) {
+    return null;
+  }
+
   return (
     <GlassView
       glassEffectStyle="regular"
@@ -14,7 +35,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
-        const color = isFocused ? "#5ffa3c" : "#9CA3AF";
+        const color = isFocused ? "#a6f63cff" : "#9CA3AF";
 
         const onPress = () => {
           const event = navigation.emit({
@@ -44,10 +65,15 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
 export default function TabLayout() {
   return (
-    <Tabs
-      tabBar={(props) => <CustomTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
+    <>
+      <StatusBar style="light" backgroundColor="#1c1b1b" />
+      <Tabs
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
+          tabBarHideOnKeyboard: false,
+        }}
+      >
       <Tabs.Screen
         name="index"
         options={{
@@ -85,6 +111,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </>
   );
 }
 
@@ -95,7 +122,7 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     height: 64,
-    backgroundColor: "rgba(26, 26, 46, 0.72)",
+    backgroundColor: "#1a1a2eb8",
     borderRadius: 32,
     overflow: "hidden",
     borderWidth: 1,
