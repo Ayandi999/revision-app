@@ -12,11 +12,17 @@ export default function Index() {
     async function checkDb() {
       try {
         const rows = await db.select().from(questions);
-        console.log(" [DB Check] Database is ALIVE! Rows count:", rows.length, rows);
+        console.log(
+          " [DB Check] Database is ALIVE! Rows count:",
+          rows.length,
+          rows,
+        );
         setDbStatus(` Database is ALIVE! (${rows.length} rows found)`);
       } catch (err) {
         console.error("❌ [DB Check] Database query error:", err);
-        setDbStatus(`❌ Database Error: ${err instanceof Error ? err.message : String(err)}`);
+        setDbStatus(
+          `❌ Database Error: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 
@@ -26,7 +32,9 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Text style={styles.statusText}>{dbStatus}</Text>
-      <Text style={styles.subText}>Check your Metro console for the log output</Text>
+      <Text style={styles.subText}>
+        Check your Metro console for the log output
+      </Text>
     </View>
   );
 }
@@ -40,7 +48,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   statusText: {
-    color: "#a6f63cff",
+    color: "#0739ed",
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
@@ -51,4 +59,3 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
-

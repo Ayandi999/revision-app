@@ -1,11 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -35,7 +30,7 @@ export function CollapsibleSection({
         onPress={onToggle}
       >
         <View style={styles.sectionHeaderLeft}>
-          <Ionicons name={icon as any} size={18} color="#a6f63cff" />
+          <Ionicons name={icon as any} size={18} color="#0739ed" />
           <Text style={styles.sectionHeaderTitle}>{title}</Text>
         </View>
         <Ionicons
@@ -45,9 +40,7 @@ export function CollapsibleSection({
         />
       </TouchableOpacity>
 
-      {!isCollapsed && (
-        <View style={styles.sectionBody}>{children}</View>
-      )}
+      {!isCollapsed && <View style={styles.sectionBody}>{children}</View>}
     </View>
   );
 }

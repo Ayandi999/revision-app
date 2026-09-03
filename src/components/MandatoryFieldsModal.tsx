@@ -28,10 +28,7 @@ export function MandatoryFieldsModal({
       onRequestClose={onClose}
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable
-          style={styles.card}
-          onPress={(e) => e.stopPropagation()}
-        >
+        <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
           {/* Warning Icon Badge */}
           <View style={styles.iconCircle}>
             <Ionicons name="alert-circle-outline" size={28} color="#EF4444" />
@@ -40,7 +37,8 @@ export function MandatoryFieldsModal({
           {/* Title & Subtitle */}
           <Text style={styles.title}>Mandatory Fields Required</Text>
           <Text style={styles.subtitle}>
-            Please complete the following required fields marked with an asterisk (*) to add this question:
+            Please complete the following required fields marked with an
+            asterisk (*) to add this question:
           </Text>
 
           {/* Missing Fields List */}
@@ -141,19 +139,19 @@ const styles = StyleSheet.create({
   button: {
     width: "100%",
     height: 48,
-    backgroundColor: "#a6f63cff",
+    backgroundColor: "#0739ed",
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 20,
-    shadowColor: "#a6f63cff",
+    shadowColor: "#0739ed",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
   },
   buttonText: {
-    color: "#1c1b1b",
+    color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
     letterSpacing: 0.3,

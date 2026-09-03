@@ -71,11 +71,13 @@ export function ImagePickerModal({
               onPress={onSelectCamera}
             >
               <View style={styles.iconCircle}>
-                <Ionicons name="camera" size={24} color="#a6f63cff" />
+                <Ionicons name="camera" size={24} color="#0739ed" />
               </View>
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionTitle}>Take Photo</Text>
-                <Text style={styles.optionSubtitle}>Use camera to snap a photo</Text>
+                <Text style={styles.optionSubtitle}>
+                  Use camera to snap a photo
+                </Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#6B7280" />
             </TouchableOpacity>
@@ -87,11 +89,13 @@ export function ImagePickerModal({
               onPress={onSelectGallery}
             >
               <View style={styles.iconCircle}>
-                <Ionicons name="images" size={24} color="#a6f63cff" />
+                <Ionicons name="images" size={24} color="#0739ed" />
               </View>
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionTitle}>Choose from Gallery</Text>
-                <Text style={styles.optionSubtitle}>Pick an existing photo or screenshot</Text>
+                <Text style={styles.optionSubtitle}>
+                  Pick an existing photo or screenshot
+                </Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#6B7280" />
             </TouchableOpacity>
@@ -179,7 +183,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(166, 246, 60, 0.12)",
+    backgroundColor: "rgba(7, 57, 237, 0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,

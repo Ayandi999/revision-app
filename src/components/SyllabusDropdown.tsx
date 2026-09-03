@@ -55,11 +55,7 @@ export function SyllabusDropdown({
   hint,
   chips,
 }: SyllabusDropdownProps) {
-  const chevronColor = disabled
-    ? "#4B5563"
-    : isOpen
-      ? "#a6f63cff"
-      : "#9CA3AF";
+  const chevronColor = disabled ? "#4B5563" : isOpen ? "#0739ed" : "#9CA3AF";
 
   return (
     <View style={styles.dropdownSection}>
@@ -125,7 +121,7 @@ export function SyllabusDropdown({
                       <Ionicons
                         name={isSelected ? "checkbox" : "square-outline"}
                         size={18}
-                        color={isSelected ? "#a6f63cff" : "#6B7280"}
+                        color={isSelected ? "#0739ed" : "#6B7280"}
                       />
                     )}
                     {item.badge && (
@@ -157,7 +153,7 @@ export function SyllabusDropdown({
 
                   {/* Right: checkmark for badge-based single-select items */}
                   {item.badge && isSelected && (
-                    <Ionicons name="checkmark" size={18} color="#a6f63cff" />
+                    <Ionicons name="checkmark" size={18} color="#0739ed" />
                   )}
                 </TouchableOpacity>
               );
@@ -199,7 +195,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   dropdownInputActive: {
-    borderColor: "#a6f63c88",
+    borderColor: "#0739ed88",
   },
   dropdownInputDisabled: {
     opacity: 0.45,
@@ -235,7 +231,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   dropdownItemSelected: {
-    backgroundColor: "rgba(166, 246, 60, 0.07)",
+    backgroundColor: "rgba(7, 57, 237, 0.07)",
   },
   dropdownItemLeft: {
     flexDirection: "row",
@@ -252,8 +248,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.12)",
   },
   typeBadgeSelected: {
-    borderColor: "#a6f63c88",
-    backgroundColor: "rgba(166, 246, 60, 0.15)",
+    borderColor: "#0739ed88",
+    backgroundColor: "rgba(7, 57, 237, 0.15)",
   },
   typeBadgeText: {
     color: "#E5E7EB",
@@ -262,7 +258,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   typeBadgeTextSelected: {
-    color: "#a6f63cff",
+    color: "#0739ed",
   },
   itemBadgeLabel: {
     color: "#9CA3AF",

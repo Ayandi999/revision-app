@@ -45,7 +45,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
-        const color = isFocused ? "#a6f63cff" : "#9CA3AF";
+        const color = isFocused ? "#0739ed" : "#9CA3AF";
 
         const onPress = () => {
           const event = navigation.emit({
@@ -93,7 +93,7 @@ export default function TabLayout() {
           backgroundColor: "#1c1b1b",
         }}
       >
-        <ActivityIndicator size="large" color="#a6f63cff" />
+        <ActivityIndicator size="large" color="#0739ed" />
       </View>
     );
   }

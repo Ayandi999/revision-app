@@ -4,6 +4,7 @@ import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { insertIntoLocalDb } from "@/database/queries";
+import { useImagePicker } from "@/hooks/useImagePicker";
 import { AddQuestionFormData, OptionLetter } from "@/types/question";
 import {
   SyllabusSchema,
@@ -11,7 +12,6 @@ import {
   getSubtopicsForTopics,
   getTopics,
 } from "@/types/syllabus";
-import { useImagePicker } from "@/hooks/useImagePicker";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
@@ -118,7 +118,11 @@ const AddQuestion = () => {
     if (selectedTopics.includes(top)) {
       const remaining = selectedTopics.filter((t) => t !== top);
       setSelectedTopics(remaining);
-      const stillAvailable = getSubtopicsForTopics(syllabus, selectedSubject, remaining);
+      const stillAvailable = getSubtopicsForTopics(
+        syllabus,
+        selectedSubject,
+        remaining,
+      );
       setSelectedSubtopics((prev) =>
         prev.filter((sub) => stillAvailable.includes(sub)),
       );
@@ -154,7 +158,9 @@ const AddQuestion = () => {
   // ── Image pickers ───────────────────────────────────────────────────────
   const [questionImageUri, setQuestionImageUri] = useState<string | null>(null);
   const [solutionImageUri, setSolutionImageUri] = useState<string | null>(null);
-  const [pickerTarget, setPickerTarget] = useState<"question" | "solution" | null>(null);
+  const [pickerTarget, setPickerTarget] = useState<
+    "question" | "solution" | null
+  >(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [missingFieldsList, setMissingFieldsList] = useState<string[]>([]);
   const [isMissingModalVisible, setIsMissingModalVisible] = useState(false);
@@ -175,7 +181,10 @@ const AddQuestion = () => {
       } else {
         setSolutionImageUri(result.uri);
       }
-      console.log(`[${target === "question" ? "Question" : "Solution"} Image URI]:`, result.uri);
+      console.log(
+        `[${target === "question" ? "Question" : "Solution"} Image URI]:`,
+        result.uri,
+      );
     } else if (result.error !== "Camera cancelled.") {
       console.error(`[${target} Camera Error]:`, result.error);
     }
@@ -194,7 +203,10 @@ const AddQuestion = () => {
       } else {
         setSolutionImageUri(result.uri);
       }
-      console.log(`[${target === "question" ? "Question" : "Solution"} Image URI]:`, result.uri);
+      console.log(
+        `[${target === "question" ? "Question" : "Solution"} Image URI]:`,
+        result.uri,
+      );
     } else if (result.error !== "Picker cancelled.") {
       console.error(`[${target} Gallery Error]:`, result.error);
     }
@@ -221,9 +233,12 @@ const AddQuestion = () => {
     const missing: string[] = [];
     if (!questionImageUri) missing.push("Question image");
     if (!solutionImageUri) missing.push("Solution image");
-    if (selectedType.key === "MCQ" && !mcqSelected) missing.push("Correct option");
-    if (selectedType.key === "MSQ" && msqSelected.length === 0) missing.push("Correct option(s)");
-    if (selectedType.key === "NAT" && !natAnswer.trim()) missing.push("Numerical answer");
+    if (selectedType.key === "MCQ" && !mcqSelected)
+      missing.push("Correct option");
+    if (selectedType.key === "MSQ" && msqSelected.length === 0)
+      missing.push("Correct option(s)");
+    if (selectedType.key === "NAT" && !natAnswer.trim())
+      missing.push("Numerical answer");
     if (!personalNote.trim()) missing.push("Personal note");
     return missing;
   };
@@ -288,7 +303,7 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedTopics.map((top) => (
           <View key={top} style={styles.dottedChip}>
-            <Ionicons name="layers-outline" size={12} color="#a6f63cff" />
+            <Ionicons name="layers-outline" size={12} color="#0739ed" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {top}
             </Text>
@@ -309,7 +324,7 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedSubtopics.map((subtop) => (
           <View key={subtop} style={styles.dottedChip}>
-            <Ionicons name="pricetag-outline" size={12} color="#a6f63cff" />
+            <Ionicons name="pricetag-outline" size={12} color="#0739ed" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {subtop}
             </Text>
@@ -349,15 +364,12 @@ const AddQuestion = () => {
             </Text>
             <TouchableOpacity
               activeOpacity={0.7}
-              style={[
-                styles.iconBox,
-                questionImageUri && styles.iconBoxFilled,
-              ]}
+              style={[styles.iconBox, questionImageUri && styles.iconBoxFilled]}
               onPress={() => setPickerTarget("question")}
               disabled={questionPicker.isProcessing}
             >
               {questionPicker.isProcessing ? (
-                <ActivityIndicator size="large" color="#a6f63cff" />
+                <ActivityIndicator size="large" color="#0739ed" />
               ) : questionImageUri ? (
                 <View style={styles.previewContainer}>
                   <Image
@@ -378,7 +390,7 @@ const AddQuestion = () => {
                   </TouchableOpacity>
                 </View>
               ) : (
-                <Ionicons name="camera-outline" size={68} color="#a6f63cff" />
+                <Ionicons name="camera-outline" size={68} color="#0739ed" />
               )}
             </TouchableOpacity>
           </View>
@@ -400,11 +412,7 @@ const AddQuestion = () => {
               selectedSubject ? (
                 <View style={styles.selectedSyllabusPreview}>
                   <View style={styles.syllabusIconTag}>
-                    <Ionicons
-                      name="book-outline"
-                      size={14}
-                      color="#a6f63cff"
-                    />
+                    <Ionicons name="book-outline" size={14} color="#0739ed" />
                   </View>
                   <Text style={styles.selectedTypeDesc}>{selectedSubject}</Text>
                 </View>
@@ -466,7 +474,9 @@ const AddQuestion = () => {
             }
             hint={
               selectedTopics.length === 0 ? (
-                <Text style={styles.hintSubtle}>Pick at least 1 topic first</Text>
+                <Text style={styles.hintSubtle}>
+                  Pick at least 1 topic first
+                </Text>
               ) : selectedSubtopics.length > 0 ? (
                 <Text style={styles.badgeCounterText}>
                   {selectedSubtopics.length} selected
@@ -495,7 +505,7 @@ const AddQuestion = () => {
             disabled={solutionPicker.isProcessing}
           >
             {solutionPicker.isProcessing ? (
-              <ActivityIndicator size="small" color="#a6f63cff" />
+              <ActivityIndicator size="small" color="#0739ed" />
             ) : solutionImageUri ? (
               <View style={styles.previewContainer}>
                 <Image
@@ -517,9 +527,10 @@ const AddQuestion = () => {
               </View>
             ) : (
               <>
-                <Ionicons name="camera-outline" size={46} color="#a6f63cff" />
+                <Ionicons name="camera-outline" size={46} color="#0739ed" />
                 <Text style={styles.solutionCameraText}>
-                  Add solution image <Text style={styles.mandatoryAsterisk}>*</Text>
+                  Add solution image{" "}
+                  <Text style={styles.mandatoryAsterisk}>*</Text>
                 </Text>
               </>
             )}
@@ -543,7 +554,9 @@ const AddQuestion = () => {
                 <View style={styles.typeBadge}>
                   <Text style={styles.typeBadgeText}>{selectedType.key}</Text>
                 </View>
-                <Text style={styles.selectedTypeDesc}>{selectedType.label}</Text>
+                <Text style={styles.selectedTypeDesc}>
+                  {selectedType.label}
+                </Text>
               </View>
             }
           />
@@ -561,7 +574,9 @@ const AddQuestion = () => {
                     <Text style={styles.mandatoryAsterisk}>*</Text>
                   </Text>
                   <Text style={styles.answerHint}>
-                    {selectedType.key === "MCQ" ? "Pick 1 option" : "One or more"}
+                    {selectedType.key === "MCQ"
+                      ? "Pick 1 option"
+                      : "One or more"}
                   </Text>
                 </View>
                 <View style={styles.optionsRow}>
@@ -669,7 +684,11 @@ const AddQuestion = () => {
       <ImagePickerModal
         visible={pickerTarget !== null}
         onClose={() => setPickerTarget(null)}
-        title={pickerTarget === "question" ? "Add Question Image" : "Add Solution Image"}
+        title={
+          pickerTarget === "question"
+            ? "Add Question Image"
+            : "Add Solution Image"
+        }
         onSelectCamera={handleSelectCamera}
         onSelectGallery={handleSelectGallery}
       />
@@ -699,7 +718,7 @@ const styles = StyleSheet.create({
     paddingBottom: 110, // clears the floating bottom tab bar
   },
   title: {
-    color: "#a6f63cff",
+    color: "#0739ed",
     fontSize: 20,
     fontWeight: "700",
     letterSpacing: 0.3,
@@ -720,22 +739,22 @@ const styles = StyleSheet.create({
     height: 220,
     borderWidth: 2,
     borderStyle: "dotted",
-    borderColor: "#a6f63c88",
+    borderColor: "#0739ed88",
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(166, 246, 60, 0.04)",
+    backgroundColor: "rgba(7, 57, 237, 0.04)",
   },
   solutionCameraBox: {
     width: "100%",
     height: 130,
     borderWidth: 2,
     borderStyle: "dotted",
-    borderColor: "#a6f63c88",
+    borderColor: "#0739ed88",
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(166, 246, 60, 0.04)",
+    backgroundColor: "rgba(7, 57, 237, 0.04)",
     gap: 8,
   },
   solutionCameraText: {
@@ -747,7 +766,7 @@ const styles = StyleSheet.create({
   iconBoxFilled: {
     borderStyle: "solid",
     borderWidth: 1.5,
-    borderColor: "rgba(166, 246, 60, 0.4)",
+    borderColor: "rgba(7, 57, 237, 0.4)",
     padding: 0,
     overflow: "hidden",
   },
@@ -778,14 +797,14 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 26,
     marginBottom: 20,
-    backgroundColor: "#a6f63cff",
+    backgroundColor: "#0739ed",
     borderRadius: 16,
     height: 54,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    shadowColor: "#a6f63cff",
+    shadowColor: "#0739ed",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -795,7 +814,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   submitButtonText: {
-    color: "#1c1b1b",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
     letterSpacing: 0.4,
@@ -819,7 +838,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   badgeCounterText: {
-    color: "#a6f63cff",
+    color: "#0739ed",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -830,7 +849,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   syllabusIconTag: {
-    backgroundColor: "rgba(166, 246, 60, 0.12)",
+    backgroundColor: "rgba(7, 57, 237, 0.12)",
     padding: 4,
     borderRadius: 6,
   },
@@ -872,8 +891,8 @@ const styles = StyleSheet.create({
     gap: 6,
     borderWidth: 1.5,
     borderStyle: "dotted",
-    borderColor: "#a6f63c88",
-    backgroundColor: "rgba(166, 246, 60, 0.08)",
+    borderColor: "#0739ed88",
+    backgroundColor: "rgba(7, 57, 237, 0.08)",
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
@@ -915,8 +934,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   optionCircleSelected: {
-    borderColor: "#a6f63cff",
-    backgroundColor: "rgba(166, 246, 60, 0.12)",
+    borderColor: "#0739ed",
+    backgroundColor: "rgba(7, 57, 237, 0.12)",
   },
   optionCircleText: {
     color: "#D1D5DB",
@@ -924,7 +943,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   optionCircleTextSelected: {
-    color: "#a6f63cff",
+    color: "#0739ed",
   },
   // ── NAT input ────────────────────────────────────────────────────────────
   natInputContainer: {
