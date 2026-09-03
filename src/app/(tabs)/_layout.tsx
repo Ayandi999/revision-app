@@ -1,10 +1,20 @@
+import { db } from "@/database/db";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { GlassView } from "expo-glass-effect";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { Keyboard, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  Keyboard,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import migrations from "../../../drizzle/migrations";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -64,6 +74,30 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 }
 
 export default function TabLayout() {
+  //-------------Creating the Databse:-----------------------
+  const { success, error } = useMigrations(db, migrations);
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "red" }}>Migration error: {error.message}</Text>
+      </View>
+    );
+  }
+  if (!success) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#1c1b1b",
+        }}
+      >
+        <ActivityIndicator size="large" color="#a6f63cff" />
+      </View>
+    );
+  }
+  //--------------------------------------------------------
   return (
     <>
       <StatusBar style="light" backgroundColor="#1c1b1b" />
@@ -74,43 +108,43 @@ export default function TabLayout() {
           tabBarHideOnKeyboard: false,
         }}
       >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={20} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="newQuestion/addQuestion"
-        options={{
-          title: "Add Q",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="add" size={20} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="revision/revision"
-        options={{
-          title: "Revision",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="eye" size={20} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings/settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="settings-sharp" size={20} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="home" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="newQuestion/addQuestion"
+          options={{
+            title: "Add Q",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="add" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="revision/revision"
+          options={{
+            title: "Revision",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="eye" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings/settings"
+          options={{
+            title: "Settings",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="settings-sharp" size={20} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
     </>
   );
 }
