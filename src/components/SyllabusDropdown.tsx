@@ -20,7 +20,7 @@ interface DropdownItem {
 }
 
 interface SyllabusDropdownProps {
-  label: string;
+  label: React.ReactNode;
   isOpen: boolean;
   onToggleOpen: () => void;
   items: DropdownItem[];

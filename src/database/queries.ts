@@ -15,26 +15,7 @@ export async function insertIntoLocalDb(
       return { success: false, error: "Question data cannot be empty." };
     }
 
-    // 2. Validate required fields
-    if (
-      !data.subject ||
-      typeof data.subject !== "string" ||
-      !data.subject.trim()
-    ) {
-      return { success: false, error: "Subject is required." };
-    }
-
-    if (!Array.isArray(data.topics) || data.topics.length === 0) {
-      return { success: false, error: "At least one topic must be selected." };
-    }
-
-    if (!Array.isArray(data.subtopics) || data.subtopics.length === 0) {
-      return {
-        success: false,
-        error: "At least one subtopic must be selected.",
-      };
-    }
-
+    // 2. Validate question type
     if (
       !data.questionType ||
       !["MCQ", "MSQ", "NAT"].includes(data.questionType)
@@ -78,9 +59,9 @@ export async function insertIntoLocalDb(
       .insert(questions)
       .values({
         questionImageUri: data.questionImageUri ?? null,
-        subject: data.subject.trim(),
-        topics: data.topics,
-        subtopics: data.subtopics,
+        subject: data.subject?.trim() ?? "",
+        topics: Array.isArray(data.topics) ? data.topics : [],
+        subtopics: Array.isArray(data.subtopics) ? data.subtopics : [],
         solutionImageUri: data.solutionImageUri ?? null,
         questionType: data.questionType,
         mcqAnswer:
