@@ -119,8 +119,15 @@ export function SyllabusDropdown({
                   ]}
                   onPress={() => onSelectItem(item.value)}
                 >
-                  {/* Left: optional badge + label */}
+                  {/* Left: checkbox / badge + label */}
                   <View style={styles.dropdownItemLeft}>
+                    {!item.badge && (
+                      <Ionicons
+                        name={isSelected ? "checkbox" : "square-outline"}
+                        size={18}
+                        color={isSelected ? "#a6f63cff" : "#6B7280"}
+                      />
+                    )}
                     {item.badge && (
                       <View
                         style={[
@@ -148,17 +155,9 @@ export function SyllabusDropdown({
                     </Text>
                   </View>
 
-                  {/* Right: checkmark (single-select) or checkbox (multi-select) */}
-                  {item.badge ? (
-                    isSelected && (
-                      <Ionicons name="checkmark" size={18} color="#a6f63cff" />
-                    )
-                  ) : (
-                    <Ionicons
-                      name={isSelected ? "checkbox" : "square-outline"}
-                      size={18}
-                      color={isSelected ? "#a6f63cff" : "#6B7280"}
-                    />
+                  {/* Right: checkmark for badge-based single-select items */}
+                  {item.badge && isSelected && (
+                    <Ionicons name="checkmark" size={18} color="#a6f63cff" />
                   )}
                 </TouchableOpacity>
               );
@@ -242,6 +241,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    flex: 1,
   },
   typeBadge: {
     backgroundColor: "#1c1b1b",
@@ -269,7 +269,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     flex: 1,
-    marginRight: 12,
   },
   itemBadgeLabelSelected: {
     color: "#FFFFFF",
