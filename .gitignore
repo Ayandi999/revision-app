@@ -42,5 +42,5 @@ app-example
 /ios
 /android
 
-#generate sql schema and migrations
+# generated sql schema and migrations
 drizzle/*

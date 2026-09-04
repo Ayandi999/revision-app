@@ -324,7 +324,7 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedSubtopics.map((subtop) => (
           <View key={subtop} style={styles.dottedChip}>
-            <Ionicons name="pricetag-outline" size={12} color="#0739ed" />
+            <Ionicons name="pricetag-outline" size={12} color="#9d00ff" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {subtop}
             </Text>
