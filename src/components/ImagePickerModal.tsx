@@ -71,7 +71,7 @@ export function ImagePickerModal({
               onPress={onSelectCamera}
             >
               <View style={styles.iconCircle}>
-                <Ionicons name="camera" size={24} color="#0739ed" />
+                <Ionicons name="camera" size={24} color="#3B82F6" />
               </View>
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionTitle}>Take Photo</Text>
@@ -89,7 +89,7 @@ export function ImagePickerModal({
               onPress={onSelectGallery}
             >
               <View style={styles.iconCircle}>
-                <Ionicons name="images" size={24} color="#0739ed" />
+                <Ionicons name="images" size={24} color="#3B82F6" />
               </View>
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionTitle}>Choose from Gallery</Text>
@@ -122,11 +122,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: "#222121",
+    backgroundColor: "#1E2028",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     paddingHorizontal: 20,
     paddingTop: 10,
   },
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 13,
-    color: "#9CA3AF",
+    color: "#94A3B8",
     marginTop: 2,
   },
   closeBtn: {
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(7, 57, 237, 0.12)",
+    backgroundColor: "rgba(59, 130, 246, 0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   optionSubtitle: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: "#94A3B8",
   },
   cancelButton: {
     backgroundColor: "rgba(255, 255, 255, 0.06)",

@@ -1,711 +1,607 @@
-import { db } from "@/database/db";
-import { questions, type Question } from "@/database/schema";
 import { Ionicons } from "@expo/vector-icons";
-import { desc } from "drizzle-orm";
-import { Image } from "expo-image";
-import { useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
-  RefreshControl,
+  Animated,
+  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-const OPTIONS = ["A", "B", "C", "D"] as const;
+import { QuestionCard } from "@/components/revision/QuestionCard";
+import { ResultQuestionCard } from "@/components/revision/ResultQuestionCard";
+import { ResultsPieChart } from "@/components/revision/ResultsPieChart";
+import type { Question } from "@/database/schema";
+import {
+  calculateScores,
+  type ScoreResult,
+} from "@/functions/scoreCalculator";
+import {
+  getRevisionQuestions,
+  writeCache,
+  type RevisionCache,
+} from "@/functions/revisionQuestionFetch";
 
-export default function Revision() {
-  const [questionsList, setQuestionsList] = useState<Question[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+// ─── Phase type ───────────────────────────────────────────────────────────────
 
-  // Selected answers keyed by question ID
-  const [userAnswers, setUserAnswers] = useState<
-    Record<number, { mcq?: string; msq?: string[]; nat?: string }>
-  >({});
+type Phase = "loading" | "quiz" | "computing" | "results" | "empty" | "error";
 
-  // Revealed solution toggle keyed by question ID
-  const [revealedSolutions, setRevealedSolutions] = useState<
-    Record<number, boolean>
-  >({});
+// ─── Component ────────────────────────────────────────────────────────────────
 
-  const fetchQuestions = useCallback(async (isPullToRefresh = false) => {
-    if (isPullToRefresh) setIsRefreshing(true);
-    else setIsLoading(true);
+export default function RevisionScreen() {
+  // ── State ─────────────────────────────────────────────────────────────────
+  const [phase, setPhase] = useState<Phase>("loading");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [questionList, setQuestionList] = useState<Question[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<(string | string[] | null)[]>([]);
+  const [timeTaken, setTimeTaken] = useState<number[]>([]);
+  const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
+  const [cache, setCache] = useState<RevisionCache | null>(null);
 
-    try {
-      const rows = await db
-        .select()
-        .from(questions)
-        .orderBy(desc(questions.id));
-      setQuestionsList(rows);
-    } catch (err) {
-      console.error("[Revision] Error fetching questions:", err);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
+  // Timer state
+  const [totalTimeLeft, setTotalTimeLeft] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const questionStartRef = useRef<number>(Date.now());
+
+  // Computing phase animation
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // ── Fetch questions on mount ──────────────────────────────────────────────
+  useEffect(() => {
+    (async () => {
+      const result = await getRevisionQuestions();
+
+      if (!result.success) {
+        setErrorMsg(result.error);
+        setPhase("error");
+        return;
+      }
+
+      if (result.questions.length === 0) {
+        setPhase("empty");
+        return;
+      }
+
+      // Read the full cache to get persisted state
+      const AsyncStorage =
+        require("@react-native-async-storage/async-storage").default;
+      const raw = await AsyncStorage.getItem("revision-data");
+      const cachedData: RevisionCache | null = raw ? JSON.parse(raw) : null;
+
+      if (!cachedData) {
+        setErrorMsg("Cache not found after fetch.");
+        setPhase("error");
+        return;
+      }
+
+      // If already completed, go straight to results
+      if (cachedData.status === "completed") {
+        setQuestionList(cachedData.questions);
+        setAnswers(cachedData.answers);
+        setTimeTaken(cachedData.timeTaken);
+        setCache(cachedData);
+        // Recompute scores from cached answers
+        const scores = calculateScores(
+          [...cachedData.questions],
+          cachedData.answers,
+        );
+        setScoreResult(scores);
+        setPhase("results");
+        return;
+      }
+
+      // Determine start index: if lastQuestionVisited >= 0, resume from next
+      const startIndex =
+        cachedData.lastQuestionVisited >= 0
+          ? Math.min(
+              cachedData.lastQuestionVisited + 1,
+              cachedData.questions.length,
+            )
+          : 0;
+
+      // If all questions were already visited, go to computing
+      if (startIndex >= cachedData.questions.length) {
+        setQuestionList(cachedData.questions);
+        setAnswers(cachedData.answers);
+        setTimeTaken(cachedData.timeTaken);
+        setCache(cachedData);
+        runScoring(
+          cachedData.questions,
+          cachedData.answers,
+          cachedData.timeTaken,
+          cachedData,
+        );
+        return;
+      }
+
+      // Update cache status to in-progress
+      const updatedCache: RevisionCache = {
+        ...cachedData,
+        cachedAt: Date.now(),
+        status: "in-progress",
+      };
+      await writeCache(updatedCache);
+
+      setQuestionList(updatedCache.questions);
+      setCurrentIndex(startIndex);
+      setAnswers(updatedCache.answers);
+      setTimeTaken(updatedCache.timeTaken);
+      setCache(updatedCache);
+
+      // Calculate total time: 1 min per remaining question
+      const remainingQuestions = updatedCache.questions.length - startIndex;
+      setTotalTimeLeft(remainingQuestions * 60);
+
+      setPhase("quiz");
+    })();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchQuestions();
-    }, [fetchQuestions]),
+  // ── Countdown timer ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (phase !== "quiz") {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    questionStartRef.current = Date.now();
+
+    timerRef.current = setInterval(() => {
+      setTotalTimeLeft((prev) => {
+        if (prev <= 1) {
+          // Time's up — auto-submit
+          clearInterval(timerRef.current!);
+          handleTimeUp();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [phase]);
+
+  // ── Format timer display ──────────────────────────────────────────────────
+  const formatTimer = (secs: number): string => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  // ── Time up handler ───────────────────────────────────────────────────────
+  const handleTimeUp = useCallback(() => {
+    // Record time for current question
+    const elapsed = Math.round((Date.now() - questionStartRef.current) / 1000);
+    setTimeTaken((prev) => {
+      const next = [...prev];
+      next[currentIndex] = (next[currentIndex] || 0) + elapsed;
+      return next;
+    });
+
+    // Use latest state values via functional updates
+    setAnswers((latestAnswers) => {
+      setTimeTaken((latestTimeTaken) => {
+        const updatedTimeTaken = [...latestTimeTaken];
+        updatedTimeTaken[currentIndex] =
+          (updatedTimeTaken[currentIndex] || 0) + elapsed;
+        runScoring(questionList, latestAnswers, updatedTimeTaken, cache);
+        return updatedTimeTaken;
+      });
+      return latestAnswers;
+    });
+  }, [currentIndex, questionList, cache]);
+
+  // ── Answer change handler ─────────────────────────────────────────────────
+  const handleAnswerChange = useCallback(
+    (answer: string | string[] | null) => {
+      setAnswers((prev) => {
+        const next = [...prev];
+        next[currentIndex] = answer;
+        return next;
+      });
+    },
+    [currentIndex],
   );
 
-  const handleSelectMcq = (questionId: number, option: string) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionId]: {
-        ...prev[questionId],
-        mcq: prev[questionId]?.mcq === option ? undefined : option,
-      },
-    }));
-  };
+  // ── Next handler ──────────────────────────────────────────────────────────
+  const handleNext = useCallback(async () => {
+    // Record time for this question
+    const elapsed = Math.round((Date.now() - questionStartRef.current) / 1000);
+    const updatedTimeTaken = [...timeTaken];
+    updatedTimeTaken[currentIndex] =
+      (updatedTimeTaken[currentIndex] || 0) + elapsed;
+    setTimeTaken(updatedTimeTaken);
 
-  const handleToggleMsq = (questionId: number, option: string) => {
-    setUserAnswers((prev) => {
-      const current = prev[questionId]?.msq ?? [];
-      const exists = current.includes(option);
-      const updated = exists
-        ? current.filter((o) => o !== option)
-        : [...current, option];
-      return {
-        ...prev,
-        [questionId]: {
-          ...prev[questionId],
-          msq: updated,
-        },
+    // Persist to cache
+    if (cache) {
+      const updatedCache: RevisionCache = {
+        ...cache,
+        answers: answers,
+        timeTaken: updatedTimeTaken,
+        lastQuestionVisited: currentIndex,
       };
-    });
-  };
+      await writeCache(updatedCache);
+      setCache(updatedCache);
+    }
 
-  const handleNatChange = (questionId: number, text: string) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionId]: {
-        ...prev[questionId],
-        nat: text,
-      },
-    }));
-  };
+    // Check if last question
+    if (currentIndex >= questionList.length - 1) {
+      runScoring(questionList, answers, updatedTimeTaken, cache);
+      return;
+    }
 
-  const toggleSolution = (questionId: number) => {
-    setRevealedSolutions((prev) => ({
-      ...prev,
-      [questionId]: !prev[questionId],
-    }));
-  };
+    // Advance to next question
+    setCurrentIndex((prev) => prev + 1);
+    questionStartRef.current = Date.now();
+  }, [currentIndex, answers, timeTaken, questionList, cache]);
 
-  const renderQuestionItem = ({
-    item,
-    index,
-  }: {
-    item: Question;
-    index: number;
-  }) => {
-    const selected = userAnswers[item.id] || {};
-    const isSolutionRevealed = !!revealedSolutions[item.id];
+  // ── Scoring + transition ──────────────────────────────────────────────────
+  const runScoring = useCallback(
+    (
+      qs: Question[],
+      ans: (string | string[] | null)[],
+      times: number[],
+      c: RevisionCache | null,
+    ) => {
+      setPhase("computing");
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
 
+      // Compute after a brief delay for the congratulations screen
+      setTimeout(async () => {
+        const scores = calculateScores([...qs], ans);
+        setScoreResult(scores);
+        setTimeTaken(times);
+
+        // Mark cache as completed
+        if (c) {
+          const finalCache: RevisionCache = {
+            ...c,
+            answers: ans,
+            timeTaken: times,
+            lastQuestionVisited: qs.length - 1,
+            status: "completed",
+          };
+          await writeCache(finalCache);
+          setCache(finalCache);
+        }
+
+        setPhase("results");
+      }, 2500);
+    },
+    [fadeAnim],
+  );
+
+  // ── Render: Loading ───────────────────────────────────────────────────────
+  if (phase === "loading") {
     return (
-      <View style={styles.card}>
-        {/* Card Header: Question Number, Type & Subject */}
-        <View style={styles.cardHeader}>
-          <View style={styles.headerLeft}>
-            <View style={styles.qNumberBadge}>
-              <Text style={styles.qNumberText}>#{index + 1}</Text>
-            </View>
-            <View style={styles.typeBadge}>
-              <Text style={styles.typeBadgeText}>{item.questionType}</Text>
-            </View>
-            {item.subject ? (
-              <View style={styles.subjectBadge}>
-                <Ionicons name="book-outline" size={12} color="#9CA3AF" />
-                <Text style={styles.subjectBadgeText} numberOfLines={1}>
-                  {item.subject}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-        </View>
-
-        {/* Topics / Subtopics chips (if any) */}
-        {((item.topics && item.topics.length > 0) ||
-          (item.subtopics && item.subtopics.length > 0)) && (
-          <View style={styles.chipsContainer}>
-            {item.topics?.map((topic) => (
-              <View key={topic} style={styles.topicChip}>
-                <Ionicons name="layers-outline" size={11} color="#9d00ff" />
-                <Text style={styles.topicChipText} numberOfLines={1}>
-                  {topic}
-                </Text>
-              </View>
-            ))}
-            {item.subtopics?.map((subtopic) => (
-              <View key={subtopic} style={styles.subtopicChip}>
-                <Ionicons name="pricetag-outline" size={11} color="#9CA3AF" />
-                <Text style={styles.subtopicChipText} numberOfLines={1}>
-                  {subtopic}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Question Image */}
-        {item.questionImageUri ? (
-          <View style={styles.imageWrapper}>
-            <Image
-              source={{ uri: item.questionImageUri }}
-              style={styles.questionImage}
-              contentFit="contain"
-              transition={200}
-            />
-          </View>
-        ) : (
-          <View style={styles.noImagePlaceholder}>
-            <Ionicons name="image-outline" size={40} color="#4B5563" />
-            <Text style={styles.noImageText}>No image provided</Text>
-          </View>
-        )}
-
-        {/* Options / Input Section */}
-        <View style={styles.answerSection}>
-          {item.questionType === "MCQ" && (
-            <View>
-              <Text style={styles.sectionHint}>Select correct option:</Text>
-              <View style={styles.optionsRow}>
-                {OPTIONS.map((opt) => {
-                  const isSelected = selected.mcq === opt;
-                  return (
-                    <TouchableOpacity
-                      key={opt}
-                      activeOpacity={0.7}
-                      style={[
-                        styles.optionCircle,
-                        isSelected && styles.optionCircleSelected,
-                      ]}
-                      onPress={() => handleSelectMcq(item.id, opt)}
-                    >
-                      <Text
-                        style={[
-                          styles.optionCircleText,
-                          isSelected && styles.optionCircleTextSelected,
-                        ]}
-                      >
-                        {opt}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-
-          {item.questionType === "MSQ" && (
-            <View>
-              <Text style={styles.sectionHint}>
-                Select one or more options:
-              </Text>
-              <View style={styles.optionsRow}>
-                {OPTIONS.map((opt) => {
-                  const isSelected = selected.msq?.includes(opt);
-                  return (
-                    <TouchableOpacity
-                      key={opt}
-                      activeOpacity={0.7}
-                      style={[
-                        styles.optionCircle,
-                        isSelected && styles.optionCircleSelected,
-                      ]}
-                      onPress={() => handleToggleMsq(item.id, opt)}
-                    >
-                      <Text
-                        style={[
-                          styles.optionCircleText,
-                          isSelected && styles.optionCircleTextSelected,
-                        ]}
-                      >
-                        {opt}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-
-          {item.questionType === "NAT" && (
-            <View>
-              <Text style={styles.sectionHint}>Enter numerical answer:</Text>
-              <View style={styles.natInputContainer}>
-                <TextInput
-                  style={styles.natInput}
-                  placeholder="Type answer here..."
-                  placeholderTextColor="#6B7280"
-                  keyboardType="numeric"
-                  value={selected.nat ?? ""}
-                  onChangeText={(txt) => handleNatChange(item.id, txt)}
-                />
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* Action button: Reveal / Hide Solution */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.solutionToggleBtn}
-          onPress={() => toggleSolution(item.id)}
-        >
-          <Ionicons
-            name={isSolutionRevealed ? "eye-off-outline" : "bulb-outline"}
-            size={16}
-            color="#9d00ff"
-          />
-          <Text style={styles.solutionToggleBtnText}>
-            {isSolutionRevealed ? "Hide Solution" : "Check / Reveal Solution"}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Revealed Solution Card */}
-        {isSolutionRevealed && (
-          <View style={styles.solutionContainer}>
-            <View style={styles.solutionHeader}>
-              <Ionicons name="checkmark-circle" size={18} color="#9d00ff" />
-              <Text style={styles.solutionTitle}>Solution Details</Text>
-            </View>
-
-            {/* Answer Display */}
-            <View style={styles.answerResultRow}>
-              <Text style={styles.answerResultLabel}>Correct Answer:</Text>
-              <Text style={styles.answerResultValue}>
-                {item.questionType === "MCQ" && (item.mcqAnswer || "N/A")}
-                {item.questionType === "MSQ" &&
-                  (item.msqAnswer?.join(", ") || "N/A")}
-                {item.questionType === "NAT" && (item.natAnswer || "N/A")}
-              </Text>
-            </View>
-
-            {/* Solution Image (if present) */}
-            {item.solutionImageUri && (
-              <View style={styles.solutionImageWrapper}>
-                <Text style={styles.solutionSubtitle}>Solution Image:</Text>
-                <Image
-                  source={{ uri: item.solutionImageUri }}
-                  style={styles.solutionImage}
-                  contentFit="contain"
-                  transition={200}
-                />
-              </View>
-            )}
-
-            {/* Personal Note (if present) */}
-            {item.personalNote ? (
-              <View style={styles.noteContainer}>
-                <Text style={styles.solutionSubtitle}>Personal Note:</Text>
-                <Text style={styles.noteText}>{item.personalNote}</Text>
-              </View>
-            ) : null}
-          </View>
-        )}
+      <View style={styles.centeredContainer}>
+        <ActivityIndicator size="large" color="#3B82F6" />
+        <Text style={styles.loadingText}>Loading revision questions...</Text>
       </View>
     );
-  };
+  }
 
-  return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      {/* Page Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Revision</Text>
-          <Text style={styles.subtitle}>
-            {questionsList.length === 1
-              ? "1 question available"
-              : `${questionsList.length} questions available`}
-          </Text>
-        </View>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.refreshIconBtn}
-          onPress={() => fetchQuestions()}
-        >
-          <Ionicons name="reload" size={18} color="#9d00ff" />
-        </TouchableOpacity>
+  // ── Render: Error ─────────────────────────────────────────────────────────
+  if (phase === "error") {
+    return (
+      <View style={styles.centeredContainer}>
+        <Ionicons name="alert-circle" size={48} color="#EF4444" />
+        <Text style={styles.errorText}>Something went wrong</Text>
+        <Text style={styles.errorSubtext}>{errorMsg}</Text>
       </View>
+    );
+  }
 
-      {/* Content */}
-      {isLoading && !isRefreshing ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#9d00ff" />
-          <Text style={styles.loadingText}>Loading questions...</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={questionsList}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderQuestionItem}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={() => fetchQuestions(true)}
-              tintColor="#9d00ff"
-              colors={["#9d00ff"]}
+  // ── Render: Empty (no questions due) ──────────────────────────────────────
+  if (phase === "empty") {
+    return (
+      <View style={styles.centeredContainer}>
+        <Ionicons name="checkmark-done-circle" size={56} color="#22C55E" />
+        <Text style={styles.emptyTitle}>You're all caught up!</Text>
+        <Text style={styles.emptySubtext}>
+          No questions scheduled for revision today.{"\n"}Check back tomorrow.
+        </Text>
+      </View>
+    );
+  }
+
+  // ── Render: Computing (congrats animation) ────────────────────────────────
+  if (phase === "computing") {
+    return (
+      <View style={styles.centeredContainer}>
+        <Animated.View style={[styles.computingContent, { opacity: fadeAnim }]}>
+          <Ionicons name="trophy" size={64} color="#F59E0B" />
+          <Text style={styles.congratsTitle}>Congratulations! 🎉</Text>
+          <Text style={styles.congratsSubtext}>
+            You've completed today's revision.{"\n"}Computing your results...
+          </Text>
+          <ActivityIndicator
+            size="small"
+            color="#3B82F6"
+            style={{ marginTop: 20 }}
+          />
+        </Animated.View>
+      </View>
+    );
+  }
+
+  // ── Render: Quiz ──────────────────────────────────────────────────────────
+  if (phase === "quiz") {
+    const timerUrgent = totalTimeLeft < 60;
+
+    return (
+      <View style={styles.screenContainer}>
+        {/* Timer bar */}
+        <View style={styles.timerBar}>
+          <Ionicons
+            name="timer-outline"
+            size={18}
+            color={timerUrgent ? "#EF4444" : "#94A3B8"}
+          />
+          <Text
+            style={[styles.timerText, timerUrgent && styles.timerTextUrgent]}
+          >
+            {formatTimer(totalTimeLeft)}
+          </Text>
+          <View style={styles.timerProgress}>
+            <View
+              style={[
+                styles.timerProgressFill,
+                {
+                  width: `${(totalTimeLeft / (questionList.length * 60)) * 100}%`,
+                  backgroundColor: timerUrgent ? "#EF4444" : "#3B82F6",
+                },
+              ]}
             />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <View style={styles.emptyIconCircle}>
-                <Ionicons name="book-outline" size={44} color="#9d00ff" />
-              </View>
-              <Text style={styles.emptyTitle}>No Questions Found</Text>
-              <Text style={styles.emptyDesc}>
-                Add questions from the "Add Q" tab to practice and revise them
-                here.
+          </View>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.quizScroll}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <QuestionCard
+            question={questionList[currentIndex]}
+            questionIndex={currentIndex}
+            totalQuestions={questionList.length}
+            answer={answers[currentIndex]}
+            onAnswerChange={handleAnswerChange}
+            onNext={handleNext}
+            isLast={currentIndex === questionList.length - 1}
+          />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // ── Render: Results ───────────────────────────────────────────────────────
+  if (phase === "results" && scoreResult) {
+    return (
+      <View style={styles.screenContainer}>
+        <ScrollView
+          contentContainerStyle={styles.resultsScroll}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <Text style={styles.resultsTitle}>Your Results</Text>
+
+          {/* Score summary */}
+          <View style={styles.scoreSummaryCard}>
+            <Text style={styles.scoreValue}>
+              {scoreResult.totalScore}
+              <Text style={styles.scoreMax}>
+                {" "}
+                / {scoreResult.maxPossibleScore}
               </Text>
-            </View>
-          }
-        />
-      )}
-    </SafeAreaView>
-  );
+            </Text>
+            <Text style={styles.scoreLabel}>Total Score</Text>
+          </View>
+
+          {/* Pie Chart */}
+          <View style={styles.chartCard}>
+            <ResultsPieChart
+              correct={scoreResult.correctCount}
+              incorrect={scoreResult.incorrectCount}
+              unanswered={scoreResult.unansweredCount}
+              total={questionList.length}
+            />
+          </View>
+
+          {/* Question cards */}
+          <Text style={styles.sectionTitle}>Question Breakdown</Text>
+          {scoreResult.questionResults.map((result, i) => (
+            <ResultQuestionCard
+              key={i}
+              question={questionList[i]}
+              result={result}
+              timeTaken={timeTaken[i] || 0}
+              index={i}
+            />
+          ))}
+
+          {/* Bottom spacer for tab bar */}
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  return null;
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
-  container: {
+  // Shared
+  screenContainer: {
     flex: 1,
     backgroundColor: "#1c1b1b",
+    paddingTop: 56,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  title: {
-    color: "#9d00ff",
-    fontSize: 24,
-    fontWeight: "700",
-    letterSpacing: 0.3,
-  },
-  subtitle: {
-    color: "#9CA3AF",
-    fontSize: 13,
-    marginTop: 2,
-  },
-  refreshIconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#262525",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingContainer: {
+  centeredContainer: {
     flex: 1,
-    alignItems: "center",
+    backgroundColor: "#1c1b1b",
     justifyContent: "center",
-    gap: 12,
+    alignItems: "center",
+    padding: 32,
   },
+
+  // Loading
   loadingText: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 14,
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 110, // Clears floating bottom tab bar
-    gap: 20,
-  },
-  card: {
-    backgroundColor: "#222121",
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    padding: 16,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  qNumberBadge: {
-    backgroundColor: "#2a2929",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-  },
-  qNumberText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  typeBadge: {
-    backgroundColor: "rgba(157, 0, 255, 0.15)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#9d00ff88",
-  },
-  typeBadgeText: {
-    color: "#9d00ff",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  subjectBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#2a2929",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  subjectBadgeText: {
-    color: "#D1D5DB",
-    fontSize: 12,
-    fontWeight: "500",
-    maxWidth: 160,
-  },
-  chipsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginBottom: 12,
-  },
-  topicChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(157, 0, 255, 0.08)",
-    borderWidth: 1,
-    borderColor: "#9d00ff55",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  topicChipText: {
-    color: "#E5E7EB",
-    fontSize: 11,
+    marginTop: 16,
     fontWeight: "500",
   },
-  subtopicChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#282727",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  subtopicChipText: {
-    color: "#9CA3AF",
-    fontSize: 11,
-    fontWeight: "400",
-  },
-  imageWrapper: {
-    width: "100%",
-    height: 240,
-    backgroundColor: "#181717",
-    borderRadius: 14,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-    marginBottom: 14,
-  },
-  questionImage: {
-    width: "100%",
-    height: "100%",
-  },
-  noImagePlaceholder: {
-    width: "100%",
-    height: 120,
-    backgroundColor: "#181717",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    marginBottom: 14,
-  },
-  noImageText: {
-    color: "#6B7280",
-    fontSize: 13,
-  },
-  answerSection: {
-    marginTop: 4,
-    marginBottom: 14,
-  },
-  sectionHint: {
-    color: "#9CA3AF",
-    fontSize: 13,
-    fontWeight: "500",
-    marginBottom: 10,
-  },
-  optionsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  optionCircle: {
-    flex: 1,
-    height: 50,
-    borderRadius: 12,
-    backgroundColor: "#262525",
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  optionCircleSelected: {
-    borderColor: "#9d00ff",
-    backgroundColor: "rgba(157, 0, 255, 0.15)",
-  },
-  optionCircleText: {
-    color: "#D1D5DB",
-    fontSize: 17,
+
+  // Error
+  errorText: {
+    color: "#EF4444",
+    fontSize: 18,
     fontWeight: "700",
-  },
-  optionCircleTextSelected: {
-    color: "#9d00ff",
-  },
-  natInputContainer: {
-    backgroundColor: "#262525",
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    paddingHorizontal: 14,
-    height: 48,
-    justifyContent: "center",
-  },
-  natInput: {
-    color: "#FFFFFF",
-    fontSize: 15,
-  },
-  solutionToggleBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: "rgba(157, 0, 255, 0.08)",
-    borderWidth: 1,
-    borderColor: "#9d00ff44",
-  },
-  solutionToggleBtnText: {
-    color: "#9d00ff",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  solutionContainer: {
     marginTop: 12,
-    padding: 14,
-    backgroundColor: "#1c1b1b",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(157, 0, 255, 0.25)",
-    gap: 10,
   },
-  solutionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  solutionTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  answerResultRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  answerResultLabel: {
-    color: "#9CA3AF",
+  errorSubtext: {
+    color: "#94A3B8",
     fontSize: 13,
+    marginTop: 6,
+    textAlign: "center",
   },
-  answerResultValue: {
-    color: "#9d00ff",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  solutionSubtitle: {
-    color: "#9CA3AF",
-    fontSize: 12,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  solutionImageWrapper: {
-    marginTop: 4,
-  },
-  solutionImage: {
-    width: "100%",
-    height: 180,
-    backgroundColor: "#141414",
-    borderRadius: 10,
-  },
-  noteContainer: {
-    marginTop: 4,
-    padding: 10,
-    backgroundColor: "#242323",
-    borderRadius: 8,
-  },
-  noteText: {
-    color: "#E5E7EB",
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 80,
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  emptyIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(157, 0, 255, 0.12)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 6,
-  },
+
+  // Empty
   emptyTitle: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "800",
+    marginTop: 16,
+  },
+  emptySubtext: {
+    color: "#94A3B8",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 22,
+  },
+
+  // Computing
+  computingContent: {
+    alignItems: "center",
+  },
+  congratsTitle: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "800",
+    marginTop: 16,
+  },
+  congratsSubtext: {
+    color: "#94A3B8",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 22,
+  },
+
+  // Timer bar
+  timerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(59, 130, 246, 0.08)",
+  },
+  timerText: {
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+    minWidth: 56,
   },
-  emptyDesc: {
-    color: "#9CA3AF",
-    fontSize: 14,
-    textAlign: "center",
-    lineHeight: 20,
-    maxWidth: 280,
+  timerTextUrgent: {
+    color: "#EF4444",
+  },
+  timerProgress: {
+    flex: 1,
+    height: 4,
+    backgroundColor: "rgba(59, 130, 246, 0.08)",
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  timerProgressFill: {
+    height: "100%",
+    borderRadius: 2,
+  },
+
+  // Quiz scroll
+  quizScroll: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+
+  // Results
+  resultsScroll: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  resultsTitle: {
+    color: "#FFFFFF",
+    fontSize: 26,
+    fontWeight: "800",
+    marginBottom: 16,
+  },
+
+  // Score summary card
+  scoreSummaryCard: {
+    backgroundColor: "#1E2028",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.1)",
+    padding: 20,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  scoreValue: {
+    color: "#FFFFFF",
+    fontSize: 36,
+    fontWeight: "800",
+  },
+  scoreMax: {
+    color: "#6B7280",
+    fontSize: 20,
+    fontWeight: "500",
+  },
+  scoreLabel: {
+    color: "#94A3B8",
+    fontSize: 13,
+    fontWeight: "500",
+    marginTop: 4,
+  },
+
+  // Chart card
+  chartCard: {
+    backgroundColor: "#1E2028",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.1)",
+    padding: 24,
+    marginBottom: 24,
+  },
+
+  // Section title
+  sectionTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
   },
 });

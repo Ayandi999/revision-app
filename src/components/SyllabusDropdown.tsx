@@ -55,7 +55,7 @@ export function SyllabusDropdown({
   hint,
   chips,
 }: SyllabusDropdownProps) {
-  const chevronColor = disabled ? "#4B5563" : isOpen ? "#0739ed" : "#9CA3AF";
+  const chevronColor = disabled ? "#4B5563" : isOpen ? "#3B82F6" : "#94A3B8";
 
   return (
     <View style={styles.dropdownSection}>
@@ -121,7 +121,7 @@ export function SyllabusDropdown({
                       <Ionicons
                         name={isSelected ? "checkbox" : "square-outline"}
                         size={18}
-                        color={isSelected ? "#0739ed" : "#6B7280"}
+                        color={isSelected ? "#3B82F6" : "#6B7280"}
                       />
                     )}
                     {item.badge && (
@@ -153,7 +153,7 @@ export function SyllabusDropdown({
 
                   {/* Right: checkmark for badge-based single-select items */}
                   {item.badge && isSelected && (
-                    <Ionicons name="checkmark" size={18} color="#0739ed" />
+                    <Ionicons name="checkmark" size={18} color="#3B82F6" />
                   )}
                 </TouchableOpacity>
               );
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionLabel: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 14,
     fontWeight: "500",
     letterSpacing: 0.2,
@@ -187,15 +187,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#262525",
+    backgroundColor: "#1E2028",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
   dropdownInputActive: {
-    borderColor: "#0739ed88",
+    borderColor: "rgba(59, 130, 246, 0.35)",
   },
   dropdownInputDisabled: {
     opacity: 0.45,
@@ -209,10 +209,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   dropdownMenu: {
-    backgroundColor: "#262525",
+    backgroundColor: "#1E2028",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
   },
   dropdownScrollContainer: {
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   dropdownItemSelected: {
-    backgroundColor: "rgba(7, 57, 237, 0.07)",
+    backgroundColor: "rgba(59, 130, 246, 0.08)",
   },
   dropdownItemLeft: {
     flexDirection: "row",
@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.12)",
   },
   typeBadgeSelected: {
-    borderColor: "#0739ed88",
-    backgroundColor: "rgba(7, 57, 237, 0.15)",
+    borderColor: "rgba(59, 130, 246, 0.4)",
+    backgroundColor: "rgba(59, 130, 246, 0.15)",
   },
   typeBadgeText: {
     color: "#E5E7EB",
@@ -258,10 +258,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   typeBadgeTextSelected: {
-    color: "#0739ed",
+    color: "#3B82F6",
   },
   itemBadgeLabel: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 14,
     fontWeight: "500",
     flex: 1,

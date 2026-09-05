@@ -45,7 +45,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
-        const color = isFocused ? "#0739ed" : "#9CA3AF";
+        const color = isFocused ? "#3B82F6" : "#64748B";
 
         const onPress = () => {
           const event = navigation.emit({
@@ -62,10 +62,10 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           <TouchableOpacity
             key={route.key}
             onPress={onPress}
-            style={styles.tabBarItem}
+            style={[styles.tabBarItem, isFocused && styles.tabBarItemFocused]}
           >
             {options.tabBarIcon?.({ color, size: 20, focused: isFocused })}
-            <Text style={[styles.tabBarLabel, { color }]}>{options.title}</Text>
+            <Text style={[styles.tabBarLabel, { color }, isFocused && styles.tabBarLabelFocused]}>{options.title}</Text>
           </TouchableOpacity>
         );
       })}
@@ -93,7 +93,7 @@ export default function TabLayout() {
           backgroundColor: "#1c1b1b",
         }}
       >
-        <ActivityIndicator size="large" color="#0739ed" />
+        <ActivityIndicator size="large" color="#3B82F6" />
       </View>
     );
   }
@@ -156,11 +156,11 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     height: 64,
-    backgroundColor: "#1a1a2eb8",
+    backgroundColor: "#13131db8",
     borderRadius: 32,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
+    borderColor: "rgba(59, 130, 246, 0.12)",
     flexDirection: "row",
     alignItems: "center",
     shadowColor: "#000",
@@ -174,10 +174,19 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 24,
+    marginVertical: 6,
+    marginHorizontal: 2,
+  },
+  tabBarItemFocused: {
+    backgroundColor: "rgba(59, 130, 246, 0.12)",
   },
   tabBarLabel: {
     fontSize: 10,
     fontWeight: "600",
     marginTop: 4,
+  },
+  tabBarLabelFocused: {
+    fontWeight: "700",
   },
 });

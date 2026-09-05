@@ -11,6 +11,8 @@ interface CollapsibleSectionProps {
   isCollapsed: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  /** Accent color for the section icon. Defaults to #3B82F6. */
+  accentColor?: string;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -21,6 +23,7 @@ export function CollapsibleSection({
   isCollapsed,
   onToggle,
   children,
+  accentColor = "#3B82F6",
 }: CollapsibleSectionProps) {
   return (
     <View style={styles.collapsibleSection}>
@@ -30,13 +33,13 @@ export function CollapsibleSection({
         onPress={onToggle}
       >
         <View style={styles.sectionHeaderLeft}>
-          <Ionicons name={icon as any} size={18} color="#0739ed" />
+          <Ionicons name={icon as any} size={18} color={accentColor} />
           <Text style={styles.sectionHeaderTitle}>{title}</Text>
         </View>
         <Ionicons
           name={isCollapsed ? "chevron-forward" : "chevron-down"}
           size={18}
-          color="#9CA3AF"
+          color="#94A3B8"
         />
       </TouchableOpacity>
 
@@ -50,10 +53,10 @@ export function CollapsibleSection({
 const styles = StyleSheet.create({
   collapsibleSection: {
     marginTop: 20,
-    backgroundColor: "#222121",
+    backgroundColor: "#1E2028",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
   },
   sectionHeader: {

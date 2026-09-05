@@ -18,8 +18,8 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { and, gte, lt } from "drizzle-orm";
-import { db } from "./db";
-import { questions, type Question } from "./schema";
+import { db } from "../database/db";
+import { questions, type Question } from "../database/schema";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -41,6 +41,13 @@ export type RevisionCache = {
   questions: Question[];
   cachedAt: number;
   syncedWithDb: boolean;
+  expiresAt: number;
+  lastQuestionVisited: number;
+  status: "completed" | "not-started" | "in-progress";
+  /** User answers — indexed by question position. null = unanswered. */
+  answers: (string | string[] | null)[];
+  /** Seconds spent on each question — indexed by question position. */
+  timeTaken: number[];
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -79,7 +86,7 @@ async function readCache(): Promise<RevisionCache | null> {
   return JSON.parse(raw) as RevisionCache;
 }
 
-async function writeCache(cache: RevisionCache): Promise<void> {
+export async function writeCache(cache: RevisionCache): Promise<void> {
   await AsyncStorage.setItem(REVISION_DATA_KEY, JSON.stringify(cache));
 }
 
@@ -155,12 +162,21 @@ export async function getRevisionQuestions(): Promise<RevisionFetchResult> {
     const dueQuestions = await fetchDueQuestions();
 
     // ── 5. Persist and return ───────────────────────────────────────────────
+    // const newCache: RevisionCache = {
+    //   questions: dueQuestions,
+    //   cachedAt: Date.now(),
+    //   syncedWithDb: false,
+    // };
     const newCache: RevisionCache = {
       questions: dueQuestions,
       cachedAt: Date.now(),
       syncedWithDb: false,
-    };
-
+      expiresAt: tomorrowMidnight().getTime(),
+      lastQuestionVisited: -1,
+      status: "not-started",
+      answers: new Array(dueQuestions.length).fill(null),
+      timeTaken: new Array(dueQuestions.length).fill(0),
+    }
     await writeCache(newCache);
 
     return { success: true, questions: dueQuestions, fromCache: false };

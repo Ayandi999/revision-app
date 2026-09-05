@@ -3,7 +3,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
-import { insertIntoLocalDb } from "@/database/queries";
+import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { AddQuestionFormData, OptionLetter } from "@/types/question";
 import {
@@ -303,7 +303,7 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedTopics.map((top) => (
           <View key={top} style={styles.dottedChip}>
-            <Ionicons name="layers-outline" size={12} color="#0739ed" />
+            <Ionicons name="layers-outline" size={12} color="#14B8A6" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {top}
             </Text>
@@ -324,7 +324,7 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedSubtopics.map((subtop) => (
           <View key={subtop} style={styles.dottedChip}>
-            <Ionicons name="pricetag-outline" size={12} color="#9d00ff" />
+            <Ionicons name="pricetag-outline" size={12} color="#14B8A6" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {subtop}
             </Text>
@@ -348,7 +348,10 @@ const AddQuestion = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.title}>Add a new Question</Text>
+        <View style={styles.titleBlock}>
+          <Text style={styles.title}>Add Question</Text>
+          <Text style={styles.titleSubtext}>Capture and categorize a new problem</Text>
+        </View>
 
         {/* ── Question Section ─────────────────────────────────────────── */}
         <CollapsibleSection
@@ -356,6 +359,7 @@ const AddQuestion = () => {
           icon="help-circle-outline"
           isCollapsed={isQuestionCollapsed}
           onToggle={() => animatedToggle(setIsQuestionCollapsed)}
+          accentColor="#14B8A6"
         >
           {/* Question image placeholder */}
           <View style={styles.cameraSection}>
@@ -369,7 +373,7 @@ const AddQuestion = () => {
               disabled={questionPicker.isProcessing}
             >
               {questionPicker.isProcessing ? (
-                <ActivityIndicator size="large" color="#0739ed" />
+                <ActivityIndicator size="large" color="#3B82F6" />
               ) : questionImageUri ? (
                 <View style={styles.previewContainer}>
                   <Image
@@ -390,7 +394,7 @@ const AddQuestion = () => {
                   </TouchableOpacity>
                 </View>
               ) : (
-                <Ionicons name="camera-outline" size={68} color="#0739ed" />
+                <Ionicons name="camera-outline" size={68} color="#3B82F6" />
               )}
             </TouchableOpacity>
           </View>
@@ -412,7 +416,7 @@ const AddQuestion = () => {
               selectedSubject ? (
                 <View style={styles.selectedSyllabusPreview}>
                   <View style={styles.syllabusIconTag}>
-                    <Ionicons name="book-outline" size={14} color="#0739ed" />
+                    <Ionicons name="book-outline" size={14} color="#14B8A6" />
                   </View>
                   <Text style={styles.selectedTypeDesc}>{selectedSubject}</Text>
                 </View>
@@ -493,6 +497,7 @@ const AddQuestion = () => {
           icon="bulb-outline"
           isCollapsed={isSolutionCollapsed}
           onToggle={() => animatedToggle(setIsSolutionCollapsed)}
+          accentColor="#3B82F6"
         >
           {/* Solution image placeholder */}
           <TouchableOpacity
@@ -505,7 +510,7 @@ const AddQuestion = () => {
             disabled={solutionPicker.isProcessing}
           >
             {solutionPicker.isProcessing ? (
-              <ActivityIndicator size="small" color="#0739ed" />
+              <ActivityIndicator size="small" color="#3B82F6" />
             ) : solutionImageUri ? (
               <View style={styles.previewContainer}>
                 <Image
@@ -527,7 +532,7 @@ const AddQuestion = () => {
               </View>
             ) : (
               <>
-                <Ionicons name="camera-outline" size={46} color="#0739ed" />
+                <Ionicons name="camera-outline" size={46} color="#3B82F6" />
                 <Text style={styles.solutionCameraText}>
                   Add solution image{" "}
                   <Text style={styles.mandatoryAsterisk}>*</Text>
@@ -718,10 +723,19 @@ const styles = StyleSheet.create({
     paddingBottom: 110, // clears the floating bottom tab bar
   },
   title: {
-    color: "#0739ed",
-    fontSize: 20,
-    fontWeight: "700",
-    letterSpacing: 0.3,
+    color: "#FFFFFF",
+    fontSize: 26,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+  },
+  titleSubtext: {
+    color: "#94A3B8",
+    fontSize: 13,
+    fontWeight: "400",
+    marginTop: 4,
+  },
+  titleBlock: {
+    marginBottom: 4,
   },
   mandatoryAsterisk: {
     color: "#EF4444",
@@ -739,26 +753,26 @@ const styles = StyleSheet.create({
     height: 220,
     borderWidth: 2,
     borderStyle: "dotted",
-    borderColor: "#0739ed88",
+    borderColor: "rgba(59, 130, 246, 0.35)",
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(7, 57, 237, 0.04)",
+    backgroundColor: "rgba(59, 130, 246, 0.04)",
   },
   solutionCameraBox: {
     width: "100%",
     height: 130,
     borderWidth: 2,
     borderStyle: "dotted",
-    borderColor: "#0739ed88",
+    borderColor: "rgba(59, 130, 246, 0.35)",
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(7, 57, 237, 0.04)",
+    backgroundColor: "rgba(59, 130, 246, 0.04)",
     gap: 8,
   },
   solutionCameraText: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 13,
     fontWeight: "500",
     letterSpacing: 0.2,
@@ -766,7 +780,7 @@ const styles = StyleSheet.create({
   iconBoxFilled: {
     borderStyle: "solid",
     borderWidth: 1.5,
-    borderColor: "rgba(7, 57, 237, 0.4)",
+    borderColor: "rgba(59, 130, 246, 0.4)",
     padding: 0,
     overflow: "hidden",
   },
@@ -797,18 +811,18 @@ const styles = StyleSheet.create({
   submitButton: {
     marginTop: 26,
     marginBottom: 20,
-    backgroundColor: "#0739ed",
+    backgroundColor: "#14B8A6",
     borderRadius: 16,
     height: 54,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    shadowColor: "#0739ed",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowColor: "#14B8A6",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 6,
   },
   submitButtonDisabled: {
     opacity: 0.6,
@@ -827,7 +841,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   sectionLabel: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 14,
     fontWeight: "500",
     letterSpacing: 0.2,
@@ -838,7 +852,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   badgeCounterText: {
-    color: "#0739ed",
+    color: "#3B82F6",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -849,7 +863,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   syllabusIconTag: {
-    backgroundColor: "rgba(7, 57, 237, 0.12)",
+    backgroundColor: "rgba(20, 184, 166, 0.12)",
     padding: 4,
     borderRadius: 6,
   },
@@ -891,8 +905,8 @@ const styles = StyleSheet.create({
     gap: 6,
     borderWidth: 1.5,
     borderStyle: "dotted",
-    borderColor: "#0739ed88",
-    backgroundColor: "rgba(7, 57, 237, 0.08)",
+    borderColor: "rgba(20, 184, 166, 0.4)",
+    backgroundColor: "rgba(20, 184, 166, 0.08)",
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
@@ -927,15 +941,15 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     borderRadius: 14,
-    backgroundColor: "#262525",
+    backgroundColor: "#1E2028",
     borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     alignItems: "center",
     justifyContent: "center",
   },
   optionCircleSelected: {
-    borderColor: "#0739ed",
-    backgroundColor: "rgba(7, 57, 237, 0.12)",
+    borderColor: "#3B82F6",
+    backgroundColor: "rgba(59, 130, 246, 0.12)",
   },
   optionCircleText: {
     color: "#D1D5DB",
@@ -943,14 +957,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   optionCircleTextSelected: {
-    color: "#0739ed",
+    color: "#3B82F6",
   },
   // ── NAT input ────────────────────────────────────────────────────────────
   natInputContainer: {
-    backgroundColor: "#262525",
+    backgroundColor: "#1E2028",
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     paddingHorizontal: 16,
     height: 48,
     justifyContent: "center",
@@ -967,15 +981,15 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   noteLabel: {
-    color: "#9CA3AF",
+    color: "#94A3B8",
     fontSize: 13,
     fontWeight: "500",
   },
   noteInputContainer: {
-    backgroundColor: "#262525",
+    backgroundColor: "#1E2028",
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.08)",
+    borderColor: "rgba(59, 130, 246, 0.1)",
     paddingHorizontal: 16,
     paddingVertical: 12,
     minHeight: 110,

@@ -1,6 +1,6 @@
 import { AddQuestionFormData } from "@/types/question";
-import { db } from "./db";
-import { questions, type Question } from "./schema";
+import { db } from "../database/db";
+import { questions, type Question } from "../database/schema";
 
 export type InsertResult =
   | { success: true; data: Question }
