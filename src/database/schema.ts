@@ -4,6 +4,7 @@ export const questions = sqliteTable("questions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
 
   questionImageUri: text("question_image_uri"), // relative path in documentDirectory
+  extractedText: text("extracted_text"), // OCR extracted text from question image
 
   // Syllabus taxonomy
   subject: text("subject").notNull(),

@@ -1,6 +1,7 @@
 import { AddQuestionFormData } from "@/types/question";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
+import { extractTextFromQuestionImage } from "./extractText";
 
 export type InsertResult =
   | { success: true; data: Question }
@@ -54,11 +55,22 @@ export async function insertIntoLocalDb(
       };
     }
 
+    // 3.5. Extract text from question image using OCR (question image only)
+    let extractedText: string | null = null;
+    if (data.questionImageUri) {
+      try {
+        extractedText = await extractTextFromQuestionImage(data.questionImageUri);
+      } catch (err) {
+        console.warn("[insertIntoLocalDb] OCR extraction failed:", err);
+      }
+    }
+
     // 4. Insert into database
     const insertedRows = await db
       .insert(questions)
       .values({
         questionImageUri: data.questionImageUri ?? null,
+        extractedText,
         subject: data.subject?.trim() ?? "",
         topics: Array.isArray(data.topics) ? data.topics : [],
         subtopics: Array.isArray(data.subtopics) ? data.subtopics : [],

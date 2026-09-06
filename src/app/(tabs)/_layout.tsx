@@ -1,7 +1,6 @@
-import { db } from "@/database/db";
+import { useAppMigrations } from "@/database/migrator";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { GlassView } from "expo-glass-effect";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -14,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import migrations from "../../../drizzle/migrations";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -65,7 +63,15 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             style={[styles.tabBarItem, isFocused && styles.tabBarItemFocused]}
           >
             {options.tabBarIcon?.({ color, size: 20, focused: isFocused })}
-            <Text style={[styles.tabBarLabel, { color }, isFocused && styles.tabBarLabelFocused]}>{options.title}</Text>
+            <Text
+              style={[
+                styles.tabBarLabel,
+                { color },
+                isFocused && styles.tabBarLabelFocused,
+              ]}
+            >
+              {options.title}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -75,11 +81,67 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
 export default function TabLayout() {
   //-------------Creating the Databse:-----------------------
-  const { success, error } = useMigrations(db, migrations);
+  const { success, error, retry, resetDatabase } = useAppMigrations();
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "red" }}>Migration error: {error.message}</Text>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#1c1b1b",
+          padding: 24,
+        }}
+      >
+        <Ionicons name="alert-circle" size={48} color="#EF4444" />
+        <Text
+          style={{
+            color: "#FFFFFF",
+            fontSize: 18,
+            fontWeight: "700",
+            marginTop: 12,
+            marginBottom: 8,
+          }}
+        >
+          Database Migration Error
+        </Text>
+        <Text
+          style={{
+            color: "#EF4444",
+            fontSize: 13,
+            textAlign: "center",
+            lineHeight: 18,
+            marginBottom: 20,
+          }}
+        >
+          {error.message}
+        </Text>
+        <View style={{ flexDirection: "row", gap: 12 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#3B82F6",
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 8,
+            }}
+            onPress={retry}
+          >
+            <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Retry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#374151",
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 8,
+            }}
+            onPress={resetDatabase}
+          >
+            <Text style={{ color: "#F87171", fontWeight: "600" }}>
+              Reset Database
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -117,6 +179,7 @@ export default function TabLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="newQuestion/addQuestion"
           options={{
@@ -132,6 +195,15 @@ export default function TabLayout() {
             title: "Revision",
             tabBarIcon: ({ color }) => (
               <Ionicons name="eye" size={20} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="search/search"
+          options={{
+            title: "Search",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="search" size={20} color={color} />
             ),
           }}
         />

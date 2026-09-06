@@ -21,6 +21,7 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
+    "@zhanziyang/expo-text-extractor": "^1.0.2",
     "drizzle-orm": "^0.45.2",
     "expo": "~55.0.31",
     "expo-constants": "~55.0.17",
@@ -53,6 +54,8 @@
     "@types/react": "~19.2.2",
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~55.0.1",
     "typescript": "~5.9.2"
   },
   "private": true
