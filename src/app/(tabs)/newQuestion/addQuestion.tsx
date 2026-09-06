@@ -2,6 +2,7 @@ import neetData from "@/assets/syllabus/neet.json";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
+import { StatusModal, StatusModalType } from "@/components/StatusModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
@@ -18,7 +19,6 @@ import { useFocusEffect } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   LayoutAnimation,
   Platform,
   ScrollView,
@@ -165,6 +165,38 @@ const AddQuestion = () => {
   const [missingFieldsList, setMissingFieldsList] = useState<string[]>([]);
   const [isMissingModalVisible, setIsMissingModalVisible] = useState(false);
 
+  // ── Custom Status Alert Modal ───────────────────────────────────────────
+  const [statusModal, setStatusModal] = useState<{
+    visible: boolean;
+    type: StatusModalType;
+    title: string;
+    message: string;
+    buttonText?: string;
+    onClose?: () => void;
+  }>({
+    visible: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+
+  const showStatusModal = (
+    type: StatusModalType,
+    title: string,
+    message: string,
+    buttonText: string = "Done",
+    onCloseCallback?: () => void,
+  ) => {
+    setStatusModal({
+      visible: true,
+      type,
+      title,
+      message,
+      buttonText,
+      onClose: onCloseCallback,
+    });
+  };
+
   const questionPicker = useImagePicker({ folder: "questions" });
   const solutionPicker = useImagePicker({ folder: "solutions" });
 
@@ -269,19 +301,28 @@ const AddQuestion = () => {
 
       const result = await insertIntoLocalDb(payload);
       if (result.success) {
-        Alert.alert(
-          "Question Saved",
-          "The question has been added successfully!",
-          [{ text: "OK", onPress: resetForm }],
+        showStatusModal(
+          "success",
+          "Question Saved!",
+          "The question has been added to your revision bank successfully.",
+          "Done",
+          resetForm,
         );
       } else {
-        Alert.alert("Failed to Save", result.error);
+        showStatusModal(
+          "error",
+          "Failed to Save",
+          result.error || "Could not save the question to the database.",
+          "Try Again",
+        );
       }
     } catch (err) {
       console.error("[handleSubmit] Error:", err);
-      Alert.alert(
+      showStatusModal(
+        "error",
         "Error",
         err instanceof Error ? err.message : "Failed to save question.",
+        "Dismiss",
       );
     } finally {
       setIsSubmitting(false);
@@ -703,6 +744,22 @@ const AddQuestion = () => {
         visible={isMissingModalVisible}
         onClose={() => setIsMissingModalVisible(false)}
         missingFields={missingFieldsList}
+      />
+
+      {/* Custom styled modal for feedback alerts */}
+      <StatusModal
+        visible={statusModal.visible}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+        buttonText={statusModal.buttonText}
+        onClose={() => {
+          const callback = statusModal.onClose;
+          setStatusModal((prev) => ({ ...prev, visible: false }));
+          if (callback) {
+            callback();
+          }
+        }}
       />
     </SafeAreaView>
   );

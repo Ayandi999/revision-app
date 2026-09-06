@@ -1,6 +1,7 @@
 import neetData from "@/assets/syllabus/neet.json";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
+import { QuestionDetailModal } from "@/components/search/QuestionDetailModal";
 import type { Question } from "@/database/schema";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
@@ -72,6 +73,9 @@ export default function SearchScreen() {
   // ─── Image Zoom Modal State ───────────────────────────────────────────────
   const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
   const [zoomTitle, setZoomTitle] = useState("Question Image");
+
+  // ─── Selected Question for Detail Modal ───────────────────────────────────
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
 
   // ─── Debounce Search Input ────────────────────────────────────────────────
   useEffect(() => {
@@ -247,7 +251,7 @@ export default function SearchScreen() {
         activeOpacity={0.88}
         style={styles.card}
         onPress={() => {
-          // TODO: Open full question detail view or review modal in future update
+          setSelectedQuestion(item);
         }}
       >
         {/* Card Header: Subject, Type & Stats */}
@@ -679,6 +683,13 @@ export default function SearchScreen() {
         imageUri={zoomImageUri}
         title={zoomTitle}
         onClose={() => setZoomImageUri(null)}
+      />
+
+      {/* ── Question Detail Modal ──────────────────────────────────────────── */}
+      <QuestionDetailModal
+        visible={!!selectedQuestion}
+        question={selectedQuestion}
+        onClose={() => setSelectedQuestion(null)}
       />
     </SafeAreaView>
   );
