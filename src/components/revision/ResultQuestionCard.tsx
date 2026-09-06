@@ -13,6 +13,7 @@ import {
 
 import type { Question } from "@/database/schema";
 import type { QuestionResult } from "@/functions/scoreCalculator";
+import { ImageZoomModal } from "./ImageZoomModal";
 
 // Enable LayoutAnimation on Android
 if (
@@ -55,6 +56,8 @@ export function ResultQuestionCard({
   index,
 }: ResultQuestionCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
+  const [zoomTitle, setZoomTitle] = useState("Solution");
 
   const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -127,7 +130,17 @@ export function ResultQuestionCard({
         </View>
 
         {/* Thumbnail */}
-        <View style={styles.thumbnailWrapper}>
+        <TouchableOpacity
+          activeOpacity={question.questionImageUri ? 0.75 : 1}
+          onPress={(e) => {
+            if (question.questionImageUri) {
+              e.stopPropagation();
+              setZoomImageUri(question.questionImageUri);
+              setZoomTitle(`Question ${index + 1}`);
+            }
+          }}
+          style={styles.thumbnailWrapper}
+        >
           {question.questionImageUri ? (
             <Image
               source={{ uri: question.questionImageUri }}
@@ -140,7 +153,7 @@ export function ResultQuestionCard({
               <Ionicons name="image-outline" size={18} color="#4B5563" />
             </View>
           )}
-        </View>
+        </TouchableOpacity>
 
         <Ionicons
           name={expanded ? "chevron-up" : "chevron-down"}
@@ -184,15 +197,33 @@ export function ResultQuestionCard({
           {/* Solution Image */}
           {question.solutionImageUri && (
             <View style={styles.solutionSection}>
-              <Text style={styles.solutionLabel}>Solution</Text>
-              <View style={styles.solutionImageWrapper}>
+              <View style={styles.solutionHeaderRow}>
+                <Text style={styles.solutionLabel}>Solution</Text>
+                <View style={styles.tapToZoomBadge}>
+                  <Ionicons name="scan-outline" size={12} color="#3B82F6" />
+                  <Text style={styles.tapToZoomText}>Tap to zoom</Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                activeOpacity={0.88}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  setZoomImageUri(question.solutionImageUri);
+                  setZoomTitle(`Solution — Question ${index + 1}`);
+                }}
+                style={styles.solutionImageWrapper}
+              >
                 <Image
                   source={{ uri: question.solutionImageUri }}
                   style={styles.solutionImage}
                   contentFit="contain"
                   transition={200}
                 />
-              </View>
+                <View style={styles.zoomIconOverlay}>
+                  <Ionicons name="expand" size={14} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
             </View>
           )}
 
@@ -208,6 +239,14 @@ export function ResultQuestionCard({
           )}
         </View>
       )}
+
+      {/* Zoomable Image Modal */}
+      <ImageZoomModal
+        visible={!!zoomImageUri}
+        imageUri={zoomImageUri}
+        title={zoomTitle}
+        onClose={() => setZoomImageUri(null)}
+      />
     </TouchableOpacity>
   );
 }
@@ -353,9 +392,28 @@ const styles = StyleSheet.create({
   solutionSection: {
     gap: 8,
   },
+  solutionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   solutionLabel: {
     color: "#94A3B8",
     fontSize: 13,
+    fontWeight: "600",
+  },
+  tapToZoomBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(59, 130, 246, 0.12)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  tapToZoomText: {
+    color: "#3B82F6",
+    fontSize: 11,
     fontWeight: "600",
   },
   solutionImageWrapper: {
@@ -364,10 +422,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
+    position: "relative",
   },
   solutionImage: {
     width: "100%",
     height: 300,
+  },
+  zoomIconOverlay: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "rgba(11, 12, 16, 0.75)",
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
 
   // Notes section

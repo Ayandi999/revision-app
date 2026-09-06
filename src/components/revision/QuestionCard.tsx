@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import type { Question } from "@/database/schema";
+import { ImageZoomModal } from "./ImageZoomModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,6 +41,8 @@ export function QuestionCard({
   onNext,
   isLast,
 }: QuestionCardProps) {
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+
   // ── MCQ handler ─────────────────────────────────────────────────────────
   const handleMCQSelect = (option: string) => {
     onAnswerChange(answer === option ? null : option);
@@ -76,14 +79,21 @@ export function QuestionCard({
 
       {/* Question Image */}
       {question.questionImageUri ? (
-        <View style={styles.imageWrapper}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => setIsZoomOpen(true)}
+          style={styles.imageWrapper}
+        >
           <Image
             source={{ uri: question.questionImageUri }}
             style={styles.questionImage}
             contentFit="contain"
             transition={200}
           />
-        </View>
+          <View style={styles.zoomIconOverlay}>
+            <Ionicons name="expand" size={14} color="#FFFFFF" />
+          </View>
+        </TouchableOpacity>
       ) : (
         <View style={styles.noImageBox}>
           <Ionicons name="image-outline" size={40} color="#4B5563" />
@@ -199,6 +209,14 @@ export function QuestionCard({
           color="#fff"
         />
       </TouchableOpacity>
+
+      {/* Image Zoom Modal */}
+      <ImageZoomModal
+        visible={isZoomOpen}
+        imageUri={question.questionImageUri}
+        title={`Question ${questionIndex + 1}`}
+        onClose={() => setIsZoomOpen(false)}
+      />
     </View>
   );
 }
@@ -249,6 +267,20 @@ const styles = StyleSheet.create({
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
     marginBottom: 20,
+    position: "relative",
+  },
+  zoomIconOverlay: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    backgroundColor: "rgba(11, 12, 16, 0.75)",
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   questionImage: {
     width: "100%",
