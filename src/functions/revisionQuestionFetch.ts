@@ -17,7 +17,7 @@
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { and, gte, lt } from "drizzle-orm";
+import { lt } from "drizzle-orm";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
 
@@ -63,13 +63,6 @@ function isToday(timestampMs: number): boolean {
   );
 }
 
-/** Returns midnight (00:00:00.000) of **today** — the inclusive lower bound. */
-function todayMidnight(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
 /** Returns midnight (00:00:00.000) of **tomorrow** — the exclusive upper bound. */
 function tomorrowMidnight(): Date {
   const d = new Date();
@@ -97,24 +90,16 @@ async function clearCache(): Promise<void> {
 // ─── DB query ─────────────────────────────────────────────────────────────────
 
 /**
- * Fetches all questions whose `nextRevisionDate` falls on **today**.
+ * Fetches all questions due for revision on or before today.
  *
- * The window is:  todayMidnight (inclusive) ≤ nextRevisionDate < tomorrowMidnight (exclusive)
- *
- * Both bounds are required:
- *  - Without the lower bound, questions from months/years ago would be included.
- *  - Without the upper bound, future-scheduled questions would be included.
+ * The window is: nextRevisionDate < tomorrowMidnight (exclusive)
+ * This includes today's scheduled questions as well as any overdue questions.
  */
 async function fetchDueQuestions(): Promise<Question[]> {
   return db
     .select()
-    .from(questions)
-    .where(
-      and(
-        gte(questions.nextRevisionDate, todayMidnight()), // ≥ 00:00:00 today
-        lt(questions.nextRevisionDate, tomorrowMidnight()), // <  00:00:00 tomorrow
-      ),
-    );
+    .from(questions)  
+    .where(lt(questions.nextRevisionDate, tomorrowMidnight()));
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
@@ -128,10 +113,8 @@ export type RevisionFetchResult =
  *
  * Flow:
  *  1. Read `"revision-data"` from AsyncStorage.
- *  2. If the cache exists and was written **today** → return it immediately.
- *  3. If the cache is **stale** (yesterday or older):
- *       a. If not yet synced with DB → TODO: flush progress before clearing.
- *       b. Clear the stale cache.
+ *  2. If the cache exists and was written **today** with questions (or completed) → return it.
+ *  3. If the cache is empty or stale → clear it and query fresh questions.
  *  4. Run a fresh Drizzle query for all due questions.
  *  5. Persist the result under `"revision-data"` and return it.
  */
@@ -142,7 +125,10 @@ export async function getRevisionQuestions(): Promise<RevisionFetchResult> {
 
     if (cache) {
       // ── 2. Cache is fresh (today) ─────────────────────────────────────────
-      if (isToday(cache.cachedAt)) {
+      if (
+        isToday(cache.cachedAt) &&
+        (cache.questions.length > 0 || cache.status === "completed")
+      ) {
         return { success: true, questions: cache.questions, fromCache: true };
       }
 
