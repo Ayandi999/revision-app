@@ -20,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { lt } from "drizzle-orm";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
+import { syncQuestionsToDB } from "./syncQuestion";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -133,12 +134,10 @@ export async function getRevisionQuestions(): Promise<RevisionFetchResult> {
       }
 
       // ── 3. Cache is stale ─────────────────────────────────────────────────
-      if (!cache.syncedWithDb) {
-        // TODO: sync yesterday's session progress back to the DB here
-        //       e.g. updateRevisionStatsInDb(cache.questions)
-        console.warn(
-          "[getRevisionQuestions] Stale cache not yet synced — sync step pending implementation.",
-        );
+      if (!cache.syncedWithDb && cache.status === "completed") {
+        // Flush yesterday's completed session results into the DB before
+        // discarding the stale cache and fetching fresh questions.
+        await syncQuestionsToDB(cache);
       }
 
       await clearCache();

@@ -23,6 +23,7 @@ import {
   writeCache,
   type RevisionCache,
 } from "@/functions/revisionQuestionFetch";
+import { syncQuestionsToDB } from "@/functions/syncQuestion";
 
 // ─── Phase type ───────────────────────────────────────────────────────────────
 
@@ -89,6 +90,9 @@ export default function RevisionScreen() {
           };
           await writeCache(finalCache);
           setCache(finalCache);
+
+          // Sync results (correct/incorrect counts, revision dates) to the DB
+          await syncQuestionsToDB(finalCache);
         }
 
         setPhase("results");

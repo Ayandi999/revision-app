@@ -73,8 +73,9 @@ function evaluateMSQ(
 /**
  * Scores all questions in a revision session.
  *
- * Also mutates each Question's `correct` / `incorrect` counts in-place
- * so the caller can persist the updated values.
+ * This is a **pure scoring function** — it does NOT mutate question objects.
+ * DB updates (correct / incorrect counters, revision scheduling) are handled
+ * separately by `syncQuestionsToDB` in syncQuestion.ts.
  */
 export function calculateScores(
   questionList: Question[],
@@ -127,11 +128,9 @@ export function calculateScores(
       if (isCorrect) {
         totalScore += CORRECT_POINTS;
         correctCount++;
-        q.correct += 1;
       } else {
         totalScore += INCORRECT_POINTS; // negative
         incorrectCount++;
-        q.incorrect += 1;
       }
 
       questionResults.push({
@@ -161,7 +160,6 @@ export function calculateScores(
         // All options match exactly
         totalScore += CORRECT_POINTS;
         correctCount++;
-        q.correct += 1;
         questionResults.push({
           questionIndex: i,
           isCorrect: true,
@@ -175,7 +173,6 @@ export function calculateScores(
         // At least one option outside the correct set
         totalScore += INCORRECT_POINTS;
         incorrectCount++;
-        q.incorrect += 1;
         questionResults.push({
           questionIndex: i,
           isCorrect: false,
@@ -190,7 +187,6 @@ export function calculateScores(
         const partialScore = correctHits * PARTIAL_POINTS;
         totalScore += partialScore;
         partialCount++;
-        q.incorrect += 1; // per the plan: update incorrect field for partial
         questionResults.push({
           questionIndex: i,
           isCorrect: false,
