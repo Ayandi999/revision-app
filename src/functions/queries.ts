@@ -55,11 +55,34 @@ export async function insertIntoLocalDb(
       };
     }
 
-    // 3.5. Extract text from question image using OCR (question image only)
+    const qImages =
+      Array.isArray(data.questionImageUris) && data.questionImageUris.length > 0
+        ? data.questionImageUris
+        : data.questionImageUri
+          ? [data.questionImageUri]
+          : [];
+
+    const sImages =
+      Array.isArray(data.solutionImageUris) && data.solutionImageUris.length > 0
+        ? data.solutionImageUris
+        : data.solutionImageUri
+          ? [data.solutionImageUri]
+          : [];
+
+    // 3.5. Extract text from all question images using OCR
     let extractedText: string | null = null;
-    if (data.questionImageUri) {
+    if (qImages.length > 0) {
       try {
-        extractedText = await extractTextFromQuestionImage(data.questionImageUri);
+        const textParts: string[] = [];
+        for (const imgUri of qImages) {
+          const text = await extractTextFromQuestionImage(imgUri);
+          if (text && text.trim()) {
+            textParts.push(text.trim());
+          }
+        }
+        if (textParts.length > 0) {
+          extractedText = textParts.join("\n\n");
+        }
       } catch (err) {
         console.warn("[insertIntoLocalDb] OCR extraction failed:", err);
       }
@@ -69,12 +92,14 @@ export async function insertIntoLocalDb(
     const insertedRows = await db
       .insert(questions)
       .values({
-        questionImageUri: data.questionImageUri ?? null,
+        questionImageUri: qImages[0] ?? null,
+        questionImageUris: qImages,
         extractedText,
         subject: data.subject?.trim() ?? "",
         topics: Array.isArray(data.topics) ? data.topics : [],
         subtopics: Array.isArray(data.subtopics) ? data.subtopics : [],
-        solutionImageUri: data.solutionImageUri ?? null,
+        solutionImageUri: sImages[0] ?? null,
+        solutionImageUris: sImages,
         questionType: data.questionType,
         mcqAnswer:
           data.questionType === "MCQ" ? (data.mcqAnswer ?? null) : null,

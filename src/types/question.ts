@@ -7,10 +7,12 @@ export type OptionLetter = "A" | "B" | "C" | "D";
  */
 export interface AddQuestionFormData {
   questionImageUri?: string | null;
+  questionImageUris?: string[];
   subject?: string | null;
   topics?: string[];
   subtopics?: string[];
   solutionImageUri?: string | null;
+  solutionImageUris?: string[];
   questionType: QuestionType;
   mcqAnswer?: OptionLetter | null;
   msqAnswer?: OptionLetter[] | null;

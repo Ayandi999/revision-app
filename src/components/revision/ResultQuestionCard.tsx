@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   LayoutAnimation,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,6 +13,7 @@ import {
 } from "react-native";
 
 import type { Question } from "@/database/schema";
+import { getQuestionImages, getSolutionImages } from "@/functions/imageHelpers";
 import type { QuestionResult } from "@/functions/scoreCalculator";
 import { ImageZoomModal } from "./ImageZoomModal";
 
@@ -58,6 +60,10 @@ export function ResultQuestionCard({
   const [expanded, setExpanded] = useState(false);
   const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
   const [zoomTitle, setZoomTitle] = useState("Solution");
+
+  const questionImages = getQuestionImages(question);
+  const solutionImages = getSolutionImages(question);
+  const firstQuestionImage = questionImages[0] ?? null;
 
   const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -131,23 +137,32 @@ export function ResultQuestionCard({
 
         {/* Thumbnail */}
         <TouchableOpacity
-          activeOpacity={question.questionImageUri ? 0.75 : 1}
+          activeOpacity={firstQuestionImage ? 0.75 : 1}
           onPress={(e) => {
-            if (question.questionImageUri) {
+            if (firstQuestionImage) {
               e.stopPropagation();
-              setZoomImageUri(question.questionImageUri);
+              setZoomImageUri(firstQuestionImage);
               setZoomTitle(`Question ${index + 1}`);
             }
           }}
           style={styles.thumbnailWrapper}
         >
-          {question.questionImageUri ? (
-            <Image
-              source={{ uri: question.questionImageUri }}
-              style={styles.thumbnail}
-              contentFit="cover"
-              transition={150}
-            />
+          {firstQuestionImage ? (
+            <>
+              <Image
+                source={{ uri: firstQuestionImage }}
+                style={styles.thumbnail}
+                contentFit="cover"
+                transition={150}
+              />
+              {questionImages.length > 1 && (
+                <View style={styles.thumbnailCountBadge}>
+                  <Text style={styles.thumbnailCountText}>
+                    {questionImages.length}
+                  </Text>
+                </View>
+              )}
+            </>
           ) : (
             <View style={styles.thumbnailPlaceholder}>
               <Ionicons name="image-outline" size={18} color="#4B5563" />
@@ -194,36 +209,111 @@ export function ResultQuestionCard({
             </View>
           </View>
 
-          {/* Solution Image */}
-          {question.solutionImageUri && (
+          {/* Question Images (if multi-page) */}
+          {questionImages.length > 1 && (
             <View style={styles.solutionSection}>
               <View style={styles.solutionHeaderRow}>
-                <Text style={styles.solutionLabel}>Solution</Text>
+                <Text style={styles.solutionLabel}>
+                  Question ({questionImages.length} pages)
+                </Text>
                 <View style={styles.tapToZoomBadge}>
                   <Ionicons name="scan-outline" size={12} color="#3B82F6" />
                   <Text style={styles.tapToZoomText}>Tap to zoom</Text>
                 </View>
               </View>
 
-              <TouchableOpacity
-                activeOpacity={0.88}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  setZoomImageUri(question.solutionImageUri);
-                  setZoomTitle(`Solution — Question ${index + 1}`);
-                }}
-                style={styles.solutionImageWrapper}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.multiImageStrip}
               >
-                <Image
-                  source={{ uri: question.solutionImageUri }}
-                  style={styles.solutionImage}
-                  contentFit="contain"
-                  transition={200}
-                />
-                <View style={styles.zoomIconOverlay}>
-                  <Ionicons name="expand" size={14} color="#FFFFFF" />
+                {questionImages.map((uri, idx) => (
+                  <TouchableOpacity
+                    key={`${uri}-${idx}`}
+                    activeOpacity={0.85}
+                    style={styles.stripCard}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      setZoomImageUri(uri);
+                      setZoomTitle(`Question ${index + 1} — Page ${idx + 1}`);
+                    }}
+                  >
+                    <Image
+                      source={{ uri }}
+                      style={styles.stripThumb}
+                      contentFit="cover"
+                    />
+                    <View style={styles.stripBadge}>
+                      <Text style={styles.stripBadgeText}>#{idx + 1}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Solution Image(s) */}
+          {solutionImages.length > 0 && (
+            <View style={styles.solutionSection}>
+              <View style={styles.solutionHeaderRow}>
+                <Text style={styles.solutionLabel}>
+                  Solution {solutionImages.length > 1 ? `(${solutionImages.length} pages)` : ""}
+                </Text>
+                <View style={styles.tapToZoomBadge}>
+                  <Ionicons name="scan-outline" size={12} color="#3B82F6" />
+                  <Text style={styles.tapToZoomText}>Tap to zoom</Text>
                 </View>
-              </TouchableOpacity>
+              </View>
+
+              {solutionImages.length === 1 ? (
+                <TouchableOpacity
+                  activeOpacity={0.88}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    setZoomImageUri(solutionImages[0]);
+                    setZoomTitle(`Solution — Question ${index + 1}`);
+                  }}
+                  style={styles.solutionImageWrapper}
+                >
+                  <Image
+                    source={{ uri: solutionImages[0] }}
+                    style={styles.solutionImage}
+                    contentFit="contain"
+                    transition={200}
+                  />
+                  <View style={styles.zoomIconOverlay}>
+                    <Ionicons name="expand" size={14} color="#FFFFFF" />
+                  </View>
+                </TouchableOpacity>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.multiImageStrip}
+                >
+                  {solutionImages.map((uri, idx) => (
+                    <TouchableOpacity
+                      key={`${uri}-${idx}`}
+                      activeOpacity={0.85}
+                      style={styles.stripCard}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setZoomImageUri(uri);
+                        setZoomTitle(`Solution — Question ${index + 1} (Page ${idx + 1})`);
+                      }}
+                    >
+                      <Image
+                        source={{ uri }}
+                        style={styles.stripThumb}
+                        contentFit="cover"
+                      />
+                      <View style={styles.stripBadge}>
+                        <Text style={styles.stripBadgeText}>#{idx + 1}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
             </View>
           )}
 
@@ -337,10 +427,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: "hidden",
     backgroundColor: "#1E2028",
+    position: "relative",
   },
   thumbnail: {
     width: 48,
     height: 48,
+  },
+  thumbnailCountBadge: {
+    position: "absolute",
+    bottom: 2,
+    right: 2,
+    backgroundColor: "rgba(11, 12, 16, 0.85)",
+    borderRadius: 6,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  thumbnailCountText: {
+    color: "#14B8A6",
+    fontSize: 9,
+    fontWeight: "700",
   },
   thumbnailPlaceholder: {
     width: 48,
@@ -350,6 +457,42 @@ const styles = StyleSheet.create({
   },
   chevron: {
     marginLeft: 4,
+  },
+
+  // Multi-image strip in expanded view
+  multiImageStrip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 4,
+  },
+  stripCard: {
+    width: 140,
+    height: 140,
+    borderRadius: 12,
+    overflow: "hidden",
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.2)",
+    backgroundColor: "#16181D",
+  },
+  stripThumb: {
+    width: "100%",
+    height: "100%",
+  },
+  stripBadge: {
+    position: "absolute",
+    bottom: 6,
+    left: 6,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  stripBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "700",
   },
 
   // Expanded body

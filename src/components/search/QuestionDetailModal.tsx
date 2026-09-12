@@ -1,5 +1,6 @@
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import type { Question } from "@/database/schema";
+import { getQuestionImages, getSolutionImages } from "@/functions/imageHelpers";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useState } from "react";
@@ -31,6 +32,9 @@ export function QuestionDetailModal({
   const [zoomTitle, setZoomTitle] = useState<string>("Image");
 
   if (!question) return null;
+
+  const questionImages = getQuestionImages(question);
+  const solutionImages = getSolutionImages(question);
 
   // ─── Metrics & Calculation ────────────────────────────────────────────────
   const correct = question.correct ?? 0;
@@ -184,9 +188,9 @@ export function QuestionDetailModal({
                 </Text>
               )}
 
-              {/* Next Revision Date Footer */}
+              {/* Next Revision Date */}
               <View style={styles.revisionDateRow}>
-                <Ionicons name="calendar-outline" size={13} color="#94A3B8" />
+                <Ionicons name="calendar-outline" size={14} color="#94A3B8" />
                 <Text style={styles.revisionDateText}>
                   Next Revision:{" "}
                   <Text style={styles.boldWhite}>
@@ -200,7 +204,9 @@ export function QuestionDetailModal({
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeaderRow}>
                 <Ionicons name="help-circle" size={18} color="#3B82F6" />
-                <Text style={styles.sectionHeading}>Question</Text>
+                <Text style={styles.sectionHeading}>
+                  Question {questionImages.length > 1 ? `(${questionImages.length} pages)` : ""}
+                </Text>
               </View>
 
               {/* Taxonomy Chips */}
@@ -222,18 +228,23 @@ export function QuestionDetailModal({
                 </View>
               )}
 
-              {/* Question Image */}
-              {question.questionImageUri ? (
+              {/* Question Image(s) */}
+              {questionImages.length === 0 ? (
+                <View style={styles.noImageNotice}>
+                  <Ionicons name="image-outline" size={20} color="#64748B" />
+                  <Text style={styles.noImageText}>No question image provided</Text>
+                </View>
+              ) : questionImages.length === 1 ? (
                 <TouchableOpacity
                   activeOpacity={0.88}
                   style={styles.imageCardWrapper}
                   onPress={() => {
-                    setZoomUri(question.questionImageUri);
+                    setZoomUri(questionImages[0]);
                     setZoomTitle(`${question.subject} Question`);
                   }}
                 >
                   <Image
-                    source={{ uri: question.questionImageUri }}
+                    source={{ uri: questionImages[0] }}
                     style={styles.previewImage}
                     contentFit="contain"
                     transition={200}
@@ -244,10 +255,32 @@ export function QuestionDetailModal({
                   </View>
                 </TouchableOpacity>
               ) : (
-                <View style={styles.noImageNotice}>
-                  <Ionicons name="image-outline" size={20} color="#64748B" />
-                  <Text style={styles.noImageText}>No question image provided</Text>
-                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.multiImageStrip}
+                >
+                  {questionImages.map((uri, idx) => (
+                    <TouchableOpacity
+                      key={`${uri}-${idx}`}
+                      activeOpacity={0.88}
+                      style={styles.stripCard}
+                      onPress={() => {
+                        setZoomUri(uri);
+                        setZoomTitle(`${question.subject} Question (Page ${idx + 1})`);
+                      }}
+                    >
+                      <Image
+                        source={{ uri }}
+                        style={styles.stripThumb}
+                        contentFit="contain"
+                      />
+                      <View style={styles.stripBadge}>
+                        <Text style={styles.stripBadgeText}>#{idx + 1}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               )}
             </View>
 
@@ -255,7 +288,9 @@ export function QuestionDetailModal({
             <View style={styles.sectionContainer}>
               <View style={styles.sectionHeaderRow}>
                 <Ionicons name="bulb" size={18} color="#10B981" />
-                <Text style={styles.sectionHeading}>Solution & Answer</Text>
+                <Text style={styles.sectionHeading}>
+                  Solution & Answer {solutionImages.length > 1 ? `(${solutionImages.length} pages)` : ""}
+                </Text>
               </View>
 
               {/* Correct Answer Display */}
@@ -300,18 +335,18 @@ export function QuestionDetailModal({
                 )}
               </View>
 
-              {/* Solution Image (if present) */}
-              {question.solutionImageUri && (
+              {/* Solution Image(s) */}
+              {solutionImages.length === 1 ? (
                 <TouchableOpacity
                   activeOpacity={0.88}
                   style={styles.imageCardWrapper}
                   onPress={() => {
-                    setZoomUri(question.solutionImageUri);
+                    setZoomUri(solutionImages[0]);
                     setZoomTitle(`${question.subject} Solution`);
                   }}
                 >
                   <Image
-                    source={{ uri: question.solutionImageUri }}
+                    source={{ uri: solutionImages[0] }}
                     style={styles.previewImage}
                     contentFit="contain"
                     transition={200}
@@ -321,7 +356,34 @@ export function QuestionDetailModal({
                     <Text style={styles.tapToZoomText}>Tap to zoom</Text>
                   </View>
                 </TouchableOpacity>
-              )}
+              ) : solutionImages.length > 1 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.multiImageStrip}
+                >
+                  {solutionImages.map((uri, idx) => (
+                    <TouchableOpacity
+                      key={`${uri}-${idx}`}
+                      activeOpacity={0.88}
+                      style={styles.stripCard}
+                      onPress={() => {
+                        setZoomUri(uri);
+                        setZoomTitle(`${question.subject} Solution (Page ${idx + 1})`);
+                      }}
+                    >
+                      <Image
+                        source={{ uri }}
+                        style={styles.stripThumb}
+                        contentFit="contain"
+                      />
+                      <View style={styles.stripBadge}>
+                        <Text style={styles.stripBadgeText}>#{idx + 1}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              ) : null}
             </View>
 
             {/* ── Section 4: Personal Notes ───────────────────────────────── */}
@@ -574,6 +636,40 @@ const styles = StyleSheet.create({
     borderColor: "#333338",
     overflow: "hidden",
     position: "relative",
+  },
+  multiImageStrip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 4,
+  },
+  stripCard: {
+    width: 150,
+    height: 150,
+    borderRadius: 12,
+    overflow: "hidden",
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "#333338",
+    backgroundColor: "#161618",
+  },
+  stripThumb: {
+    width: "100%",
+    height: "100%",
+  },
+  stripBadge: {
+    position: "absolute",
+    bottom: 6,
+    left: 6,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  stripBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "700",
   },
   previewImage: {
     width: "100%",

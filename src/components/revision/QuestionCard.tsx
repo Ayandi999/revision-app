@@ -2,6 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useState } from "react";
 import {
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -10,6 +14,7 @@ import {
 } from "react-native";
 
 import type { Question } from "@/database/schema";
+import { getQuestionImages } from "@/functions/imageHelpers";
 import { ImageZoomModal } from "./ImageZoomModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -41,7 +46,27 @@ export function QuestionCard({
   onNext,
   isLast,
 }: QuestionCardProps) {
-  const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
+  const [zoomTitle, setZoomTitle] = useState("");
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const questionImages = getQuestionImages(question);
+
+  const handleContainerLayout = (e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    if (width > 0 && width !== containerWidth) {
+      setContainerWidth(width);
+    }
+  };
+
+  const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (containerWidth > 0) {
+      const offsetX = e.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / containerWidth);
+      setActiveImageIdx(index);
+    }
+  };
 
   // ── MCQ handler ─────────────────────────────────────────────────────────
   const handleMCQSelect = (option: string) => {
@@ -77,15 +102,23 @@ export function QuestionCard({
         </View>
       </View>
 
-      {/* Question Image */}
-      {question.questionImageUri ? (
+      {/* Question Images */}
+      {questionImages.length === 0 ? (
+        <View style={styles.noImageBox}>
+          <Ionicons name="image-outline" size={40} color="#4B5563" />
+          <Text style={styles.noImageText}>No image available</Text>
+        </View>
+      ) : questionImages.length === 1 ? (
         <TouchableOpacity
           activeOpacity={0.9}
-          onPress={() => setIsZoomOpen(true)}
+          onPress={() => {
+            setZoomImageUri(questionImages[0]);
+            setZoomTitle(`Question ${questionIndex + 1}`);
+          }}
           style={styles.imageWrapper}
         >
           <Image
-            source={{ uri: question.questionImageUri }}
+            source={{ uri: questionImages[0] }}
             style={styles.questionImage}
             contentFit="contain"
             transition={200}
@@ -95,9 +128,53 @@ export function QuestionCard({
           </View>
         </TouchableOpacity>
       ) : (
-        <View style={styles.noImageBox}>
-          <Ionicons name="image-outline" size={40} color="#4B5563" />
-          <Text style={styles.noImageText}>No image available</Text>
+        <View
+          style={styles.multiImageContainer}
+          onLayout={handleContainerLayout}
+        >
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={handleScrollEnd}
+            scrollEventThrottle={16}
+          >
+            {questionImages.map((uri, idx) => (
+              <TouchableOpacity
+                key={`${uri}-${idx}`}
+                activeOpacity={0.9}
+                style={[
+                  styles.imageWrapper,
+                  containerWidth > 0 && { width: containerWidth },
+                  styles.noMarginBottom,
+                ]}
+                onPress={() => {
+                  setZoomImageUri(uri);
+                  setZoomTitle(
+                    `Question ${questionIndex + 1} (${idx + 1}/${questionImages.length})`
+                  );
+                }}
+              >
+                <Image
+                  source={{ uri }}
+                  style={styles.questionImage}
+                  contentFit="contain"
+                  transition={200}
+                />
+                <View style={styles.zoomIconOverlay}>
+                  <Ionicons name="expand" size={14} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* Carousel Pagination Pill */}
+          <View style={styles.carouselPill}>
+            <Ionicons name="images-outline" size={12} color="#FFFFFF" />
+            <Text style={styles.carouselPillText}>
+              {activeImageIdx + 1} / {questionImages.length}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -212,10 +289,10 @@ export function QuestionCard({
 
       {/* Image Zoom Modal */}
       <ImageZoomModal
-        visible={isZoomOpen}
-        imageUri={question.questionImageUri}
-        title={`Question ${questionIndex + 1}`}
-        onClose={() => setIsZoomOpen(false)}
+        visible={!!zoomImageUri}
+        imageUri={zoomImageUri}
+        title={zoomTitle}
+        onClose={() => setZoomImageUri(null)}
       />
     </View>
   );
@@ -259,7 +336,33 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Question image
+  // Question image & carousel
+  multiImageContainer: {
+    position: "relative",
+    marginBottom: 20,
+  },
+  noMarginBottom: {
+    marginBottom: 0,
+  },
+  carouselPill: {
+    position: "absolute",
+    bottom: 12,
+    left: 12,
+    backgroundColor: "rgba(11, 12, 16, 0.8)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+  },
+  carouselPillText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
+  },
   imageWrapper: {
     backgroundColor: "#1E2028",
     borderRadius: 16,

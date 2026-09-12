@@ -7,6 +7,7 @@ import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { AddQuestionFormData, OptionLetter } from "@/types/question";
+import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import {
   SyllabusSchema,
   getSubjects,
@@ -156,8 +157,10 @@ const AddQuestion = () => {
   const [isSolutionCollapsed, setIsSolutionCollapsed] = useState(true);
 
   // ── Image pickers ───────────────────────────────────────────────────────
-  const [questionImageUri, setQuestionImageUri] = useState<string | null>(null);
-  const [solutionImageUri, setSolutionImageUri] = useState<string | null>(null);
+  const [questionImageUris, setQuestionImageUris] = useState<string[]>([]);
+  const [solutionImageUris, setSolutionImageUris] = useState<string[]>([]);
+  const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
+  const [zoomTitle, setZoomTitle] = useState<string>("Image");
   const [pickerTarget, setPickerTarget] = useState<
     "question" | "solution" | null
   >(null);
@@ -209,9 +212,9 @@ const AddQuestion = () => {
     const result = await picker.launchCamera();
     if (result.success) {
       if (target === "question") {
-        setQuestionImageUri(result.uri);
+        setQuestionImageUris((prev) => [...prev, result.uri]);
       } else {
-        setSolutionImageUri(result.uri);
+        setSolutionImageUris((prev) => [...prev, result.uri]);
       }
     } else if (result.error !== "Camera cancelled.") {
       console.error(`[${target} Camera Error]:`, result.error);
@@ -227,9 +230,9 @@ const AddQuestion = () => {
     const result = await picker.launchGallery();
     if (result.success) {
       if (target === "question") {
-        setQuestionImageUri(result.uri);
+        setQuestionImageUris((prev) => [...prev, result.uri]);
       } else {
-        setSolutionImageUri(result.uri);
+        setSolutionImageUris((prev) => [...prev, result.uri]);
       }
     } else if (result.error !== "Picker cancelled.") {
       console.error(`[${target} Gallery Error]:`, result.error);
@@ -238,8 +241,8 @@ const AddQuestion = () => {
 
   // ── Form reset ──────────────────────────────────────────────────────────
   const resetForm = () => {
-    setQuestionImageUri(null);
-    setSolutionImageUri(null);
+    setQuestionImageUris([]);
+    setSolutionImageUris([]);
     setSelectedSubject(null);
     setSelectedTopics([]);
     setSelectedSubtopics([]);
@@ -255,15 +258,15 @@ const AddQuestion = () => {
   // ── Missing mandatory fields check ──────────────────────────────────────
   const getMissingFields = (): string[] => {
     const missing: string[] = [];
-    if (!questionImageUri) missing.push("Question image");
-    if (!solutionImageUri) missing.push("Solution image");
+    if (questionImageUris.length === 0) missing.push("Question image (at least 1)");
+    if (solutionImageUris.length === 0) missing.push("Solution image (at least 1)");
     if (selectedType.key === "MCQ" && !mcqSelected)
       missing.push("Correct option");
     if (selectedType.key === "MSQ" && msqSelected.length === 0)
       missing.push("Correct option(s)");
     if (selectedType.key === "NAT" && !natAnswer.trim())
       missing.push("Numerical answer");
-    if (!personalNote.trim()) missing.push("Personal note");
+    // Personal notes is now optional per user request
     return missing;
   };
 
@@ -279,16 +282,18 @@ const AddQuestion = () => {
     try {
       setIsSubmitting(true);
       const payload: AddQuestionFormData = {
-        questionImageUri,
+        questionImageUri: questionImageUris[0] ?? null,
+        questionImageUris,
         subject: selectedSubject ?? null,
         topics: selectedTopics,
         subtopics: selectedSubtopics,
-        solutionImageUri,
+        solutionImageUri: solutionImageUris[0] ?? null,
+        solutionImageUris,
         questionType: selectedType.key,
         mcqAnswer: selectedType.key === "MCQ" ? mcqSelected : null,
         msqAnswer: selectedType.key === "MSQ" ? msqSelected : null,
         natAnswer: selectedType.key === "NAT" ? natAnswer.trim() : null,
-        personalNote: personalNote.trim(),
+        personalNote: personalNote.trim() ? personalNote.trim() : null,
       };
 
       const result = await insertIntoLocalDb(payload);
@@ -394,42 +399,87 @@ const AddQuestion = () => {
           onToggle={() => animatedToggle(setIsQuestionCollapsed)}
           accentColor="#14B8A6"
         >
-          {/* Question image placeholder */}
+          {/* Question image placeholder / Multi-image strip */}
           <View style={styles.cameraSection}>
-            <Text style={styles.sectionLabel}>
-              Question image <Text style={styles.mandatoryAsterisk}>*</Text>
-            </Text>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              style={[styles.iconBox, questionImageUri && styles.iconBoxFilled]}
-              onPress={() => setPickerTarget("question")}
-              disabled={questionPicker.isProcessing}
-            >
-              {questionPicker.isProcessing ? (
-                <ActivityIndicator size="large" color="#3B82F6" />
-              ) : questionImageUri ? (
-                <View style={styles.previewContainer}>
-                  <Image
-                    source={{ uri: questionImageUri }}
-                    style={styles.previewImage}
-                    contentFit="cover"
-                  />
+            <View style={styles.sectionLabelRow}>
+              <Text style={styles.sectionLabel}>
+                Question {questionImageUris.length > 1 ? "images" : "image"}{" "}
+                <Text style={styles.mandatoryAsterisk}>*</Text>
+              </Text>
+              {questionImageUris.length > 0 && (
+                <Text style={styles.imageCountBadge}>
+                  {questionImageUris.length} {questionImageUris.length === 1 ? "page" : "pages"}
+                </Text>
+              )}
+            </View>
+
+            {questionImageUris.length === 0 ? (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.iconBox}
+                onPress={() => setPickerTarget("question")}
+                disabled={questionPicker.isProcessing}
+              >
+                {questionPicker.isProcessing ? (
+                  <ActivityIndicator size="large" color="#3B82F6" />
+                ) : (
+                  <>
+                    <Ionicons name="camera-outline" size={64} color="#3B82F6" />
+                    <Text style={styles.emptyPickerHint}>Tap to add question image</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.multiImageScroll}
+              >
+                {questionImageUris.map((uri, idx) => (
                   <TouchableOpacity
-                    style={styles.deleteCrossButton}
-                    activeOpacity={0.8}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      setQuestionImageUri(null);
+                    key={`${uri}-${idx}`}
+                    activeOpacity={0.85}
+                    style={styles.multiImageCard}
+                    onPress={() => {
+                      setZoomImageUri(uri);
+                      setZoomTitle(`Question Image ${idx + 1}`);
                     }}
                   >
-                    <Ionicons name="close" size={18} color="#FFFFFF" />
+                    <Image source={{ uri }} style={styles.multiImageThumb} contentFit="cover" />
+                    <View style={styles.pageNumberBadge}>
+                      <Text style={styles.pageNumberText}>#{idx + 1}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.multiImageDeleteBtn}
+                      activeOpacity={0.8}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setQuestionImageUris((prev) => prev.filter((_, i) => i !== idx));
+                      }}
+                    >
+                      <Ionicons name="close" size={18} color="#FFFFFF" style={styles.multiImageCloseIcon} />
+                    </TouchableOpacity>
                   </TouchableOpacity>
-                </View>
-              ) : (
-                <Ionicons name="camera-outline" size={68} color="#3B82F6" />
-              )}
-            </TouchableOpacity>
+                ))}
+
+                <TouchableOpacity
+                  style={styles.addMoreCard}
+                  activeOpacity={0.75}
+                  onPress={() => setPickerTarget("question")}
+                  disabled={questionPicker.isProcessing}
+                >
+                  {questionPicker.isProcessing ? (
+                    <ActivityIndicator size="small" color="#60A5FA" />
+                  ) : (
+                    <>
+                      <Ionicons name="add-circle-outline" size={26} color="#60A5FA" />
+                      <Text style={styles.addMoreText}>+ Add page</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </ScrollView>
+            )}
           </View>
 
           {/* Subject */}
@@ -532,47 +582,91 @@ const AddQuestion = () => {
           onToggle={() => animatedToggle(setIsSolutionCollapsed)}
           accentColor="#3B82F6"
         >
-          {/* Solution image placeholder */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[
-              styles.solutionCameraBox,
-              solutionImageUri && styles.iconBoxFilled,
-            ]}
-            onPress={() => setPickerTarget("solution")}
-            disabled={solutionPicker.isProcessing}
-          >
-            {solutionPicker.isProcessing ? (
-              <ActivityIndicator size="small" color="#3B82F6" />
-            ) : solutionImageUri ? (
-              <View style={styles.previewContainer}>
-                <Image
-                  source={{ uri: solutionImageUri }}
-                  style={styles.previewImage}
-                  contentFit="cover"
-                />
-                <TouchableOpacity
-                  style={styles.deleteCrossButton}
-                  activeOpacity={0.8}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    setSolutionImageUri(null);
-                  }}
-                >
-                  <Ionicons name="close" size={18} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <Ionicons name="camera-outline" size={46} color="#3B82F6" />
-                <Text style={styles.solutionCameraText}>
-                  Add solution image{" "}
-                  <Text style={styles.mandatoryAsterisk}>*</Text>
+          {/* Solution image placeholder / Multi-image strip */}
+          <View style={styles.cameraSection}>
+            <View style={styles.sectionLabelRow}>
+              <Text style={styles.solutionCameraText}>
+                Solution {solutionImageUris.length > 1 ? "images" : "image"}{" "}
+                <Text style={styles.mandatoryAsterisk}>*</Text>
+              </Text>
+              {solutionImageUris.length > 0 && (
+                <Text style={styles.imageCountBadge}>
+                  {solutionImageUris.length} {solutionImageUris.length === 1 ? "page" : "pages"}
                 </Text>
-              </>
+              )}
+            </View>
+
+            {solutionImageUris.length === 0 ? (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={styles.solutionCameraBox}
+                onPress={() => setPickerTarget("solution")}
+                disabled={solutionPicker.isProcessing}
+              >
+                {solutionPicker.isProcessing ? (
+                  <ActivityIndicator size="small" color="#3B82F6" />
+                ) : (
+                  <>
+                    <Ionicons name="camera-outline" size={46} color="#3B82F6" />
+                    <Text style={styles.solutionCameraText}>
+                      Add solution image{" "}
+                      <Text style={styles.mandatoryAsterisk}>*</Text>
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.multiImageScroll}
+              >
+                {solutionImageUris.map((uri, idx) => (
+                  <TouchableOpacity
+                    key={`${uri}-${idx}`}
+                    activeOpacity={0.85}
+                    style={styles.multiImageCard}
+                    onPress={() => {
+                      setZoomImageUri(uri);
+                      setZoomTitle(`Solution Image ${idx + 1}`);
+                    }}
+                  >
+                    <Image source={{ uri }} style={styles.multiImageThumb} contentFit="cover" />
+                    <View style={styles.pageNumberBadge}>
+                      <Text style={styles.pageNumberText}>#{idx + 1}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.multiImageDeleteBtn}
+                      activeOpacity={0.8}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        setSolutionImageUris((prev) => prev.filter((_, i) => i !== idx));
+                      }}
+                    >
+                      <Ionicons name="close" size={18} color="#FFFFFF" style={styles.multiImageCloseIcon} />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                ))}
+
+                <TouchableOpacity
+                  style={styles.addMoreCard}
+                  activeOpacity={0.75}
+                  onPress={() => setPickerTarget("solution")}
+                  disabled={solutionPicker.isProcessing}
+                >
+                  {solutionPicker.isProcessing ? (
+                    <ActivityIndicator size="small" color="#60A5FA" />
+                  ) : (
+                    <>
+                      <Ionicons name="add-circle-outline" size={26} color="#60A5FA" />
+                      <Text style={styles.addMoreText}>+ Add page</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </ScrollView>
             )}
-          </TouchableOpacity>
+          </View>
 
           {/* Question / Answer type dropdown */}
           <SyllabusDropdown
@@ -680,7 +774,7 @@ const AddQuestion = () => {
           {/* Personal note */}
           <View style={styles.noteSection}>
             <Text style={styles.noteLabel}>
-              Personal note <Text style={styles.mandatoryAsterisk}>*</Text>
+              Personal note <Text style={styles.optionalLabel}>(optional)</Text>
             </Text>
             <View style={styles.noteInputContainer}>
               <TextInput
@@ -753,6 +847,14 @@ const AddQuestion = () => {
           }
         }}
       />
+
+      {/* Embedded Zoom Modal for image preview */}
+      <ImageZoomModal
+        visible={!!zoomImageUri}
+        imageUri={zoomImageUri}
+        title={zoomTitle}
+        onClose={() => setZoomImageUri(null)}
+      />
     </SafeAreaView>
   );
 };
@@ -799,7 +901,7 @@ const styles = StyleSheet.create({
   },
   iconBox: {
     width: "100%",
-    height: 220,
+    height: 180,
     borderWidth: 2,
     borderStyle: "dotted",
     borderColor: "rgba(59, 130, 246, 0.35)",
@@ -807,6 +909,93 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(59, 130, 246, 0.04)",
+    gap: 10,
+  },
+  emptyPickerHint: {
+    color: "#94A3B8",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  sectionLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  imageCountBadge: {
+    color: "#14B8A6",
+    fontSize: 12,
+    fontWeight: "700",
+    backgroundColor: "rgba(20, 184, 166, 0.12)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  multiImageScroll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 4,
+  },
+  multiImageCard: {
+    width: 130,
+    height: 130,
+    borderRadius: 14,
+    overflow: "hidden",
+    position: "relative",
+    borderWidth: 1.5,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    backgroundColor: "#16181D",
+  },
+  multiImageThumb: {
+    width: "100%",
+    height: "100%",
+  },
+  pageNumberBadge: {
+    position: "absolute",
+    bottom: 6,
+    left: 6,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  pageNumberText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  multiImageDeleteBtn: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+  },
+  multiImageCloseIcon: {
+    textShadowColor: "rgba(0, 0, 0, 0.85)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  addMoreCard: {
+    width: 110,
+    height: 130,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderStyle: "dotted",
+    borderColor: "rgba(59, 130, 246, 0.4)",
+    backgroundColor: "rgba(59, 130, 246, 0.05)",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  addMoreText: {
+    color: "#60A5FA",
+    fontSize: 12,
+    fontWeight: "600",
   },
   solutionCameraBox: {
     width: "100%",
@@ -826,35 +1015,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     letterSpacing: 0.2,
   },
-  iconBoxFilled: {
-    borderStyle: "solid",
-    borderWidth: 1.5,
-    borderColor: "rgba(59, 130, 246, 0.4)",
-    padding: 0,
-    overflow: "hidden",
-  },
-  previewContainer: {
-    width: "100%",
-    height: "100%",
-    position: "relative",
-  },
-  previewImage: {
-    width: "100%",
-    height: "100%",
-  },
-  deleteCrossButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
+  optionalLabel: {
+    color: "#6B7280",
+    fontSize: 12,
+    fontWeight: "400",
   },
   // ── Submit button ────────────────────────────────────────────────────────
   submitButton: {

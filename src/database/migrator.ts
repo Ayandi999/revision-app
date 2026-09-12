@@ -62,6 +62,28 @@ export function useAppMigrations() {
         }
       }
 
+      // 4b. Safely add 'question_image_uris' column if not present yet
+      if (!columnNames.has("question_image_uris")) {
+        try {
+          expodb.execSync(
+            "ALTER TABLE questions ADD COLUMN question_image_uris text;"
+          );
+        } catch (alterErr) {
+          console.warn("[useAppMigrations] ALTER TABLE note:", alterErr);
+        }
+      }
+
+      // 4c. Safely add 'solution_image_uris' column if not present yet
+      if (!columnNames.has("solution_image_uris")) {
+        try {
+          expodb.execSync(
+            "ALTER TABLE questions ADD COLUMN solution_image_uris text;"
+          );
+        } catch (alterErr) {
+          console.warn("[useAppMigrations] ALTER TABLE note:", alterErr);
+        }
+      }
+
       // 5. Reconcile __drizzle_migrations journal timestamps
       const existingEntries = expodb.getAllSync<{ created_at: number }>(
         "SELECT created_at FROM __drizzle_migrations;"

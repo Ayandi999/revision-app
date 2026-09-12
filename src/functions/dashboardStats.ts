@@ -75,7 +75,24 @@ function isToday(timestampMs: number): boolean {
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-  const allQuestions: Question[] = await db.select().from(questions);
+  let allQuestions: Question[] = [];
+  try {
+    allQuestions = await db.select().from(questions);
+  } catch (dbErr) {
+    console.warn("[fetchDashboardStats] db.select failed, returning empty stats:", dbErr);
+    return {
+      totalQuestions: 0,
+      dueTodayCount: 0,
+      overdueCount: 0,
+      sessionStatus: "empty",
+      sessionCompletedCount: 0,
+      sessionTotalCount: 0,
+      accuracyRate: 0,
+      masteredCount: 0,
+      stageDistribution: { 1: 0, 3: 0, 7: 0, 14: 0, 30: 0 },
+      subjectStats: [],
+    };
+  }
 
   if (allQuestions.length === 0) {
     return {

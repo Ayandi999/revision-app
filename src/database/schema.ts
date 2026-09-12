@@ -1,18 +1,56 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { customType, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+/**
+ * Robust JSON string-array column that safely parses valid JSON arrays
+ * and gracefully falls back to wrapping raw strings or empty arrays
+ * to prevent SyntaxError crashes on legacy or unquoted database values.
+ */
+export const jsonStringArray = customType<{
+  data: string[];
+  driverData: string;
+}>({
+  dataType() {
+    return "text";
+  },
+  toDriver(value: string[] | null | undefined): string {
+    if (!value || !Array.isArray(value)) return "[]";
+    return JSON.stringify(value);
+  },
+  fromDriver(value: unknown): string[] {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.map(String);
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) return [];
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed.map(String);
+        if (parsed !== null && parsed !== undefined) return [String(parsed)];
+        return [];
+      } catch {
+        // Fallback for raw unquoted strings (prevents SyntaxError JSON Parse error crashes)
+        return [trimmed];
+      }
+    }
+    return [String(value)];
+  },
+});
 
 export const questions = sqliteTable("questions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
 
-  questionImageUri: text("question_image_uri"), // relative path in documentDirectory
-  extractedText: text("extracted_text"), // OCR extracted text from question image
+  questionImageUri: text("question_image_uri"), // legacy single image path
+  questionImageUris: jsonStringArray("question_image_uris"), // JSON array of image URIs
+  extractedText: text("extracted_text"), // OCR extracted text from question images
 
   // Syllabus taxonomy
   subject: text("subject").notNull(),
-  topics: text("topics", { mode: "json" }).$type<string[]>().notNull(), // JSON array of selected topics
-  subtopics: text("subtopics", { mode: "json" }).$type<string[]>().notNull(), // JSON array of selected subtopics
+  topics: jsonStringArray("topics").notNull(), // JSON array of selected topics
+  subtopics: jsonStringArray("subtopics").notNull(), // JSON array of selected subtopics
 
   // Solution details & Media
-  solutionImageUri: text("solution_image_uri"), // relative path in documentDirectory
+  solutionImageUri: text("solution_image_uri"), // legacy single image path
+  solutionImageUris: jsonStringArray("solution_image_uris"), // JSON array of solution image URIs
   questionType: text("question_type", {
     enum: ["MCQ", "MSQ", "NAT"],
   }).notNull(),
@@ -22,7 +60,7 @@ export const questions = sqliteTable("questions", {
   // - MSQ: ["A", "C"] etc. stored as JSON array
   // - NAT: numerical/text answer string
   mcqAnswer: text("mcq_answer"),
-  msqAnswer: text("msq_answer", { mode: "json" }).$type<string[]>(),
+  msqAnswer: jsonStringArray("msq_answer"),
   natAnswer: text("nat_answer"),
 
   // Personal notes & explanations
