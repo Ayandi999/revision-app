@@ -1,3 +1,4 @@
+import { OtaUpdateNotification } from "@/components/OtaUpdateNotification";
 import {
   GeistMono_400Regular,
   GeistMono_700Bold,
@@ -32,6 +33,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <Slot />
+        <OtaUpdateNotification />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

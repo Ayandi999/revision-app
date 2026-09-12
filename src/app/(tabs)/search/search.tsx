@@ -2,6 +2,7 @@ import neetData from "@/assets/syllabus/neet.json";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { QuestionDetailModal } from "@/components/search/QuestionDetailModal";
+import { StatusModal } from "@/components/StatusModal";
 import type { Question } from "@/database/schema";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
@@ -69,6 +70,7 @@ export default function SearchScreen() {
   // ─── OCR Support Notice State ─────────────────────────────────────────────
   const [isOcrAvailable, setIsOcrAvailable] = useState<boolean | null>(null);
   const [isOcrNoticeDismissed, setIsOcrNoticeDismissed] = useState(false);
+  const [showOcrUnavailableModal, setShowOcrUnavailableModal] = useState(false);
 
   // ─── Image Zoom Modal State ───────────────────────────────────────────────
   const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
@@ -409,23 +411,37 @@ export default function SearchScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       {/* ── Top Bar with Search & Filter Toggle ────────────────────────────── */}
       <View style={styles.searchHeader}>
-        <View style={styles.searchBarWrapper}>
+        <View
+          style={[
+            styles.searchBarWrapper,
+            isOcrAvailable === false && styles.searchBarDisabled,
+          ]}
+        >
           <Ionicons
             name="search"
             size={18}
-            color="#94A3B8"
+            color={isOcrAvailable === false ? "#475569" : "#94A3B8"}
             style={styles.searchIcon}
           />
           <TextInput
-            style={styles.searchInput}
-            placeholder="Search by text, note, or subject..."
+            style={[
+              styles.searchInput,
+              isOcrAvailable === false && styles.searchInputDisabled,
+            ]}
+            placeholder={
+              isOcrAvailable === false
+                ? "OCR search unavailable"
+                : "Search by text, note, or subject..."
+            }
             placeholderTextColor="#64748B"
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
             clearButtonMode="never"
+            editable={isOcrAvailable !== false}
+            pointerEvents={isOcrAvailable === false ? "none" : "auto"}
           />
-          {searchQuery.length > 0 ? (
+          {searchQuery.length > 0 && isOcrAvailable !== false ? (
             <TouchableOpacity
               onPress={() => setSearchQuery("")}
               style={styles.clearButton}
@@ -434,6 +450,14 @@ export default function SearchScreen() {
               <Ionicons name="close-circle" size={18} color="#94A3B8" />
             </TouchableOpacity>
           ) : null}
+
+          {isOcrAvailable === false && (
+            <TouchableOpacity
+              style={StyleSheet.absoluteFill}
+              activeOpacity={0.7}
+              onPress={() => setShowOcrUnavailableModal(true)}
+            />
+          )}
         </View>
 
         {/* Filter Toggle Button */}
@@ -691,6 +715,16 @@ export default function SearchScreen() {
         question={selectedQuestion}
         onClose={() => setSelectedQuestion(null)}
       />
+
+      {/* ── OCR Unavailable Modal ──────────────────────────────────────────── */}
+      <StatusModal
+        visible={showOcrUnavailableModal}
+        type="warning"
+        title="OCR Not Available"
+        message="OCR tool not detected can't use this feature"
+        buttonText="Got it"
+        onClose={() => setShowOcrUnavailableModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -719,6 +753,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 46,
   },
+  searchBarDisabled: {
+    opacity: 0.65,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+  },
   searchIcon: {
     marginRight: 8,
   },
@@ -727,6 +765,9 @@ const styles = StyleSheet.create({
     color: "#F8FAFC",
     fontSize: 15,
     paddingVertical: 0,
+  },
+  searchInputDisabled: {
+    color: "#64748B",
   },
   clearButton: {
     padding: 4,

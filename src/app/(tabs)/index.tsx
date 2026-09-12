@@ -4,7 +4,7 @@ import {
 } from "@/functions/dashboardStats";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -45,12 +45,36 @@ export default function DashboardScreen() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [sortOrder, setSortOrder] = useState<"weakest" | "strongest">("weakest");
   const [expandedSubjects, setExpandedSubjects] = useState<
     Record<string, boolean>
   >({});
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>(
     {},
   );
+
+  const toggleSortOrder = () => {
+    setSortOrder((prev) => (prev === "weakest" ? "strongest" : "weakest"));
+  };
+
+  const sortedSubjectStats = useMemo(() => {
+    if (!stats?.subjectStats) return [];
+    if (sortOrder === "weakest") return stats.subjectStats;
+
+    return stats.subjectStats
+      .slice()
+      .reverse()
+      .map((subj) => ({
+        ...subj,
+        topics: subj.topics
+          .slice()
+          .reverse()
+          .map((topic) => ({
+            ...topic,
+            subtopics: topic.subtopics.slice().reverse(),
+          })),
+      }));
+  }, [stats?.subjectStats, sortOrder]);
 
   const toggleSubject = (name: string) => {
     setExpandedSubjects((prev) => ({
@@ -121,8 +145,8 @@ export default function DashboardScreen() {
         {/* ── Section 1: Header & Greeting ── */}
         <View style={styles.header}>
           <View style={styles.headerTextGroup}>
-            <Text style={styles.greetingText}>{getGreeting()} !</Text>
-            <Text style={styles.headerTitle}>Dashboard</Text>
+            <Text style={styles.greetingText}>{getGreeting()} ,</Text>
+            <Text style={styles.headerTitle}>Welcome Back!</Text>
           </View>
           <View style={styles.dateChip}>
             <Ionicons name="calendar-outline" size={13} color="#94A3B8" />
@@ -266,10 +290,21 @@ export default function DashboardScreen() {
             {/* ── Section: Syllabus Mastery (Subject -> Topic -> Subtopic Dropdowns) ── */}
             <View style={styles.sectionHeaderRow}>
               <Text style={styles.sectionTitle}>Syllabus Mastery</Text>
-              <Text style={styles.sectionSubtitle}>Weakest → Strongest</Text>
+              <TouchableOpacity
+                style={styles.sortTogglePill}
+                activeOpacity={0.7}
+                onPress={toggleSortOrder}
+              >
+                <Ionicons name="swap-vertical" size={13} color="#60A5FA" />
+                <Text style={styles.sortToggleText}>
+                  {sortOrder === "weakest"
+                    ? "Weakest → Strongest"
+                    : "Strongest → Weakest"}
+                </Text>
+              </TouchableOpacity>
             </View>
 
-            {!stats?.subjectStats || stats.subjectStats.length === 0 ? (
+            {!sortedSubjectStats || sortedSubjectStats.length === 0 ? (
               <View style={styles.emptyCard}>
                 <Ionicons
                   name="folder-open-outline"
@@ -283,7 +318,7 @@ export default function DashboardScreen() {
               </View>
             ) : (
               <View style={styles.subjectListContainer}>
-                {stats.subjectStats.map((subj) => {
+                {sortedSubjectStats.map((subj) => {
                   const isSubjOpen = !!expandedSubjects[subj.name];
                   const meta = getSubjectMeta(subj.name);
                   const acc = getAccuracyColor(subj.accuracy);
@@ -370,7 +405,9 @@ export default function DashboardScreen() {
                           <View style={styles.topicsHelperRow}>
                             <Ionicons name="filter" size={12} color="#F59E0B" />
                             <Text style={styles.topicsHelperText}>
-                              Topics sorted: weakest accuracy first for targeted review
+                              {sortOrder === "weakest"
+                                ? "Topics sorted: weakest accuracy first for targeted review"
+                                : "Topics sorted: highest accuracy first (your strengths)"}
                             </Text>
                           </View>
 
@@ -463,7 +500,9 @@ export default function DashboardScreen() {
                                   {isTopicOpen && hasSubtopics && (
                                     <View style={styles.subtopicsContainer}>
                                       <Text style={styles.subtopicsLabel}>
-                                        SUBTOPICS (WEAKEST FIRST):
+                                        {sortOrder === "weakest"
+                                          ? "SUBTOPICS (WEAKEST FIRST):"
+                                          : "SUBTOPICS (STRONGEST FIRST):"}
                                       </Text>
                                       {topic.subtopics.map((st) => {
                                         const stAcc = getAccuracyColor(
@@ -825,7 +864,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "baseline",
+    alignItems: "center",
   },
   sectionTitle: {
     color: "#F8FAFC",
@@ -833,10 +872,21 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.3,
   },
-  sectionSubtitle: {
-    color: "#64748B",
-    fontSize: 12,
-    fontWeight: "600",
+  sortTogglePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(59, 130, 246, 0.12)",
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.25)",
+  },
+  sortToggleText: {
+    color: "#60A5FA",
+    fontSize: 11,
+    fontWeight: "700",
   },
   metricsGrid: {
     flexDirection: "row",
