@@ -4,6 +4,7 @@ import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
 import { StatusModal, StatusModalType } from "@/components/StatusModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
+import { resolveImageUri } from "@/functions/imageHelpers";
 import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { AddQuestionFormData, OptionLetter } from "@/types/question";
@@ -435,17 +436,19 @@ const AddQuestion = () => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.multiImageScroll}
               >
-                {questionImageUris.map((uri, idx) => (
+                {questionImageUris.map((uri, idx) => {
+                  const displayUri = resolveImageUri(uri);
+                  return (
                   <TouchableOpacity
                     key={`${uri}-${idx}`}
                     activeOpacity={0.85}
                     style={styles.multiImageCard}
                     onPress={() => {
-                      setZoomImageUri(uri);
+                      setZoomImageUri(displayUri);
                       setZoomTitle(`Question Image ${idx + 1}`);
                     }}
                   >
-                    <Image source={{ uri }} style={styles.multiImageThumb} contentFit="cover" />
+                    <Image source={{ uri: displayUri! }} style={styles.multiImageThumb} contentFit="cover" />
                     <View style={styles.pageNumberBadge}>
                       <Text style={styles.pageNumberText}>#{idx + 1}</Text>
                     </View>
@@ -461,7 +464,8 @@ const AddQuestion = () => {
                       <Ionicons name="close" size={18} color="#FFFFFF" style={styles.multiImageCloseIcon} />
                     </TouchableOpacity>
                   </TouchableOpacity>
-                ))}
+                  );
+                })}
 
                 <TouchableOpacity
                   style={styles.addMoreCard}
@@ -621,17 +625,19 @@ const AddQuestion = () => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.multiImageScroll}
               >
-                {solutionImageUris.map((uri, idx) => (
+                {solutionImageUris.map((uri, idx) => {
+                  const displayUri = resolveImageUri(uri);
+                  return (
                   <TouchableOpacity
                     key={`${uri}-${idx}`}
                     activeOpacity={0.85}
                     style={styles.multiImageCard}
                     onPress={() => {
-                      setZoomImageUri(uri);
+                      setZoomImageUri(displayUri);
                       setZoomTitle(`Solution Image ${idx + 1}`);
                     }}
                   >
-                    <Image source={{ uri }} style={styles.multiImageThumb} contentFit="cover" />
+                    <Image source={{ uri: displayUri! }} style={styles.multiImageThumb} contentFit="cover" />
                     <View style={styles.pageNumberBadge}>
                       <Text style={styles.pageNumberText}>#{idx + 1}</Text>
                     </View>
@@ -647,7 +653,8 @@ const AddQuestion = () => {
                       <Ionicons name="close" size={18} color="#FFFFFF" style={styles.multiImageCloseIcon} />
                     </TouchableOpacity>
                   </TouchableOpacity>
-                ))}
+                  );
+                })}
 
                 <TouchableOpacity
                   style={styles.addMoreCard}

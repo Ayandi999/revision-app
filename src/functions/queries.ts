@@ -2,6 +2,7 @@ import { AddQuestionFormData } from "@/types/question";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
 import { extractTextFromQuestionImage } from "./extractText";
+import { resolveImageUri } from "./imageHelpers";
 
 export type InsertResult =
   | { success: true; data: Question }
@@ -75,7 +76,8 @@ export async function insertIntoLocalDb(
       try {
         const textParts: string[] = [];
         for (const imgUri of qImages) {
-          const text = await extractTextFromQuestionImage(imgUri);
+          // Resolve relative path to absolute URI for OCR file access
+          const text = await extractTextFromQuestionImage(resolveImageUri(imgUri));
           if (text && text.trim()) {
             textParts.push(text.trim());
           }

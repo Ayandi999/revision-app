@@ -20,7 +20,7 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Copy a temporary cache URI to permanent storage, return the new URI */
+/** Copy a temporary cache URI to permanent storage, return the relative path */
 function persistImage(cacheUri: string, folder: string): string {
   const dir = new Directory(Paths.document, "revision-app", "images", folder);
   if (!dir.exists) {
@@ -34,7 +34,8 @@ function persistImage(cacheUri: string, folder: string): string {
   const destFile = new File(dir, filename);
   sourceFile.copy(destFile);
 
-  return destFile.uri;
+  // Return portable relative path (resolved to absolute at read-time via imageHelpers)
+  return `revision-app/images/${folder}/${filename}`;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────

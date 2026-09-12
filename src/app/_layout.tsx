@@ -1,3 +1,4 @@
+import { migrateToRelativePaths } from "@/functions/migrateToRelativePaths";
 import { OtaUpdateNotification } from "@/components/OtaUpdateNotification";
 import {
   GeistMono_400Regular,
@@ -21,6 +22,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
+      // Run one-time migration to convert absolute image URIs to relative paths
+      migrateToRelativePaths().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 

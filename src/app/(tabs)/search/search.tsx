@@ -6,6 +6,7 @@ import { StatusModal } from "@/components/StatusModal";
 import type { Question } from "@/database/schema";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
+import { resolveImageUri } from "@/functions/imageHelpers";
 import { searchQuestions, type SearchFilters } from "@/functions/searchQuestions";
 import {
   SyllabusSchema,
@@ -247,6 +248,7 @@ export default function SearchScreen() {
     index: number;
   }) => {
     const subjColor = getSubjectColor(item.subject);
+    const resolvedImageUri = resolveImageUri(item.questionImageUri);
 
     return (
       <TouchableOpacity
@@ -293,17 +295,17 @@ export default function SearchScreen() {
 
         {/* Card Body: Thumbnail & Content Snippet */}
         <View style={styles.cardBody}>
-          {item.questionImageUri ? (
+          {resolvedImageUri ? (
             <TouchableOpacity
               activeOpacity={0.85}
               style={styles.thumbnailWrapper}
               onPress={() => {
-                setZoomImageUri(item.questionImageUri);
+                setZoomImageUri(resolvedImageUri);
                 setZoomTitle(`${item.subject} Question`);
               }}
             >
               <Image
-                source={{ uri: item.questionImageUri }}
+                source={{ uri: resolvedImageUri }}
                 style={styles.thumbnailImage}
                 contentFit="cover"
                 transition={200}

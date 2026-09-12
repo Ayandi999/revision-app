@@ -3,6 +3,7 @@ import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../database/db";
 import { questions } from "../database/schema";
 import { extractTextFromQuestionImage, isOcrSupported } from "./extractText";
+import { resolveImageUri } from "./imageHelpers";
 
 const BACKFILL_FLAG_KEY = "@search/backfill_extracted_text_v1";
 
@@ -62,7 +63,8 @@ export async function backfillExtractedText(batchSize: number = 5): Promise<{
     let processedCount = 0;
     for (const row of missingRows) {
       if (row.questionImageUri) {
-        const text = await extractTextFromQuestionImage(row.questionImageUri);
+        // Resolve relative path to absolute URI for OCR file access
+        const text = await extractTextFromQuestionImage(resolveImageUri(row.questionImageUri));
         if (text) {
           await db
             .update(questions)
