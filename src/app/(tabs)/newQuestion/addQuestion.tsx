@@ -1,9 +1,9 @@
-import neetData from "@/assets/syllabus/neet.json";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
 import { StatusModal, StatusModalType } from "@/components/StatusModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
+import { useActiveExam } from "@/context/ExamContext";
 import { resolveImageUri } from "@/functions/imageHelpers";
 import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
@@ -18,7 +18,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   LayoutAnimation,
@@ -79,12 +79,17 @@ const AddQuestion = () => {
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
 
   // ── Syllabus state ──────────────────────────────────────────────────────
-  const [syllabus] = useState<SyllabusSchema>(
-    neetData as unknown as SyllabusSchema,
-  );
+  const { syllabus } = useActiveExam();
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedSubtopics, setSelectedSubtopics] = useState<string[]>([]);
+
+  // Reset selections when syllabus changes
+  useEffect(() => {
+    setSelectedSubject(null);
+    setSelectedTopics([]);
+    setSelectedSubtopics([]);
+  }, [syllabus]);
 
   // ── Dropdown open/close state ───────────────────────────────────────────
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);

@@ -1,16 +1,35 @@
 export interface SyllabusSchema {
   subjects: {
     [subjectName: string]: {
-      topics: {
+      topics?: {
         [topicName: string]: string[];
       };
+      // Allows direct topic-to-subtopics mapping if "topics" wrapper is omitted
+      [topicOrKey: string]: any;
     };
   };
 }
 
 /**
+ * Internal helper to retrieve the topics dictionary for a subject,
+ * supporting both `{ "topics": { ... } }` and direct `{ [topicName]: string[] }`.
+ */
+function getSubjectTopicsMap(
+  data: SyllabusSchema | null | undefined,
+  subject: string | null | undefined
+): Record<string, string[]> | null {
+  if (!data || !data.subjects || !subject || !data.subjects[subject]) return null;
+  const subjObj = data.subjects[subject];
+  if (subjObj.topics && typeof subjObj.topics === "object") {
+    return subjObj.topics;
+  }
+  // Otherwise, the subject object itself contains the topics as keys
+  return subjObj as Record<string, string[]>;
+}
+
+/**
  * Utility functions for extracting subjects, topics, and subtopics from any syllabus schema.
- * Can be used with local JSON files (like neet.json) or data fetched dynamically from an API.
+ * Can be used with local JSON files (like neet.json, gate_cs.json) or data fetched dynamically from an API.
  */
 export const getSubjects = (data: SyllabusSchema | null | undefined): string[] => {
   if (!data || !data.subjects) return [];
@@ -21,9 +40,9 @@ export const getTopics = (
   data: SyllabusSchema | null | undefined,
   subject: string | null | undefined
 ): string[] => {
-  if (!data || !data.subjects || !subject || !data.subjects[subject]) return [];
-  const topicsObj = data.subjects[subject].topics;
-  return topicsObj ? Object.keys(topicsObj) : [];
+  const topicsObj = getSubjectTopicsMap(data, subject);
+  if (!topicsObj) return [];
+  return Object.keys(topicsObj).filter((k) => k !== "topics");
 };
 
 export const getSubtopics = (
@@ -31,18 +50,12 @@ export const getSubtopics = (
   subject: string | null | undefined,
   topic: string | null | undefined
 ): string[] => {
-  if (
-    !data ||
-    !data.subjects ||
-    !subject ||
-    !data.subjects[subject] ||
-    !topic ||
-    !data.subjects[subject].topics ||
-    !data.subjects[subject].topics[topic]
-  ) {
+  if (!topic) return [];
+  const topicsObj = getSubjectTopicsMap(data, subject);
+  if (!topicsObj || !topicsObj[topic] || !Array.isArray(topicsObj[topic])) {
     return [];
   }
-  return data.subjects[subject].topics[topic] || [];
+  return topicsObj[topic] || [];
 };
 
 export const getSubtopicsForTopics = (
@@ -50,20 +63,21 @@ export const getSubtopicsForTopics = (
   subject: string | null | undefined,
   topics: string[]
 ): string[] => {
-  if (!data || !data.subjects || !subject || !data.subjects[subject] || !topics.length) {
-    return [];
-  }
-  const result: string[] = [];
-  const seen = new Set<string>();
-  const topicsObj = data.subjects[subject].topics;
+  if (!topics.length) return [];
+  const topicsObj = getSubjectTopicsMap(data, subject);
   if (!topicsObj) return [];
 
+  const result: string[] = [];
+  const seen = new Set<string>();
+
   for (const t of topics) {
-    const list = topicsObj[t] || [];
-    for (const sub of list) {
-      if (!seen.has(sub)) {
-        seen.add(sub);
-        result.push(sub);
+    const list = topicsObj[t];
+    if (Array.isArray(list)) {
+      for (const sub of list) {
+        if (!seen.has(sub)) {
+          seen.add(sub);
+          result.push(sub);
+        }
       }
     }
   }

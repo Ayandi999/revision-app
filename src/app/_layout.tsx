@@ -13,6 +13,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 // Keep the splash screen visible until fonts are ready
 SplashScreen.preventAutoHideAsync();
 
+import { ExamProvider } from "@/context/ExamContext";
+import { OnboardingModal } from "@/components/OnboardingModal";
+
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     GeistMono_400Regular,
@@ -35,8 +38,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <Slot />
-        <OtaUpdateNotification />
+        <ExamProvider>
+          <Slot />
+          <OnboardingModal />
+          <OtaUpdateNotification />
+        </ExamProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

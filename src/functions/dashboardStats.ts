@@ -1,4 +1,5 @@
-import neetData from "@/assets/syllabus/neet.json";
+import { getSyllabusForStream, DEFAULT_STREAM_ID } from "@/config/exams";
+import { getSubtopics, type SyllabusSchema } from "@/types/syllabus";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
@@ -74,7 +75,23 @@ function isToday(timestampMs: number): boolean {
   );
 }
 
-export async function fetchDashboardStats(): Promise<DashboardStats> {
+export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Promise<DashboardStats> {
+  let activeSyllabus = customSyllabus;
+  if (!activeSyllabus) {
+    try {
+      const raw = await AsyncStorage.getItem("@revision_app_user_exam");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.streamId) {
+          activeSyllabus = getSyllabusForStream(parsed.streamId);
+        }
+      }
+    } catch {}
+    if (!activeSyllabus) {
+      activeSyllabus = getSyllabusForStream(DEFAULT_STREAM_ID);
+    }
+  }
+
   let allQuestions: Question[] = [];
   try {
     allQuestions = await db.select().from(questions);
@@ -216,12 +233,11 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       topicEntry.incorrect += q.incorrect;
 
       // Find subtopics that belong to this topic
-      const syllabusSubtopics = (neetData as any)?.subjects?.[subjName]
-        ?.topics?.[topicClean] as string[] | undefined;
+      const syllabusSubtopics = getSubtopics(activeSyllabus, subjName, topicClean);
 
       for (const stName of qSubtopics) {
         const subtopicClean = stName.trim();
-        const belongs = syllabusSubtopics
+        const belongs = syllabusSubtopics.length > 0
           ? syllabusSubtopics.includes(subtopicClean)
           : qTopics.length === 1 || qTopics[0] === topicClean;
 

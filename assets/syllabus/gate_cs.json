@@ -1,0 +1,171 @@
+{
+  "subjects": {
+    "Engineering Mathematics": {
+      "Discrete Mathematics": [
+        "Propositional and first order logic",
+        "Sets",
+        "Relations",
+        "Functions",
+        "Partial orders",
+        "Lattices",
+        "Monoids",
+        "Groups",
+        "Graphs: connectivity",
+        "Graphs: matching",
+        "Graphs: colouring",
+        "Combinatorics: counting",
+        "Combinatorics: recurrence relations",
+        "Combinatorics: generating functions"
+      ],
+      "Linear Algebra": [
+        "Matrices",
+        "Determinants",
+        "System of linear equations",
+        "Eigenvalues and eigenvectors",
+        "LU decomposition"
+      ],
+      "Calculus": [
+        "Limits",
+        "Continuity and differentiability",
+        "Maxima and minima",
+        "Mean value theorem",
+        "Integration"
+      ],
+      "Probability and Statistics": [
+        "Random variables",
+        "Uniform distribution",
+        "Normal distribution",
+        "Exponential distribution",
+        "Poisson distribution",
+        "Binomial distribution",
+        "Mean",
+        "Median",
+        "Mode",
+        "Standard deviation",
+        "Conditional probability",
+        "Bayes theorem"
+      ]
+    },
+    "Digital Logic": {
+      "Boolean Algebra and Minimization": [
+        "Algebraic technique",
+        "Karnaugh map",
+        "Tabular method"
+      ],
+      "Circuit Design": ["Combinational circuits", "Sequential circuits"],
+      "Number Representation and Arithmetic": ["Fixed point", "Floating point"]
+    },
+    "Computer Organization and Architecture": {
+      "Instruction Set": ["Instruction set", "Addressing modes"],
+      "Arithmetic and Logic Unit": [
+        "Design of arithmetic and logic unit (ALU)"
+      ],
+      "Control Unit": ["Hardwired control", "Microprogrammed control"],
+      "Memory Interfacing and Hierarchy": [
+        "Performance",
+        "Cache memory mapping"
+      ],
+      "I/O Interface": ["Interrupt", "DMA"],
+      "Instruction Pipelining": ["Instruction pipelining", "Pipeline hazards"]
+    },
+    "Programming and Data Structures": {
+      "Programming": ["Programming in C", "Recursion"],
+      "Linear Data Structures": ["Arrays", "Stacks", "Queues", "Linked lists"],
+      "Trees": ["Trees", "Binary search trees", "Binary heaps"],
+      "Graphs": ["Graphs"]
+    },
+    "Algorithms": {
+      "Fundamentals": [
+        "Searching",
+        "Sorting",
+        "Hashing",
+        "Asymptotic worst case time complexity",
+        "Asymptotic worst case space complexity"
+      ],
+      "Algorithm Design Techniques": [
+        "Greedy",
+        "Dynamic programming",
+        "Divide-and-conquer"
+      ],
+      "Graph Algorithms": [
+        "Graph traversals",
+        "Minimum spanning trees",
+        "Shortest paths"
+      ]
+    },
+    "Theory of Computation": {
+      "Finite Automata": ["Regular expressions", "Finite automata"],
+      "Context-Free Languages": [
+        "Context-free grammars",
+        "Push-down automata",
+        "Regular languages",
+        "Context-free languages",
+        "Pumping lemma"
+      ],
+      "Turing Machines": ["Turing machines", "Undecidability"]
+    },
+    "Compiler Design": {
+      "Front End": [
+        "Lexical analysis",
+        "Parsing",
+        "Syntax-directed translation"
+      ],
+      "Runtime and Intermediate Representation": [
+        "Runtime environments",
+        "Intermediate code generation"
+      ],
+      "Optimisation and Data Flow Analysis": [
+        "Local optimisation",
+        "Constant propagation",
+        "Liveness analysis",
+        "Common sub expression elimination"
+      ]
+    },
+    "Operating System": {
+      "Processes and Threads": ["System calls", "Processes", "Threads"],
+      "Inter-Process Communication and Synchronization": [
+        "Inter-process communication",
+        "Concurrency",
+        "Synchronization"
+      ],
+      "Deadlock": ["Deadlock"],
+      "Scheduling": ["CPU scheduling", "I/O scheduling"],
+      "Memory Management": ["Memory management", "Virtual memory"],
+      "File Systems": ["File systems"]
+    },
+    "Databases": {
+      "Data Models": ["ER-model", "Relational model"],
+      "Relational Query Languages": [
+        "Relational algebra",
+        "Tuple calculus",
+        "SQL"
+      ],
+      "Integrity and Normalization": ["Integrity constraints", "Normal forms"],
+      "Storage and Indexing": [
+        "File organization",
+        "Indexing",
+        "B trees",
+        "B+ trees"
+      ],
+      "Transactions": ["Transactions", "Concurrency control"]
+    },
+    "Computer Networks": {
+      "Networking Fundamentals": [
+        "Principles of layering",
+        "Circuit switching",
+        "Packet switching",
+        "Virtual circuit switching",
+        "Performance metrics"
+      ],
+      "Data Link Layer": [
+        "Error detection",
+        "Medium Access Control",
+        "Ethernet"
+      ],
+      "Routing": ["Distance vector routing", "Link state routing"],
+      "IPv4": ["Fragmentation", "CIDR notation", "Network Address Translation"],
+      "TCP": ["Flow control", "Congestion control", "Socket API"],
+      "Application Layer": ["DNS", "HTTP"]
+    }
+  }
+}

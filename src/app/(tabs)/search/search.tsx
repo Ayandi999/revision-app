@@ -1,8 +1,8 @@
-import neetData from "@/assets/syllabus/neet.json";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { QuestionDetailModal } from "@/components/search/QuestionDetailModal";
 import { StatusModal } from "@/components/StatusModal";
+import { useActiveExam } from "@/context/ExamContext";
 import type { Question } from "@/database/schema";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
@@ -47,12 +47,17 @@ export default function SearchScreen() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [syllabus] = useState<SyllabusSchema>(
-    neetData as unknown as SyllabusSchema
-  );
+  const { syllabus } = useActiveExam();
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedSubtopics, setSelectedSubtopics] = useState<string[]>([]);
+
+  // Reset syllabus filters when syllabus changes
+  useEffect(() => {
+    setSelectedSubject(null);
+    setSelectedTopics([]);
+    setSelectedSubtopics([]);
+  }, [syllabus]);
 
   // Dropdowns inside filter panel
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);

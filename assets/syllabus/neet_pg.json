@@ -1,0 +1,170 @@
+{
+  "Pre-Clinical": {
+    "Anatomy": {
+      "topics": [
+        "General Embryology",
+        "Histology",
+        "Osteology",
+        "Arthrology",
+        "Neuroanatomy",
+        "Head and Neck",
+        "Back",
+        "Thorax",
+        "Upper Limb",
+        "Abdomen",
+        "Pelvis and Perineum",
+        "Lower Limb"
+      ]
+    },
+    "Physiology": {
+      "topics": [
+        "General Physiology",
+        "Nerve and Muscle Physiology",
+        "Blood Physiology",
+        "Gastrointestinal System",
+        "Cardiovascular System",
+        "Respiratory System",
+        "Excretory System",
+        "Endocrine and Reproductive Systems",
+        "Nervous System",
+        "Special Senses"
+      ]
+    },
+    "Biochemistry": {
+      "topics": [
+        "Concepts of Biochemistry",
+        "Carbohydrate Chemistry and Metabolism",
+        "Enzymes",
+        "Amino Acids and Proteins",
+        "Lipids",
+        "Molecular Biology",
+        "Miscellaneous topics"
+      ]
+    }
+  },
+  "Para-Clinical": {
+    "Pathology": {
+      "topics": [
+        "Cell Injury",
+        "Inflammation",
+        "Immunity",
+        "Genetics",
+        "Hematology",
+        "Neoplasia",
+        "Systemic Pathology"
+      ]
+    },
+    "Pharmacology": {
+      "topics": [
+        "General Pharmacology",
+        "Autonomic Drugs",
+        "Chemotherapy",
+        "CNS Drugs",
+        "Cardiovascular Drugs",
+        "Antibiotics"
+      ]
+    },
+    "Microbiology": {
+      "topics": [
+        "Immunology",
+        "Bacteriology",
+        "Virology",
+        "Mycology",
+        "Parasitology"
+      ]
+    },
+    "Forensic Medicine": {
+      "topics": [
+        "Medical Jurisprudence",
+        "Autopsy",
+        "Injury",
+        "Poisoning",
+        "Sexual Offenses",
+        "Legal Medicine"
+      ]
+    },
+    "Social and Preventive Medicine": {
+      "topics": [
+        "Epidemiology",
+        "Communicable and Non-Communicable Diseases",
+        "Health Programs",
+        "Nutrition",
+        "Family Planning"
+      ]
+    }
+  },
+  "Clinical": {
+    "General Medicine": {
+      "topics": [
+        "Infectious diseases",
+        "Cardiovascular diseases",
+        "Respiratory diseases",
+        "Gastrointestinal diseases",
+        "Neurology",
+        "Endocrinology",
+        "Rheumatology",
+        "Nephrology",
+        "Hematology"
+      ]
+    },
+    "General Surgery": {
+      "topics": [
+        "Trauma",
+        "Burns",
+        "Surgical infections",
+        "Wound healing",
+        "Head and neck surgery",
+        "Abdominal surgery",
+        "Urology",
+        "Pediatric surgery",
+        "Plastic surgery",
+        "Oncology"
+      ]
+    },
+    "Obstetrics & Gynecology": {
+      "topics": [
+        "Antenatal care",
+        "Labor and delivery",
+        "Postnatal care",
+        "Gynecological disorders",
+        "Family planning",
+        "Menopause"
+      ]
+    },
+    "Pediatrics": {
+      "topics": [
+        "Neonatology",
+        "Growth and development",
+        "Pediatric infections",
+        "Nutritional disorders",
+        "Common pediatric diseases"
+      ]
+    },
+    "ENT": {
+      "topics": [
+        "Ear disorders",
+        "Nose and sinus diseases",
+        "Throat diseases",
+        "Head and neck cancers"
+      ]
+    },
+    "Ophthalmology": {
+      "topics": [
+        "Eye anatomy",
+        "Common eye diseases",
+        "Cataracts",
+        "Glaucoma",
+        "Retinal disorders"
+      ]
+    },
+    "Psychiatry": {
+      "topics": [
+        "Mental health disorders",
+        "Psychotic disorders",
+        "Mood disorders",
+        "Substance abuse",
+        "Child and adolescent psychiatry"
+      ]
+    }
+  }
+}

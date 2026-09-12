@@ -2,6 +2,7 @@ import {
   fetchDashboardStats,
   type DashboardStats,
 } from "@/functions/dashboardStats";
+import { useActiveExam } from "@/context/ExamContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
@@ -42,6 +43,7 @@ const getAccuracyColor = (accuracy: number) => {
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { syllabus, shortBadge, openExamSwitcher } = useActiveExam();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -92,7 +94,7 @@ export default function DashboardScreen() {
 
   const loadStats = useCallback(async () => {
     try {
-      const data = await fetchDashboardStats();
+      const data = await fetchDashboardStats(syllabus);
       setStats(data);
     } catch (err) {
       console.error("[Dashboard] Error loading stats:", err);
@@ -100,7 +102,7 @@ export default function DashboardScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [syllabus]);
 
   useFocusEffect(
     useCallback(() => {
@@ -148,9 +150,19 @@ export default function DashboardScreen() {
             <Text style={styles.greetingText}>{getGreeting()} ,</Text>
             <Text style={styles.headerTitle}>Welcome Back!</Text>
           </View>
-          <View style={styles.dateChip}>
-            <Ionicons name="calendar-outline" size={13} color="#94A3B8" />
-            <Text style={styles.dateChipText}>{getFormattedDate()}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <TouchableOpacity
+              style={styles.examBadgeChip}
+              onPress={openExamSwitcher}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="school-outline" size={13} color="#60A5FA" />
+              <Text style={styles.examBadgeChipText}>{shortBadge}</Text>
+            </TouchableOpacity>
+            <View style={styles.dateChip}>
+              <Ionicons name="calendar-outline" size={13} color="#94A3B8" />
+              <Text style={styles.dateChipText}>{getFormattedDate()}</Text>
+            </View>
           </View>
         </View>
 
@@ -721,6 +733,22 @@ const styles = StyleSheet.create({
     color: "#CBD5E1",
     fontSize: 12,
     fontWeight: "600",
+  },
+  examBadgeChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(59, 130, 246, 0.12)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.25)",
+  },
+  examBadgeChipText: {
+    color: "#60A5FA",
+    fontSize: 12,
+    fontWeight: "700",
   },
   loadingContainer: {
     paddingVertical: 50,
