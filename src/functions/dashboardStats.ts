@@ -79,7 +79,10 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
   try {
     allQuestions = await db.select().from(questions);
   } catch (dbErr) {
-    console.warn("[fetchDashboardStats] db.select failed, returning empty stats:", dbErr);
+    console.warn(
+      "[fetchDashboardStats] db.select failed, returning empty stats:",
+      dbErr,
+    );
     return {
       totalQuestions: 0,
       dueTodayCount: 0,

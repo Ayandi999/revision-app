@@ -1,6 +1,6 @@
 import { expodb } from "@/database/db";
-import migrations from "../../drizzle/migrations";
 import { useCallback, useEffect, useState } from "react";
+import migrations from "../../drizzle/migrations";
 
 export interface MigrationState {
   success: boolean;
@@ -34,7 +34,7 @@ export function useAppMigrations() {
 
       // 2. Check if 'questions' table exists
       const tables = expodb.getAllSync<{ name: string }>(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='questions';"
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='questions';",
       );
 
       if (tables.length === 0) {
@@ -47,7 +47,7 @@ export function useAppMigrations() {
 
       // 3. Inspect existing columns on 'questions' table
       const columns = expodb.getAllSync<{ name: string }>(
-        "PRAGMA table_info(questions);"
+        "PRAGMA table_info(questions);",
       );
       const columnNames = new Set(columns.map((c) => c.name));
 
@@ -55,7 +55,7 @@ export function useAppMigrations() {
       if (!columnNames.has("extracted_text")) {
         try {
           expodb.execSync(
-            "ALTER TABLE questions ADD COLUMN extracted_text text;"
+            "ALTER TABLE questions ADD COLUMN extracted_text text;",
           );
         } catch (alterErr) {
           console.warn("[useAppMigrations] ALTER TABLE note:", alterErr);
@@ -66,7 +66,7 @@ export function useAppMigrations() {
       if (!columnNames.has("question_image_uris")) {
         try {
           expodb.execSync(
-            "ALTER TABLE questions ADD COLUMN question_image_uris text;"
+            "ALTER TABLE questions ADD COLUMN question_image_uris text;",
           );
         } catch (alterErr) {
           console.warn("[useAppMigrations] ALTER TABLE note:", alterErr);
@@ -77,7 +77,7 @@ export function useAppMigrations() {
       if (!columnNames.has("solution_image_uris")) {
         try {
           expodb.execSync(
-            "ALTER TABLE questions ADD COLUMN solution_image_uris text;"
+            "ALTER TABLE questions ADD COLUMN solution_image_uris text;",
           );
         } catch (alterErr) {
           console.warn("[useAppMigrations] ALTER TABLE note:", alterErr);
@@ -86,17 +86,17 @@ export function useAppMigrations() {
 
       // 5. Reconcile __drizzle_migrations journal timestamps
       const existingEntries = expodb.getAllSync<{ created_at: number }>(
-        "SELECT created_at FROM __drizzle_migrations;"
+        "SELECT created_at FROM __drizzle_migrations;",
       );
       const existingSet = new Set(
-        existingEntries.map((e) => Number(e.created_at))
+        existingEntries.map((e) => Number(e.created_at)),
       );
 
       for (const entry of migrations.journal.entries) {
         if (!existingSet.has(Number(entry.when))) {
           expodb.runSync(
             "INSERT INTO __drizzle_migrations (hash, created_at) VALUES ('', ?);",
-            [entry.when]
+            [entry.when],
           );
         }
       }
