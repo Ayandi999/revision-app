@@ -37,7 +37,7 @@ export async function extractTextFromQuestionImage(
     }
 
     // Only import the package when the native module is actually registered
-    const extractor = await import("@zhanziyang/expo-text-extractor");
+    const extractor = await import("expo-text-extractor");
     const lines = await extractor.extractTextFromImage(questionImageUri);
     if (Array.isArray(lines) && lines.length > 0) {
       const textContent = lines

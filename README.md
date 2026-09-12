@@ -26,7 +26,7 @@
 Revision App transforms disorganized question clippings, exam mistakes, and study material into a scientific, high-retention revision cycle:
 
 1. **Snap & Ingest**: Take photos of question sheets or mock tests using the camera or gallery. Store questions alongside full step-by-step solutions and custom study notes.
-2. **Automatic OCR Indexing**: Automatically extracts printed and handwritten text using on-device optical character recognition (`@zhanziyang/expo-text-extractor`), enabling instant full-text keyword search across your entire question repository.
+2. **Automatic OCR Indexing**: Automatically extracts printed and handwritten text using on-device optical character recognition (`expo-text-extractor`), enabling instant full-text keyword search across your entire question repository.
 3. **Structured Exam Taxonomy**: Classifies every question using a hierarchical curriculum structure (**Subject → Topics → Subtopics**), pre-configured for rigorous competitive exams (e.g., NEET).
 4. **Multiple Problem Types**:
    - **MCQ** (Single Option Correct: A, B, C, D)
