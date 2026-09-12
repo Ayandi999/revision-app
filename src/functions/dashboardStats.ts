@@ -136,6 +136,15 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
     if (revDate < todayMid) {
       overdueCount++;
     }
+
+    const totalTries = q.correct + q.incorrect;
+
+    // A question must appear in revision and be attempted at least once
+    // before it is factored into taxonomy, mastery, and stage statistics.
+    if (totalTries === 0) {
+      continue;
+    }
+
     totalCorrect += q.correct;
     totalIncorrect += q.incorrect;
 

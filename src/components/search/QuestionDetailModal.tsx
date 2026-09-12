@@ -353,12 +353,13 @@ export function QuestionDetailModal({
         </SafeAreaView>
       </View>
 
-      {/* Embedded Zoom Modal */}
+      {/* Embedded Zoom Overlay (avoids Android nested Modal dialog bug) */}
       <ImageZoomModal
         visible={!!zoomUri}
         imageUri={zoomUri}
         title={zoomTitle}
         onClose={() => setZoomUri(null)}
+        embedded
       />
     </Modal>
   );

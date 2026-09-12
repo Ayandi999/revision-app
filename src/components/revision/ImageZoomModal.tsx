@@ -1,11 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
   Modal,
-  PanResponder,
   Platform,
   StatusBar,
   StyleSheet,
@@ -13,12 +12,26 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+  PinchGestureHandler,
+  State,
+  TapGestureHandler,
+  type PanGestureHandlerGestureEvent,
+  type PanGestureHandlerStateChangeEvent,
+  type PinchGestureHandlerGestureEvent,
+  type PinchGestureHandlerStateChangeEvent,
+  type TapGestureHandlerStateChangeEvent,
+} from "react-native-gesture-handler";
 
-interface ImageZoomModalProps {
+export interface ImageZoomModalProps {
   visible: boolean;
   imageUri: string | null;
   onClose: () => void;
   title?: string;
+  /** When true, renders as an absolute overlay instead of a nested native Modal (fixes Android nested modal issues) */
+  embedded?: boolean;
 }
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -27,167 +40,302 @@ export function ImageZoomModal({
   visible,
   imageUri,
   onClose,
-  title = "Solution",
+  title = "Image",
+  embedded = false,
 }: ImageZoomModalProps) {
   // Animated transforms
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
+  const overlayOpacity = useRef(new Animated.Value(1)).current;
 
-  // Track raw values for calculations
-  const scaleVal = useRef(1);
-  const translateXVal = useRef(0);
-  const translateYVal = useRef(0);
+  // Track transform state synchronously in refs to prevent drift
+  const baseScale = useRef(1);
+  const currentScale = useRef(1);
+  const basePan = useRef({ x: 0, y: 0 });
+  const currentPan = useRef({ x: 0, y: 0 });
 
-  // State to update UI indicators (like percentage pill)
-  const [displayScale, setDisplayScale] = useState(1);
+  // Handler refs for simultaneous gesture composition
+  const pinchRef = useRef<PinchGestureHandler>(null);
+  const panRef = useRef<PanGestureHandler>(null);
+  const doubleTapRef = useRef<TapGestureHandler>(null);
 
-  // Touch tracking refs
-  const initialDistance = useRef(0);
-  const initialScale = useRef(1);
-  const initialPanX = useRef(0);
-  const initialPanY = useRef(0);
-  const lastTap = useRef(0);
-
-  // Sync listener
-  useEffect(() => {
-    const sId = scale.addListener((v) => {
-      scaleVal.current = v.value;
-      setDisplayScale(Math.round(v.value * 10) / 10);
-    });
-    const xId = translateX.addListener((v) => {
-      translateXVal.current = v.value;
-    });
-    const yId = translateY.addListener((v) => {
-      translateYVal.current = v.value;
-    });
-
-    return () => {
-      scale.removeListener(sId);
-      translateX.removeListener(xId);
-      translateY.removeListener(yId);
-    };
-  }, [scale, translateX, translateY]);
-
-  // Reset transforms whenever the modal opens or closes
+  // Reset transforms whenever the modal opens or image changes
   useEffect(() => {
     if (visible) {
       resetZoom(false);
     }
-  }, [visible]);
+  }, [visible, imageUri]);
 
   const resetZoom = (animated = true) => {
+    baseScale.current = 1;
+    currentScale.current = 1;
+    basePan.current = { x: 0, y: 0 };
+    currentPan.current = { x: 0, y: 0 };
+
     if (animated) {
       Animated.parallel([
-        Animated.spring(scale, { toValue: 1, useNativeDriver: true }),
-        Animated.spring(translateX, { toValue: 0, useNativeDriver: true }),
-        Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
+        Animated.spring(scale, {
+          toValue: 1,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 45,
+        }),
+        Animated.spring(translateX, {
+          toValue: 0,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 45,
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 45,
+        }),
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
       ]).start();
     } else {
       scale.setValue(1);
       translateX.setValue(0);
       translateY.setValue(0);
-      scaleVal.current = 1;
-      translateXVal.current = 0;
-      translateYVal.current = 0;
-      setDisplayScale(1);
+      overlayOpacity.setValue(1);
     }
   };
 
-  const handleDoubleTap = () => {
-    if (scaleVal.current > 1.2) {
-      resetZoom(true);
+  // ─── Double Tap Gesture ───────────────────────────────────────────────────
+  const onDoubleTap = (event: TapGestureHandlerStateChangeEvent) => {
+    if (event.nativeEvent.state === State.ACTIVE) {
+      const tapX = event.nativeEvent.x;
+      const tapY = event.nativeEvent.y;
+
+      if (currentScale.current > 1.2) {
+        // Zoomed in -> Reset to 1x
+        resetZoom(true);
+      } else {
+        // Zoom in to 2.5x with focal point toward tap
+        const targetScale = 2.5;
+        baseScale.current = targetScale;
+        currentScale.current = targetScale;
+
+        const offsetX = SCREEN_WIDTH / 2 - tapX;
+        const offsetY = SCREEN_HEIGHT / 2 - tapY;
+        let targetX = offsetX * (targetScale - 1);
+        let targetY = offsetY * (targetScale - 1);
+
+        const maxPanX = (SCREEN_WIDTH * targetScale - SCREEN_WIDTH) / 2;
+        const maxPanY =
+          (SCREEN_HEIGHT * 0.85 * targetScale - SCREEN_HEIGHT * 0.85) / 2;
+
+        targetX = Math.max(-maxPanX, Math.min(maxPanX, targetX));
+        targetY = Math.max(-maxPanY, Math.min(maxPanY, targetY));
+
+        basePan.current = { x: targetX, y: targetY };
+        currentPan.current = { x: targetX, y: targetY };
+
+        Animated.parallel([
+          Animated.spring(scale, {
+            toValue: targetScale,
+            useNativeDriver: true,
+            friction: 7,
+            tension: 35,
+          }),
+          Animated.spring(translateX, {
+            toValue: targetX,
+            useNativeDriver: true,
+            friction: 7,
+            tension: 35,
+          }),
+          Animated.spring(translateY, {
+            toValue: targetY,
+            useNativeDriver: true,
+            friction: 7,
+            tension: 35,
+          }),
+        ]).start();
+      }
+    }
+  };
+
+  // ─── Native Pinch Gesture (Native Android ScaleGestureDetector) ───────────
+  const onPinchEvent = (event: PinchGestureHandlerGestureEvent) => {
+    const pinchScale = event.nativeEvent.scale;
+    let nextScale = baseScale.current * pinchScale;
+
+    // Rubber-band resistance beyond limits
+    if (nextScale < 0.8) {
+      nextScale = 0.8 - (0.8 - nextScale) * 0.3;
+    } else if (nextScale > 5.0) {
+      nextScale = 5.0 + (nextScale - 5.0) * 0.3;
+    }
+
+    scale.setValue(nextScale);
+    currentScale.current = nextScale;
+  };
+
+  const onPinchStateChange = (event: PinchGestureHandlerStateChangeEvent) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      let finalScale = currentScale.current;
+
+      if (finalScale < 1.0) {
+        // Under-pinched -> Spring back to 1x centered
+        resetZoom(true);
+      } else if (finalScale > 4.5) {
+        // Over-pinched -> Snap back to 4x
+        finalScale = 4.0;
+        baseScale.current = 4.0;
+        currentScale.current = 4.0;
+
+        Animated.spring(scale, {
+          toValue: 4.0,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 40,
+        }).start();
+      } else {
+        baseScale.current = finalScale;
+      }
+    }
+  };
+
+  // ─── Native Pan Gesture (One-finger traversal & swipe dismiss) ────────────
+  const onPanEvent = (event: PanGestureHandlerGestureEvent) => {
+    const { translationX, translationY } = event.nativeEvent;
+
+    if (currentScale.current > 1.05) {
+      // One-finger traversal when zoomed in
+      const maxPanX = Math.max(
+        0,
+        (SCREEN_WIDTH * currentScale.current - SCREEN_WIDTH) / 2,
+      );
+      const maxPanY = Math.max(
+        0,
+        (SCREEN_HEIGHT * 0.85 * currentScale.current - SCREEN_HEIGHT * 0.85) /
+          2,
+      );
+
+      let nextX = basePan.current.x + translationX;
+      let nextY = basePan.current.y + translationY;
+
+      // Soft rubber-band resistance beyond boundaries
+      if (nextX > maxPanX) {
+        nextX = maxPanX + (nextX - maxPanX) * 0.3;
+      } else if (nextX < -maxPanX) {
+        nextX = -maxPanX + (nextX + maxPanX) * 0.3;
+      }
+
+      if (nextY > maxPanY) {
+        nextY = maxPanY + (nextY - maxPanY) * 0.3;
+      } else if (nextY < -maxPanY) {
+        nextY = -maxPanY + (nextY + maxPanY) * 0.3;
+      }
+
+      translateX.setValue(nextX);
+      translateY.setValue(nextY);
+      currentPan.current = { x: nextX, y: nextY };
     } else {
-      Animated.spring(scale, { toValue: 2.5, useNativeDriver: true }).start();
+      // At 1x: Swipe down to dismiss
+      if (translationY > 0) {
+        translateY.setValue(translationY);
+        currentPan.current.y = translationY;
+        const opacity = Math.max(0.3, 1 - translationY / (SCREEN_HEIGHT * 0.6));
+        overlayOpacity.setValue(opacity);
+      }
     }
   };
 
-  const zoomIn = () => {
-    const next = Math.min(scaleVal.current + 0.5, 4);
-    Animated.spring(scale, { toValue: next, useNativeDriver: true }).start();
-  };
+  const onPanStateChange = (event: PanGestureHandlerStateChangeEvent) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationY } = event.nativeEvent;
 
-  const zoomOut = () => {
-    const next = Math.max(scaleVal.current - 0.5, 1);
-    if (next <= 1) {
-      resetZoom(true);
-    } else {
-      Animated.spring(scale, { toValue: next, useNativeDriver: true }).start();
-    }
-  };
+      if (currentScale.current <= 1.05) {
+        // Swipe down threshold for closing
+        if (translationY > 110) {
+          onClose();
+          return;
+        }
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return (
-          gestureState.numberActiveTouches > 1 ||
-          (scaleVal.current > 1.05 &&
-            (Math.abs(gestureState.dx) > 2 || Math.abs(gestureState.dy) > 2))
+        // Rebound back to 0
+        currentPan.current = { x: 0, y: 0 };
+        basePan.current = { x: 0, y: 0 };
+
+        Animated.parallel([
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+            friction: 7,
+            tension: 40,
+          }),
+          Animated.timing(overlayOpacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      } else {
+        // Clamping within viewport
+        const maxPanX = Math.max(
+          0,
+          (SCREEN_WIDTH * currentScale.current - SCREEN_WIDTH) / 2,
         );
-      },
-      onPanResponderGrant: (evt) => {
-        const touches = evt.nativeEvent.touches;
-        if (touches.length === 2) {
-          initialDistance.current = Math.hypot(
-            touches[0].pageX - touches[1].pageX,
-            touches[0].pageY - touches[1].pageY,
-          );
-          initialScale.current = scaleVal.current;
-        } else if (touches.length === 1) {
-          initialPanX.current = translateXVal.current;
-          initialPanY.current = translateYVal.current;
+        const maxPanY = Math.max(
+          0,
+          (SCREEN_HEIGHT * 0.85 * currentScale.current - SCREEN_HEIGHT * 0.85) /
+            2,
+        );
 
-          // Double tap detection
-          const now = Date.now();
-          if (now - lastTap.current < 300) {
-            handleDoubleTap();
-          }
-          lastTap.current = now;
+        let targetX = currentPan.current.x;
+        let targetY = currentPan.current.y;
+        let needsSnap = false;
+
+        if (targetX > maxPanX) {
+          targetX = maxPanX;
+          needsSnap = true;
+        } else if (targetX < -maxPanX) {
+          targetX = -maxPanX;
+          needsSnap = true;
         }
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        const touches = evt.nativeEvent.touches;
-        if (touches.length === 2 && initialDistance.current > 0) {
-          const currentDistance = Math.hypot(
-            touches[0].pageX - touches[1].pageX,
-            touches[0].pageY - touches[1].pageY,
-          );
-          const factor = currentDistance / initialDistance.current;
-          const newScale = Math.min(
-            Math.max(initialScale.current * factor, 0.7),
-            5,
-          );
-          scale.setValue(newScale);
-        } else if (touches.length === 1 && scaleVal.current > 1.05) {
-          translateX.setValue(initialPanX.current + gestureState.dx);
-          translateY.setValue(initialPanY.current + gestureState.dy);
+
+        if (targetY > maxPanY) {
+          targetY = maxPanY;
+          needsSnap = true;
+        } else if (targetY < -maxPanY) {
+          targetY = -maxPanY;
+          needsSnap = true;
         }
-      },
-      onPanResponderRelease: () => {
-        if (scaleVal.current < 1) {
-          resetZoom(true);
-        } else if (scaleVal.current === 1) {
+
+        basePan.current = { x: targetX, y: targetY };
+        currentPan.current = { x: targetX, y: targetY };
+
+        if (needsSnap) {
           Animated.parallel([
-            Animated.spring(translateX, { toValue: 0, useNativeDriver: true }),
-            Animated.spring(translateY, { toValue: 0, useNativeDriver: true }),
+            Animated.spring(translateX, {
+              toValue: targetX,
+              useNativeDriver: true,
+              friction: 7,
+              tension: 40,
+            }),
+            Animated.spring(translateY, {
+              toValue: targetY,
+              useNativeDriver: true,
+              friction: 7,
+              tension: 40,
+            }),
           ]).start();
         }
-      },
-    }),
-  ).current;
+      }
+    }
+  };
 
   if (!visible || !imageUri) return null;
 
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
+  const modalBody = (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
         <StatusBar barStyle="light-content" backgroundColor="#0B0C10" />
 
         {/* Top Bar */}
@@ -206,98 +354,111 @@ export function ImageZoomModal({
           </TouchableOpacity>
         </View>
 
-        {/* Zoomable Image Container */}
-        <View style={styles.contentArea}>
-          <Animated.View
-            style={[
-              styles.imageContainer,
-              {
-                transform: [
-                  { translateX },
-                  { translateY },
-                  { scale },
-                ],
-              },
-            ]}
-            {...panResponder.panHandlers}
-          >
-            <Image
-              source={{ uri: imageUri }}
-              style={styles.fullImage}
-              contentFit="contain"
-              transition={200}
-            />
+        {/* Native Gesture Viewport */}
+        <TapGestureHandler
+          ref={doubleTapRef}
+          numberOfTaps={2}
+          onHandlerStateChange={onDoubleTap}
+        >
+          <Animated.View style={styles.gestureContainer}>
+            <PanGestureHandler
+              ref={panRef}
+              simultaneousHandlers={[pinchRef]}
+              minPointers={1}
+              maxPointers={1}
+              onGestureEvent={onPanEvent}
+              onHandlerStateChange={onPanStateChange}
+            >
+              <Animated.View style={styles.gestureContainer}>
+                <PinchGestureHandler
+                  ref={pinchRef}
+                  simultaneousHandlers={[panRef]}
+                  onGestureEvent={onPinchEvent}
+                  onHandlerStateChange={onPinchStateChange}
+                >
+                  <Animated.View style={styles.contentArea}>
+                    <Animated.View
+                      style={[
+                        styles.imageContainer,
+                        {
+                          transform: [
+                            { translateX },
+                            { translateY },
+                            { scale },
+                          ],
+                        },
+                      ]}
+                    >
+                      <Image
+                        source={{ uri: imageUri }}
+                        style={styles.fullImage}
+                        contentFit="contain"
+                        transition={200}
+                      />
+                    </Animated.View>
+                  </Animated.View>
+                </PinchGestureHandler>
+              </Animated.View>
+            </PanGestureHandler>
           </Animated.View>
-        </View>
+        </TapGestureHandler>
 
-        {/* Bottom Control Pill */}
+        {/* Subtle Bottom Hint */}
         <View style={styles.bottomBar}>
-          <View style={styles.controlsPill}>
-            <TouchableOpacity
-              style={styles.controlBtn}
-              onPress={zoomOut}
-              disabled={displayScale <= 1}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name="remove"
-                size={20}
-                color={displayScale <= 1 ? "#4B5563" : "#FFFFFF"}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.scaleIndicator}
-              onPress={() => resetZoom(true)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.scaleText}>
-                {Math.round(displayScale * 100)}%
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.controlBtn}
-              onPress={zoomIn}
-              disabled={displayScale >= 4}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name="add"
-                size={20}
-                color={displayScale >= 4 ? "#4B5563" : "#FFFFFF"}
-              />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.hintText}>Pinch or double-tap to zoom</Text>
+          <Text style={styles.hintText}>Pinch or double-tap • Drag to pan</Text>
         </View>
+      </Animated.View>
+    </GestureHandlerRootView>
+  );
+
+  if (embedded) {
+    return (
+      <View style={[StyleSheet.absoluteFill, styles.embeddedWrapper]}>
+        {modalBody}
       </View>
+    );
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      {modalBody}
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  embeddedWrapper: {
+    zIndex: 99999,
+    elevation: 99999,
+  },
   overlay: {
     flex: 1,
     backgroundColor: "#0B0C10F8",
     justifyContent: "space-between",
   },
   topBar: {
-    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) + 12 : 54,
+    paddingTop:
+      Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) + 12 : 54,
     paddingHorizontal: 20,
     paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    zIndex: 10,
+    zIndex: 20,
   },
   titleWrapper: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: 20,
   },
   titleText: {
@@ -306,12 +467,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: "rgba(255, 255, 255, 0.12)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  gestureContainer: {
+    flex: 1,
   },
   contentArea: {
     flex: 1,
@@ -321,7 +485,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.75,
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -330,45 +494,15 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   bottomBar: {
-    paddingBottom: Platform.OS === "ios" ? 40 : 24,
+    paddingBottom: Platform.OS === "ios" ? 42 : 24,
     paddingHorizontal: 20,
     alignItems: "center",
-    gap: 8,
-    zIndex: 10,
-  },
-  controlsPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#1E2028",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.2)",
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    gap: 4,
-  },
-  controlBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scaleIndicator: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-  },
-  scaleText: {
-    color: "#E2E8F0",
-    fontSize: 13,
-    fontWeight: "700",
-    fontVariant: ["tabular-nums"],
+    zIndex: 20,
   },
   hintText: {
-    color: "#6B7280",
+    color: "#64748B",
     fontSize: 12,
     fontWeight: "500",
+    letterSpacing: 0.2,
   },
 });

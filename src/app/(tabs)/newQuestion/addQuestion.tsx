@@ -213,10 +213,6 @@ const AddQuestion = () => {
       } else {
         setSolutionImageUri(result.uri);
       }
-      console.log(
-        `[${target === "question" ? "Question" : "Solution"} Image URI]:`,
-        result.uri,
-      );
     } else if (result.error !== "Camera cancelled.") {
       console.error(`[${target} Camera Error]:`, result.error);
     }
@@ -235,10 +231,6 @@ const AddQuestion = () => {
       } else {
         setSolutionImageUri(result.uri);
       }
-      console.log(
-        `[${target === "question" ? "Question" : "Solution"} Image URI]:`,
-        result.uri,
-      );
     } else if (result.error !== "Picker cancelled.") {
       console.error(`[${target} Gallery Error]:`, result.error);
     }

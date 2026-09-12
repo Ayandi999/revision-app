@@ -307,13 +307,13 @@ export default function DashboardScreen() {
             {!sortedSubjectStats || sortedSubjectStats.length === 0 ? (
               <View style={styles.emptyCard}>
                 <Ionicons
-                  name="folder-open-outline"
+                  name="analytics-outline"
                   size={26}
                   color="#64748B"
                 />
                 <Text style={styles.emptyCardText}>
-                  No questions logged yet. Add questions to track subject,
-                  topic, and subtopic accuracy.
+                  No attempted questions yet. Complete your revision sessions to
+                  track subject, topic, and subtopic accuracy.
                 </Text>
               </View>
             ) : (
@@ -354,7 +354,7 @@ export default function DashboardScreen() {
                               {subj.questionCount === 1 ? "question" : "questions"}
                               {totalAttempts > 0
                                 ? ` • ${subj.correct}/${totalAttempts} correct`
-                                : " • Not tested yet"}
+                                : ""}
                             </Text>
                           </View>
                         </View>
@@ -446,7 +446,7 @@ export default function DashboardScreen() {
                                         {topic.questionCount === 1 ? "Q" : "Qs"}
                                         {tAttempts > 0
                                           ? ` • ${topic.correct}/${tAttempts} correct`
-                                          : " • Untested"}
+                                          : ""}
                                       </Text>
                                     </View>
 

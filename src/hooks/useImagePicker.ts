@@ -2,6 +2,7 @@ import { Directory, File, Paths } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Alert } from "react-native";
+import { downgradeImageTo720 } from "../functions/resizeImage";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -66,7 +67,12 @@ export function useImagePicker({
 
     try {
       setIsProcessing(true);
-      const uri = persistImage(result.assets[0].uri, folder);
+      const asset = result.assets[0];
+      const processedUri = await downgradeImageTo720(asset.uri, {
+        width: asset.width,
+        height: asset.height,
+      });
+      const uri = persistImage(processedUri, folder);
       return { success: true, uri };
     } catch (err) {
       console.error("[useImagePicker] Failed to persist image:", err);
@@ -97,7 +103,12 @@ export function useImagePicker({
 
     try {
       setIsProcessing(true);
-      const uri = persistImage(result.assets[0].uri, folder);
+      const asset = result.assets[0];
+      const processedUri = await downgradeImageTo720(asset.uri, {
+        width: asset.width,
+        height: asset.height,
+      });
+      const uri = persistImage(processedUri, folder);
       return { success: true, uri };
     } catch (err) {
       console.error("[useImagePicker] Failed to persist image:", err);
