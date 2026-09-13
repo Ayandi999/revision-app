@@ -2,10 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useState } from "react";
 import {
-  LayoutChangeEvent,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -48,25 +44,8 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
   const [zoomTitle, setZoomTitle] = useState("");
-  const [activeImageIdx, setActiveImageIdx] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
 
   const questionImages = getQuestionImages(question);
-
-  const handleContainerLayout = (e: LayoutChangeEvent) => {
-    const width = e.nativeEvent.layout.width;
-    if (width > 0 && width !== containerWidth) {
-      setContainerWidth(width);
-    }
-  };
-
-  const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (containerWidth > 0) {
-      const offsetX = e.nativeEvent.contentOffset.x;
-      const index = Math.round(offsetX / containerWidth);
-      setActiveImageIdx(index);
-    }
-  };
 
   // ── MCQ handler ─────────────────────────────────────────────────────────
   const handleMCQSelect = (option: string) => {
@@ -102,79 +81,51 @@ export function QuestionCard({
         </View>
       </View>
 
-      {/* Question Images */}
+      {/* Question Images rendered in sequence */}
       {questionImages.length === 0 ? (
         <View style={styles.noImageBox}>
           <Ionicons name="image-outline" size={40} color="#4B5563" />
           <Text style={styles.noImageText}>No image available</Text>
         </View>
-      ) : questionImages.length === 1 ? (
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {
-            setZoomImageUri(questionImages[0]);
-            setZoomTitle(`Question ${questionIndex + 1}`);
-          }}
-          style={styles.imageWrapper}
-        >
-          <Image
-            source={{ uri: questionImages[0] }}
-            style={styles.questionImage}
-            contentFit="contain"
-            transition={200}
-          />
-          <View style={styles.zoomIconOverlay}>
-            <Ionicons name="expand" size={14} color="#FFFFFF" />
-          </View>
-        </TouchableOpacity>
       ) : (
-        <View
-          style={styles.multiImageContainer}
-          onLayout={handleContainerLayout}
-        >
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={handleScrollEnd}
-            scrollEventThrottle={16}
-          >
-            {questionImages.map((uri, idx) => (
-              <TouchableOpacity
-                key={`${uri}-${idx}`}
-                activeOpacity={0.9}
-                style={[
-                  styles.imageWrapper,
-                  containerWidth > 0 && { width: containerWidth },
-                  styles.noMarginBottom,
-                ]}
-                onPress={() => {
-                  setZoomImageUri(uri);
-                  setZoomTitle(
-                    `Question ${questionIndex + 1} (${idx + 1}/${questionImages.length})`
-                  );
-                }}
-              >
-                <Image
-                  source={{ uri }}
-                  style={styles.questionImage}
-                  contentFit="contain"
-                  transition={200}
-                />
-                <View style={styles.zoomIconOverlay}>
-                  <Ionicons name="expand" size={14} color="#FFFFFF" />
+        <View style={styles.imageListContainer}>
+          {questionImages.map((uri, idx) => (
+            <TouchableOpacity
+              key={`${uri}-${idx}`}
+              activeOpacity={0.9}
+              onPress={() => {
+                setZoomImageUri(uri);
+                setZoomTitle(
+                  questionImages.length > 1
+                    ? `Question ${questionIndex + 1} (${idx + 1}/${questionImages.length})`
+                    : `Question ${questionIndex + 1}`
+                );
+              }}
+              style={styles.imageWrapper}
+            >
+              <Image
+                source={{ uri }}
+                style={styles.questionImage}
+                contentFit="contain"
+                transition={200}
+              />
+              <View style={styles.zoomIconOverlay}>
+                <Ionicons name="expand" size={14} color="#FFFFFF" />
+              </View>
+              {questionImages.length > 1 && (
+                <View style={styles.imagePageBadge}>
+                  <Ionicons
+                    name="document-text-outline"
+                    size={11}
+                    color="#94A3B8"
+                  />
+                  <Text style={styles.imagePageBadgeText}>
+                    {idx + 1} / {questionImages.length}
+                  </Text>
                 </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Carousel Pagination Pill */}
-          <View style={styles.carouselPill}>
-            <Ionicons name="images-outline" size={12} color="#FFFFFF" />
-            <Text style={styles.carouselPillText}>
-              {activeImageIdx + 1} / {questionImages.length}
-            </Text>
-          </View>
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
       )}
 
@@ -336,32 +287,28 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Question image & carousel
-  multiImageContainer: {
-    position: "relative",
-    marginBottom: 20,
+  // Question images
+  imageListContainer: {
+    marginBottom: 8,
   },
-  noMarginBottom: {
-    marginBottom: 0,
-  },
-  carouselPill: {
+  imagePageBadge: {
     position: "absolute",
-    bottom: 12,
-    left: 12,
+    top: 10,
+    left: 10,
     backgroundColor: "rgba(11, 12, 16, 0.8)",
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.15)",
   },
-  carouselPillText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
+  imagePageBadgeText: {
+    color: "#E2E8F0",
+    fontSize: 11,
+    fontWeight: "600",
   },
   imageWrapper: {
     backgroundColor: "#1E2028",
@@ -369,7 +316,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
-    marginBottom: 20,
+    marginBottom: 16,
     position: "relative",
   },
   zoomIconOverlay: {

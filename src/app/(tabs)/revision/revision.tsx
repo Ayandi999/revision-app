@@ -343,7 +343,7 @@ export default function RevisionScreen() {
     return (
       <View style={styles.centeredContainer}>
         <Ionicons name="checkmark-done-circle" size={56} color="#22C55E" />
-        <Text style={styles.emptyTitle}>You're all caught up!</Text>
+        <Text style={styles.emptyTitle}>{"You're all caught up!"}</Text>
         <Text style={styles.emptySubtext}>
           No questions scheduled for revision today.{"\n"}Check back tomorrow.
         </Text>
@@ -359,7 +359,7 @@ export default function RevisionScreen() {
           <Ionicons name="trophy" size={64} color="#F59E0B" />
           <Text style={styles.congratsTitle}>Congratulations! 🎉</Text>
           <Text style={styles.congratsSubtext}>
-            You've completed today's revision.{"\n"}Computing your results...
+            {"You've completed today's revision."}{"\n"}Computing your results...
           </Text>
           <ActivityIndicator
             size="small"
