@@ -3,6 +3,9 @@ import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 import { downgradeImageTo720 } from "../functions/resizeImage";
+import { toRelativePath } from "../functions/imageHelpers";
+import { upsertPendingImage } from "../services/imageBackupRepo";
+import { syncSingleImage } from "../services/backupService";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -20,7 +23,10 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Copy a temporary cache URI to permanent storage, return the relative path */
+/**
+ * Copies a temporary cache file to permanent storage under Paths.document
+ * and returns the full, display-ready file:// URI. Cleans up temporary cache file.
+ */
 function persistImage(cacheUri: string, folder: string): string {
   const dir = new Directory(Paths.document, "revision-app", "images", folder);
   if (!dir.exists) {
@@ -34,8 +40,39 @@ function persistImage(cacheUri: string, folder: string): string {
   const destFile = new File(dir, filename);
   sourceFile.copy(destFile);
 
-  // Return portable relative path (resolved to absolute at read-time via imageHelpers)
-  return `revision-app/images/${folder}/${filename}`;
+  // Clean up temporary scaled cache file to prevent unbounded cache growth
+  try {
+    sourceFile.delete();
+  } catch {
+    // Non-fatal cache cleanup failure
+  }
+
+  return destFile.uri;
+}
+
+/**
+ * Downscales asset to 720p, persists to permanent storage, and kicks off
+ * asynchronous backup queueing in the background.
+ */
+async function processAndPersist(
+  asset: ImagePicker.ImagePickerAsset,
+  folder: string
+): Promise<string> {
+  const processedUri = await downgradeImageTo720(asset.uri, {
+    width: asset.width,
+    height: asset.height,
+  });
+
+  const uri = persistImage(processedUri, folder);
+  const cleanRelPath = toRelativePath(uri);
+
+  upsertPendingImage(cleanRelPath)
+    .then(() => syncSingleImage(cleanRelPath))
+    .catch((err) => {
+      console.warn("[useImagePicker] Auto image backup trigger failed:", err);
+    });
+
+  return uri;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -68,15 +105,10 @@ export function useImagePicker({
 
     try {
       setIsProcessing(true);
-      const asset = result.assets[0];
-      const processedUri = await downgradeImageTo720(asset.uri, {
-        width: asset.width,
-        height: asset.height,
-      });
-      const uri = persistImage(processedUri, folder);
+      const uri = await processAndPersist(result.assets[0], folder);
       return { success: true, uri };
     } catch (err) {
-      console.error("[useImagePicker] Failed to persist image:", err);
+      console.error("[useImagePicker] Failed to process gallery image:", err);
       return {
         success: false,
         error: err instanceof Error ? err.message : "Failed to save image.",
@@ -104,15 +136,10 @@ export function useImagePicker({
 
     try {
       setIsProcessing(true);
-      const asset = result.assets[0];
-      const processedUri = await downgradeImageTo720(asset.uri, {
-        width: asset.width,
-        height: asset.height,
-      });
-      const uri = persistImage(processedUri, folder);
+      const uri = await processAndPersist(result.assets[0], folder);
       return { success: true, uri };
     } catch (err) {
-      console.error("[useImagePicker] Failed to persist image:", err);
+      console.error("[useImagePicker] Failed to process camera image:", err);
       return {
         success: false,
         error: err instanceof Error ? err.message : "Failed to save image.",

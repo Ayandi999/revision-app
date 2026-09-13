@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -24,9 +25,13 @@ export const GoogleDriveCard: React.FC = () => {
     progressMessage,
     lastSyncAt,
     lastBackupSize,
+    backupEnabled,
+    wifiOnly,
+    pendingCount,
+    toggleBackupEnabled,
+    toggleWifiOnly,
     signIn,
     signOut,
-    sync,
     restore,
   } = useCloudSync();
 
@@ -158,6 +163,63 @@ export const GoogleDriveCard: React.FC = () => {
             </View>
           </View>
 
+          {/* Image Sync Status Badge */}
+          <View style={styles.syncStatusBadge}>
+            {isSyncing ? (
+              <>
+                <ActivityIndicator size="small" color="#3B82F6" />
+                <Text style={styles.syncStatusText}>Backing up changes...</Text>
+              </>
+            ) : pendingCount > 0 ? (
+              <>
+                <Ionicons name="cloud-upload-outline" size={16} color="#F59E0B" />
+                <Text style={styles.syncStatusPendingText}>
+                  {pendingCount} {pendingCount === 1 ? "image" : "images"} queued for cloud backup
+                </Text>
+              </>
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle-outline" size={16} color="#10B981" />
+                <Text style={styles.syncStatusCompleteText}>All images backed up</Text>
+              </>
+            )}
+          </View>
+
+          {/* Auto Backup & Wi-Fi Settings Toggles */}
+          <View style={styles.settingsSection}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingTextCol}>
+                <Text style={styles.settingTitle}>Auto Backup</Text>
+                <Text style={styles.settingSubtitle}>
+                  Automatically upload images and data in background
+                </Text>
+              </View>
+              <Switch
+                value={backupEnabled}
+                onValueChange={toggleBackupEnabled}
+                trackColor={{ false: "#334155", true: "#2563EB" }}
+                thumbColor={backupEnabled ? "#FFFFFF" : "#94A3B8"}
+              />
+            </View>
+
+            {backupEnabled && (
+              <View style={[styles.settingRow, styles.settingRowBorder]}>
+                <View style={styles.settingTextCol}>
+                  <Text style={styles.settingTitle}>Wi-Fi Only</Text>
+                  <Text style={styles.settingSubtitle}>
+                    Only upload when connected to Wi-Fi to save mobile data
+                  </Text>
+                </View>
+                <Switch
+                  value={wifiOnly}
+                  onValueChange={toggleWifiOnly}
+                  trackColor={{ false: "#334155", true: "#2563EB" }}
+                  thumbColor={wifiOnly ? "#FFFFFF" : "#94A3B8"}
+                />
+              </View>
+            )}
+          </View>
+
           {/* Progress message banner */}
           {isBusy && progressMessage && (
             <View style={styles.progressBanner}>
@@ -168,23 +230,6 @@ export const GoogleDriveCard: React.FC = () => {
 
           {/* Action buttons */}
           <View style={styles.actionsContainer}>
-            {/* Full-width Sync Changes Button */}
-            <TouchableOpacity
-              style={[styles.syncButtonFull, isBusy && styles.buttonDisabled]}
-              onPress={sync}
-              disabled={isBusy}
-              activeOpacity={0.8}
-            >
-              {isSyncing ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <>
-                  <Ionicons name="cloud-upload-outline" size={18} color="#FFFFFF" />
-                  <Text style={styles.syncButtonText}>Sync Changes</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
             {/* Full-width Restore Button */}
             <TouchableOpacity
               style={[styles.restoreButtonFull, isBusy && styles.buttonDisabled]}
@@ -440,6 +485,65 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginTop: 2,
   },
+  syncStatusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
+  syncStatusText: {
+    color: "#93C5FD",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  syncStatusPendingText: {
+    color: "#FBBF24",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  syncStatusCompleteText: {
+    color: "#10B981",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  settingsSection: {
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
+  settingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+  settingRowBorder: {
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.05)",
+  },
+  settingTextCol: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  settingTitle: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  settingSubtitle: {
+    color: "#64748B",
+    fontSize: 11,
+    marginTop: 2,
+    lineHeight: 15,
+  },
   progressBanner: {
     flexDirection: "row",
     alignItems: "center",
@@ -457,21 +561,6 @@ const styles = StyleSheet.create({
   actionsContainer: {
     gap: 10,
     marginTop: 4,
-  },
-  syncButtonFull: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#2563EB",
-    borderRadius: 12,
-    paddingVertical: 13,
-    gap: 8,
-  },
-  syncButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
   },
   restoreButtonFull: {
     width: "100%",

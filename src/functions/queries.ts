@@ -2,7 +2,7 @@ import { AddQuestionFormData } from "@/types/question";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
 import { extractTextFromQuestionImage } from "./extractText";
-import { resolveImageUri } from "./imageHelpers";
+import { resolveImageUri, toRelativePath } from "./imageHelpers";
 
 export type InsertResult =
   | { success: true; data: Question }
@@ -56,19 +56,23 @@ export async function insertIntoLocalDb(
       };
     }
 
-    const qImages =
+    const rawQImages =
       Array.isArray(data.questionImageUris) && data.questionImageUris.length > 0
         ? data.questionImageUris
         : data.questionImageUri
           ? [data.questionImageUri]
           : [];
 
-    const sImages =
+    const rawSImages =
       Array.isArray(data.solutionImageUris) && data.solutionImageUris.length > 0
         ? data.solutionImageUris
         : data.solutionImageUri
           ? [data.solutionImageUri]
           : [];
+
+    // Ensure portable relative paths are stored in the database
+    const qImages = rawQImages.map(toRelativePath);
+    const sImages = rawSImages.map(toRelativePath);
 
     // 3.5. Extract text from all question images using OCR
     let extractedText: string | null = null;

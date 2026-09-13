@@ -1,3 +1,4 @@
+import * as Network from "expo-network";
 import { Directory, File, Paths } from "expo-file-system";
 import {
   checkpointDatabaseSync,
@@ -5,63 +6,61 @@ import {
   reopenDatabaseSync,
 } from "@/database/db";
 import {
-  downloadBackup,
-  listBackups,
-  pruneOldBackups,
-  uploadBackup,
+  uploadSingleImage,
+  downloadSingleImage,
+  getManifestInfo,
+  updateManifest,
+  uploadDatabaseOnly,
+  downloadDatabaseOnly,
 } from "./googleDrive";
+import { getValidAccessToken, saveSyncMetadata } from "./googleAuth";
 import {
-  createBackupArchive,
-  extractBackupArchive,
-  formatBytes,
-  type BackupImageEntry,
-} from "./zipHelper";
-import { saveSyncMetadata } from "./googleAuth";
-
-export const CURRENT_BACKUP_VERSION = 1;
+  getPendingOrFailed,
+  getPendingCount,
+  markUploaded,
+  markFailed,
+  seedAsUploaded,
+} from "./imageBackupRepo";
+import { getBackupSettings } from "./backupSettingsRepo";
+import { toRelativePath } from "@/functions/imageHelpers";
 
 // ─── Concurrency Guard ────────────────────────────────────────────────────────
 
 let isOperationInProgress = false;
 
-// ─── Image Collector ──────────────────────────────────────────────────────────
+// ─── Format Utilities ─────────────────────────────────────────────────────────
+
+export function formatBytes(bytes: number, decimals = 1): string {
+  if (bytes <= 0) return "0 B";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+// ─── Path & Header Safety Helpers ─────────────────────────────────────────────
+
+const SQLITE_HEADER = "SQLite format 3\0";
 
 /**
- * Dynamically scans documentDirectory/revision-app/images/ recursively,
- * traversing whatever subfolders exist without hardcoding category names.
+ * Validates that the binary data begins with the standard SQLite database file magic header.
  */
-async function collectAllImages(): Promise<BackupImageEntry[]> {
-  const images: BackupImageEntry[] = [];
-  const baseImagesDir = new Directory(Paths.document, "revision-app", "images");
+export function isValidSqliteFile(bytes: Uint8Array): boolean {
+  if (bytes.length < 16) return false;
+  const header = new TextDecoder().decode(bytes.slice(0, 16));
+  return header === SQLITE_HEADER;
+}
 
-  if (!baseImagesDir.exists) {
-    return images;
-  }
-
-  async function scanDirectory(dir: Directory, prefix = ""): Promise<void> {
-    try {
-      const items = dir.list();
-      for (const item of items) {
-        const relativePath = prefix ? `${prefix}/${item.name}` : item.name;
-
-        if (item instanceof Directory) {
-          await scanDirectory(item, relativePath);
-        } else if (item instanceof File) {
-          try {
-            const bytes = await item.bytes();
-            images.push({ relativePath, bytes });
-          } catch (readErr) {
-            console.warn(`[backupService] Could not read image ${item.name}:`, readErr);
-          }
-        }
-      }
-    } catch (listErr) {
-      console.warn(`[backupService] Could not list directory contents:`, listErr);
-    }
-  }
-
-  await scanDirectory(baseImagesDir);
-  return images;
+/**
+ * Validates that a relative path from the manifest does not attempt path traversal attacks.
+ */
+export function isSafeRelativePath(path: string): boolean {
+  if (!path || typeof path !== "string") return false;
+  if (path.startsWith("/") || path.startsWith("\\") || /^[a-zA-Z]:/.test(path)) return false;
+  if (path.split("/").some((part) => part === ".." || part === "." || part === "")) return false;
+  if (path.includes("\\")) return false;
+  return true;
 }
 
 // ─── Safe Database Snapshot ───────────────────────────────────────────────────
@@ -110,64 +109,193 @@ async function createDatabaseSnapshot(): Promise<Uint8Array> {
   return dbBytes;
 }
 
-// ─── Backup Pipeline ──────────────────────────────────────────────────────────
+// ─── Incremental Backup Check ─────────────────────────────────────────────────
 
-export interface BackupResult {
-  backupId: string;
-  sizeFormatted: string;
-  syncedAt: string;
-  imageCount: number;
+/**
+ * Checks whether backup can proceed based on user settings and current network status.
+ */
+export async function canSyncNow(): Promise<{ allowed: boolean; reason?: string }> {
+  try {
+    const settings = await getBackupSettings();
+    if (!settings.backupEnabled) {
+      return { allowed: false, reason: "Backup is disabled in settings." };
+    }
+
+    const net = await Network.getNetworkStateAsync();
+    if (!net.isConnected) {
+      return { allowed: false, reason: "No internet connection." };
+    }
+
+    if (settings.wifiOnly && net.type !== Network.NetworkStateType.WIFI) {
+      return { allowed: false, reason: "Wi-Fi is not connected (Wi-Fi only enabled)." };
+    }
+
+    return { allowed: true };
+  } catch (err) {
+    console.warn("[backupService] canSyncNow check failed:", err);
+    return { allowed: false, reason: "Network check failed." };
+  }
+}
+
+// ─── Incremental Image Sync ───────────────────────────────────────────────────
+
+/**
+ * Uploads a single image to Google Drive appDataFolder and updates manifest.json.
+ * Bails early if a restore or DB snapshot is in progress.
+ */
+export async function syncSingleImage(
+  rawPath: string,
+  accessToken?: string
+): Promise<boolean> {
+  if (isOperationInProgress) {
+    // Avoid operating against a closed or locked database during restore
+    return false;
+  }
+
+  const relativePath = toRelativePath(rawPath);
+  if (!relativePath) return false;
+
+  const allowed = await canSyncNow();
+  if (!allowed.allowed) {
+    // Remains pending in backup_images table for next network window
+    return false;
+  }
+
+  let token = accessToken;
+  if (!token) {
+    try {
+      token = await getValidAccessToken();
+    } catch {
+      return false;
+    }
+  }
+
+  try {
+    const imgFile = new File(Paths.document, relativePath);
+    if (!imgFile.exists) {
+      console.warn(`[backupService] Local image file does not exist: ${relativePath}`);
+      await markFailed(relativePath);
+      return false;
+    }
+
+    const bytes = await imgFile.bytes();
+    const driveFileId = await uploadSingleImage(token, relativePath, bytes);
+    await updateManifest(token, relativePath, driveFileId);
+    await markUploaded(relativePath, driveFileId);
+    return true;
+  } catch (err) {
+    console.warn(`[backupService] Failed to sync single image ${relativePath}:`, err);
+    try {
+      await markFailed(relativePath);
+    } catch {
+      // Non-fatal if database is temporarily closed during concurrent restore
+    }
+    return false;
+  }
 }
 
 /**
- * Executes a full backup:
- * 1. Flushes & snapshots SQLite database
- * 2. Collects all question/solution images dynamically
- * 3. Compresses into timestamped zip archive with manifest
- * 4. Uploads to Google Drive appDataFolder with retries
- * 5. Verifies upload integrity & prunes older backups
- * 6. Updates SecureStore sync metadata
+ * Sweeps and uploads all pending or retryable images in batches.
+ * Fully claims isOperationInProgress guard to prevent overlapping sweeps or conflicts.
  */
-export async function createBackup(
-  accessToken: string,
-  onProgress?: (status: string) => void
-): Promise<BackupResult> {
+export async function syncPendingImages(
+  accessToken?: string,
+  onProgress?: (processed: number, total: number) => void
+): Promise<{ uploaded: number; failed: number }> {
   if (isOperationInProgress) {
-    throw new Error("A backup or restore operation is already in progress.");
+    return { uploaded: 0, failed: 0 };
   }
 
   isOperationInProgress = true;
+  try {
+    const allowed = await canSyncNow();
+    if (!allowed.allowed) {
+      return { uploaded: 0, failed: 0 };
+    }
+
+    let token = accessToken;
+    if (!token) {
+      try {
+        token = await getValidAccessToken();
+      } catch {
+        return { uploaded: 0, failed: 0 };
+      }
+    }
+
+    const pending = await getPendingOrFailed();
+    if (pending.length === 0) {
+      return { uploaded: 0, failed: 0 };
+    }
+
+    let uploaded = 0;
+    let failed = 0;
+    const CONCURRENCY = 3;
+
+    for (let i = 0; i < pending.length; i += CONCURRENCY) {
+      // Re-verify network state before each batch in case connection dropped
+      const recheck = await canSyncNow();
+      if (!recheck.allowed) {
+        break;
+      }
+
+      const batch = pending.slice(i, i + CONCURRENCY);
+      await Promise.all(
+        batch.map(async (item) => {
+          const success = await syncSingleImage(item.relativePath, token);
+          if (success) uploaded++;
+          else failed++;
+          onProgress?.(uploaded + failed, pending.length);
+        })
+      );
+    }
+
+    return { uploaded, failed };
+  } finally {
+    isOperationInProgress = false;
+  }
+}
+
+// ─── Standalone Database Sync ─────────────────────────────────────────────────
+
+/**
+ * Uploads only the SQLite database snapshot after all pending images are uploaded.
+ * Synchronously claims isOperationInProgress immediately before any await.
+ */
+export async function syncDatabaseOnly(
+  accessToken?: string
+): Promise<boolean> {
+  if (isOperationInProgress) {
+    return false;
+  }
+  isOperationInProgress = true;
 
   try {
-    onProgress?.("Flushing & snapshotting database...");
+    const allowed = await canSyncNow();
+    if (!allowed.allowed) {
+      return false;
+    }
+
+    // Ensure no images are pending before DB sync to maintain referential integrity
+    const pendingCount = await getPendingCount();
+    if (pendingCount > 0) {
+      console.log(`[backupService] Skipping DB sync: ${pendingCount} images still pending.`);
+      return false;
+    }
+
+    let token = accessToken;
+    if (!token) {
+      try {
+        token = await getValidAccessToken();
+      } catch {
+        return false;
+      }
+    }
+
     const dbBytes = await createDatabaseSnapshot();
-
-    onProgress?.("Scanning images...");
-    const images = await collectAllImages();
-
-    onProgress?.("Compressing backup archive...");
-    const timestamp = Date.now();
-    const metadata = {
-      app: "RevLog",
-      version: CURRENT_BACKUP_VERSION,
-      createdAt: new Date(timestamp).toISOString(),
-      imageCount: images.length,
-      dbSizeBytes: dbBytes.byteLength,
-    };
-
-    const zipBytes = await createBackupArchive(dbBytes, images, metadata);
-    const filename = `revlog_backup_${timestamp}.zip`;
-
-    onProgress?.("Uploading to Google Drive...");
-    const uploadedFile = await uploadBackup(accessToken, zipBytes, filename);
-
-    onProgress?.("Verifying & pruning older backups...");
-    await pruneOldBackups(accessToken, 3);
+    const uploadedFile = await uploadDatabaseOnly(token, dbBytes);
 
     const syncedAt = new Date().toISOString();
-    const parsedSize = parseInt(uploadedFile.size, 10);
-    const sizeBytes = Number.isFinite(parsedSize) ? parsedSize : zipBytes.byteLength;
-    const sizeFormatted = formatBytes(sizeBytes);
+    const sizeFormatted = formatBytes(dbBytes.byteLength);
 
     await saveSyncMetadata({
       lastSyncAt: syncedAt,
@@ -175,18 +303,16 @@ export async function createBackup(
       lastBackupId: uploadedFile.id,
     });
 
-    return {
-      backupId: uploadedFile.id,
-      sizeFormatted,
-      syncedAt,
-      imageCount: images.length,
-    };
+    return true;
+  } catch (err) {
+    console.error("[backupService] syncDatabaseOnly failed:", err);
+    return false;
   } finally {
     isOperationInProgress = false;
   }
 }
 
-// ─── Restore Pipeline ─────────────────────────────────────────────────────────
+// ─── Incremental Restore from Manifest ────────────────────────────────────────
 
 export interface RestoreResult {
   restoredAt: string;
@@ -195,14 +321,10 @@ export interface RestoreResult {
 }
 
 /**
- * Executes a full restore with rollback protection:
- * 1. Fetches and downloads latest backup from Google Drive appDataFolder
- * 2. Verifies format & version compatibility before touching filesystem
- * 3. Snapshots current local database before overwrite (rolls back on error)
- * 4. Extracts revision.db, purges stale WAL/SHM files, extracts all images
- * 5. Reinitializes SQLite connection
+ * Restores database from revlog_database.db and synchronizes missing images via manifest.json.
+ * Validates SQLite magic header before filesystem operations to prevent corrupt/truncated overwrites.
  */
-export async function restoreBackup(
+export async function restoreFromManifest(
   accessToken: string,
   onProgress?: (status: string) => void
 ): Promise<RestoreResult> {
@@ -213,31 +335,23 @@ export async function restoreBackup(
   isOperationInProgress = true;
 
   try {
-    onProgress?.("Locating latest cloud backup...");
-    const backups = await listBackups(accessToken);
+    onProgress?.("Checking for cloud backup...");
 
-    if (backups.length === 0) {
-      throw new Error("No existing RevLog backups found in your Google Drive.");
+    // 1. Download standalone database snapshot
+    const dbBytes = await downloadDatabaseOnly(accessToken);
+    if (!dbBytes) {
+      throw new Error("No RevLog backup database found in your Google Drive.");
     }
 
-    const latestBackup = backups[0];
-
-    onProgress?.("Downloading backup archive...");
-    const zipBytes = await downloadBackup(accessToken, latestBackup.id);
-
-    onProgress?.("Decompressing backup archive...");
-    const extracted = await extractBackupArchive(zipBytes);
-
-    // Version compatibility check
-    if (
-      extracted.metadata?.version &&
-      typeof extracted.metadata.version === "number" &&
-      extracted.metadata.version > CURRENT_BACKUP_VERSION
-    ) {
+    // 2. Validate SQLite magic header to prevent writing truncated/corrupt downloads
+    if (!isValidSqliteFile(dbBytes)) {
       throw new Error(
-        `This backup was created with a newer version of RevLog (v${extracted.metadata.version}). Please update RevLog to restore.`
+        "The downloaded backup database appears corrupted or incomplete. Restore aborted — your local data was not affected."
       );
     }
+
+    onProgress?.("Fetching cloud image manifest...");
+    const manifestInfo = await getManifestInfo(accessToken);
 
     onProgress?.("Restoring database & images...");
 
@@ -247,9 +361,9 @@ export async function restoreBackup(
     }
 
     const targetDb = new File(sqliteDir, "revision.db");
-
-    // 1. Snapshot current database before touching anything to enable rollback on failure
     const preRestoreDb = new File(Paths.cache, `pre_restore_${Date.now()}.db`);
+
+    // Safety snapshot before touching local db
     if (targetDb.exists) {
       try {
         targetDb.copy(preRestoreDb);
@@ -261,11 +375,11 @@ export async function restoreBackup(
       }
     }
 
-    // 2. Safely close database to replace file
+    // Safely close database connection
     closeDatabaseSync();
 
     try {
-      targetDb.write(extracted.dbBytes);
+      targetDb.write(dbBytes);
 
       // Clean up stale WAL / SHM files if present
       const walFile = new File(sqliteDir, "revision.db-wal");
@@ -274,26 +388,38 @@ export async function restoreBackup(
       const shmFile = new File(sqliteDir, "revision.db-shm");
       if (shmFile.exists) shmFile.delete();
 
-      // 3. Restore images to documentDirectory/revision-app/images/
-      // DESIGN NOTE: Existing local images are merged/overwritten rather than wiped clean,
-      // ensuring newly created offline images are not lost if restore is triggered.
+      // Download any images from manifest that aren't present locally
       const baseImagesDir = new Directory(Paths.document, "revision-app", "images");
       if (!baseImagesDir.exists) {
         baseImagesDir.create({ intermediates: true, idempotent: true });
       }
 
-      for (const img of extracted.images) {
-        const parts = img.relativePath.split("/");
-        const filename = parts.pop()!;
-        const folderName = parts.join("/");
+      const entries = Object.entries(manifestInfo.manifest);
 
-        const targetFolder = new Directory(baseImagesDir, folderName);
-        if (!targetFolder.exists) {
-          targetFolder.create({ intermediates: true, idempotent: true });
+      for (let i = 0; i < entries.length; i++) {
+        const [relativePath, driveFileId] = entries[i];
+        if (!isSafeRelativePath(relativePath)) {
+          console.warn(`[backupService] Skipping unsafe relative path in manifest: ${relativePath}`);
+          continue;
         }
 
-        const imgFile = new File(targetFolder, filename);
-        imgFile.write(img.bytes);
+        const localFile = new File(Paths.document, relativePath);
+        if (!localFile.exists) {
+          onProgress?.(`Downloading image ${i + 1} of ${entries.length}...`);
+          try {
+            const imgBytes = await downloadSingleImage(accessToken, driveFileId);
+            const parts = relativePath.split("/");
+            const filename = parts.pop()!;
+            const folderDir = new Directory(Paths.document, parts.join("/"));
+            if (!folderDir.exists) {
+              folderDir.create({ intermediates: true, idempotent: true });
+            }
+            const f = new File(folderDir, filename);
+            f.write(imgBytes);
+          } catch (imgErr) {
+            console.warn(`[backupService] Failed to download image ${relativePath}:`, imgErr);
+          }
+        }
       }
 
       // Successful restore: discard pre-restore snapshot
@@ -301,7 +427,7 @@ export async function restoreBackup(
         try {
           preRestoreDb.delete();
         } catch {
-          // Non-fatal cache cleanup
+          // Non-fatal cleanup
         }
       }
     } catch (restoreErr) {
@@ -309,7 +435,7 @@ export async function restoreBackup(
       if (preRestoreDb.exists) {
         try {
           const preBytes = await preRestoreDb.bytes();
-          targetDb.write(preBytes); // safe overwrite without relying on copy() semantics
+          targetDb.write(preBytes);
           preRestoreDb.delete();
         } catch (rollbackErr) {
           console.error("[backupService] Rollback failed:", rollbackErr);
@@ -317,7 +443,7 @@ export async function restoreBackup(
       }
       throw restoreErr;
     } finally {
-      // 4. Always reopen the database connection
+      // Always reopen database
       try {
         reopenDatabaseSync();
       } catch (reopenErr) {
@@ -331,19 +457,30 @@ export async function restoreBackup(
       }
     }
 
+    // Seed all manifest images in backup_images table using single-query atomic upsert
+    try {
+      for (const [relPath, driveFileId] of Object.entries(manifestInfo.manifest)) {
+        if (isSafeRelativePath(relPath)) {
+          await seedAsUploaded(relPath, driveFileId);
+        }
+      }
+    } catch (repoErr) {
+      console.warn("[backupService] Failed to seed backup_images after restore:", repoErr);
+    }
+
     const restoredAt = new Date().toISOString();
-    const sizeFormatted = formatBytes(extracted.dbBytes.byteLength);
+    const sizeFormatted = formatBytes(dbBytes.byteLength);
 
     await saveSyncMetadata({
       lastSyncAt: restoredAt,
       lastBackupSize: sizeFormatted,
-      lastBackupId: latestBackup.id,
+      lastBackupId: "manifest_restore",
     });
 
     return {
       restoredAt,
-      imageCount: extracted.images.length,
-      metadata: extracted.metadata,
+      imageCount: Object.keys(manifestInfo.manifest).length,
+      metadata: { type: "incremental_manifest" },
     };
   } finally {
     isOperationInProgress = false;

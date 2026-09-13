@@ -37,7 +37,6 @@ export function isAuthError(err: any): boolean {
 
 const DRIVE_API_BASE = "https://www.googleapis.com/drive/v3/files";
 const DRIVE_UPLOAD_BASE = "https://www.googleapis.com/upload/drive/v3/files";
-const MAX_BACKUP_RETENTION = 3;
 
 const DEFAULT_TIMEOUT_MS = 30000;
 const TRANSFER_TIMEOUT_MS = 90000; // 90s for large upload/download payloads
@@ -106,164 +105,10 @@ async function withRetry<T>(
   throw new Error("Maximum retry attempts exceeded.");
 }
 
-// ─── List Existing Backups ────────────────────────────────────────────────────
+// ─── Binary File Download ─────────────────────────────────────────────────────
 
 /**
- * Lists all RevLog backup archives in the Google Drive appDataFolder,
- * sorted by modifiedTime descending (newest first).
- */
-export async function listBackups(accessToken: string): Promise<DriveBackupFile[]> {
-  return withRetry(async () => {
-    const query = encodeURIComponent("name contains 'revlog_backup_' and trashed = false");
-    const fields = encodeURIComponent("files(id, name, size, modifiedTime)");
-    const url = `${DRIVE_API_BASE}?spaces=appDataFolder&q=${query}&fields=${fields}&orderBy=modifiedTime desc`;
-
-    const response = await fetchWithTimeout(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      throw new DriveApiError(
-        `Failed to list Google Drive backups (${response.status}): ${errorText}`,
-        response.status
-      );
-    }
-
-    let data: any;
-    try {
-      data = await response.json();
-    } catch {
-      throw new DriveApiError("Google Drive returned invalid JSON listing.", response.status);
-    }
-
-    // Filter strictly by backup archive filename pattern to isolate from any future non-backup appData files
-    const rawFiles = (data.files || []) as DriveBackupFile[];
-    return rawFiles.filter((file) => /^revlog_backup_\d+\.zip$/.test(file.name));
-  });
-}
-
-// ─── Upload Backup Archive ────────────────────────────────────────────────────
-
-/**
- * Uploads a new timestamped backup archive to appDataFolder using Resumable Upload.
- * Verifies upload completion and file size before returning.
- *
- * NOTE ON RESUMABLE SESSIONS:
- * If step 1 (init) succeeds but step 2 (PUT) fails after retries, Google Drive
- * automatically expires and cleans up unfinalized resumable upload sessions (~1 week).
- */
-export async function uploadBackup(
-  accessToken: string,
-  zipBytes: Uint8Array,
-  filename: string
-): Promise<DriveBackupFile> {
-  // 1. Safe ArrayBuffer slice:
-  // Uint8Array.buffer returns the entire underlying buffer. If zipBytes is a subarray
-  // or comes from a shared buffer pool, sending zipBytes.buffer directly would upload
-  // extraneous bytes and corrupt the archive.
-  const payload =
-    zipBytes.byteOffset === 0 &&
-    zipBytes.byteLength === zipBytes.buffer.byteLength
-      ? zipBytes.buffer
-      : zipBytes.slice().buffer;
-
-  return withRetry(async () => {
-    // Step 1: Initiate Resumable Upload session
-    const initUrl = `${DRIVE_UPLOAD_BASE}?uploadType=resumable`;
-    const metadata = {
-      name: filename,
-      parents: ["appDataFolder"],
-      mimeType: "application/zip",
-    };
-
-    const initResponse = await fetchWithTimeout(
-      initUrl,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json; charset=UTF-8",
-          "X-Upload-Content-Type": "application/zip",
-          "X-Upload-Content-Length": zipBytes.byteLength.toString(),
-        },
-        body: JSON.stringify(metadata),
-      },
-      DEFAULT_TIMEOUT_MS
-    );
-
-    if (!initResponse.ok) {
-      const err = await initResponse.text().catch(() => "");
-      throw new DriveApiError(
-        `Failed to initiate Drive upload (${initResponse.status}): ${err}`,
-        initResponse.status
-      );
-    }
-
-    const uploadUrl = initResponse.headers.get("Location");
-    if (!uploadUrl) {
-      throw new DriveApiError(
-        "Google Drive did not return a resumable upload location header.",
-        initResponse.status
-      );
-    }
-
-    // Step 2: Upload binary zip payload
-    const uploadResponse = await fetchWithTimeout(
-      uploadUrl,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/zip",
-          "Content-Length": zipBytes.byteLength.toString(),
-        },
-        body: payload as ArrayBuffer,
-      },
-      TRANSFER_TIMEOUT_MS
-    );
-
-    if (!uploadResponse.ok) {
-      const err = await uploadResponse.text().catch(() => "");
-      throw new DriveApiError(
-        `Failed to upload backup payload (${uploadResponse.status}): ${err}`,
-        uploadResponse.status
-      );
-    }
-
-    // Guard against non-JSON gateway HTML error responses
-    let result: any;
-    try {
-      result = await uploadResponse.json();
-    } catch {
-      throw new DriveApiError(
-        "Drive returned an unreadable response after upload.",
-        uploadResponse.status
-      );
-    }
-
-    // Step 3: Verify upload integrity
-    if (!result?.id) {
-      throw new DriveApiError("Drive upload response missing confirmed file ID.", 500);
-    }
-
-    const uploadedFile: DriveBackupFile = {
-      id: result.id,
-      name: result.name || filename,
-      size: result.size || zipBytes.byteLength.toString(),
-      modifiedTime: result.modifiedTime || new Date().toISOString(),
-    };
-
-    return uploadedFile;
-  });
-}
-
-// ─── Download Backup Archive ──────────────────────────────────────────────────
-
-/**
- * Downloads a backup archive from appDataFolder by file ID.
+ * Downloads a file from Google Drive appDataFolder by file ID.
  */
 export async function downloadBackup(
   accessToken: string,
@@ -285,7 +130,7 @@ export async function downloadBackup(
     if (!response.ok) {
       const err = await response.text().catch(() => "");
       throw new DriveApiError(
-        `Failed to download backup (${response.status}): ${err}`,
+        `Failed to download file (${response.status}): ${err}`,
         response.status
       );
     }
@@ -295,48 +140,347 @@ export async function downloadBackup(
   });
 }
 
-// ─── Safe Backup Pruning ──────────────────────────────────────────────────────
+// ─── Incremental Sync & Single File Helpers ────────────────────────────────────
 
 /**
- * Preserves the newest `keepCount` (defaults to 3) backups and safely removes older ones.
- * Guaranteed to run only after a new backup has been confirmed and verified.
- *
- * DESIGN NOTE (Fail-Open on Delete):
- * Individual deletion errors are intentionally swallowed without failing the parent sync flow.
- * If a delete fails transiently, that older backup simply lingers until the next prune cycle,
- * preventing non-critical cleanup failures from blocking the user's primary backup success.
+ * Searches appDataFolder for a single file matching the given filename.
+ * Properly throws DriveApiError on transient/server failures, so callers
+ * only receive null when the file is genuinely absent.
  */
-export async function pruneOldBackups(
+export async function findAppDataFile(
   accessToken: string,
-  keepCount = MAX_BACKUP_RETENTION
-): Promise<void> {
-  try {
-    const backups = await listBackups(accessToken);
+  filename: string
+): Promise<DriveBackupFile | null> {
+  return withRetry(async () => {
+    const escapedFilename = filename.replace(/'/g, "\\'");
+    const query = encodeURIComponent(`name = '${escapedFilename}' and trashed = false`);
+    const fields = encodeURIComponent("files(id, name, size, modifiedTime)");
+    const url = `${DRIVE_API_BASE}?spaces=appDataFolder&q=${query}&fields=${fields}`;
 
-    // If there are more backups than the threshold, delete the older ones
-    if (backups.length > keepCount) {
-      const toDelete = backups.slice(keepCount);
+    const response = await fetchWithTimeout(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
 
-      for (const file of toDelete) {
-        try {
-          const deleteUrl = `${DRIVE_API_BASE}/${file.id}`;
-          await fetchWithTimeout(
-            deleteUrl,
-            {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
-            DEFAULT_TIMEOUT_MS
-          );
-          console.log(`[googleDrive] Pruned older backup: ${file.name} (${file.id})`);
-        } catch (delErr) {
-          console.warn(`[googleDrive] Could not delete old backup ${file.id}:`, delErr);
-        }
-      }
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new DriveApiError(
+        `Failed to search for ${filename} (${response.status}): ${errorText}`,
+        response.status
+      );
     }
-  } catch (err) {
-    console.warn("[googleDrive] Pruning check encountered an error:", err);
-  }
+
+    let data: any;
+    try {
+      data = await response.json();
+    } catch {
+      throw new DriveApiError(
+        `Google Drive returned invalid JSON search response for ${filename}.`,
+        response.status
+      );
+    }
+
+    const files = (data.files || []) as DriveBackupFile[];
+    return files.length > 0 ? (files[0] as DriveBackupFile) : null;
+  });
 }
+
+/**
+ * Helper to upload a binary file to appDataFolder using Resumable Upload.
+ */
+async function uploadBinaryToAppData(
+  accessToken: string,
+  filename: string,
+  mimeType: string,
+  bytes: Uint8Array
+): Promise<DriveBackupFile> {
+  const payload =
+    bytes.byteOffset === 0 && bytes.byteLength === bytes.buffer.byteLength
+      ? bytes.buffer
+      : bytes.slice().buffer;
+
+  return withRetry(async () => {
+    const initUrl = `${DRIVE_UPLOAD_BASE}?uploadType=resumable`;
+    const metadata = {
+      name: filename,
+      parents: ["appDataFolder"],
+      mimeType,
+    };
+
+    const initResponse = await fetchWithTimeout(
+      initUrl,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json; charset=UTF-8",
+          "X-Upload-Content-Type": mimeType,
+          "X-Upload-Content-Length": bytes.byteLength.toString(),
+        },
+        body: JSON.stringify(metadata),
+      },
+      DEFAULT_TIMEOUT_MS
+    );
+
+    if (!initResponse.ok) {
+      const err = await initResponse.text().catch(() => "");
+      throw new DriveApiError(
+        `Failed to init upload for ${filename} (${initResponse.status}): ${err}`,
+        initResponse.status
+      );
+    }
+
+    const uploadUrl = initResponse.headers.get("Location");
+    if (!uploadUrl) {
+      throw new DriveApiError("Google Drive did not return upload URL header.", 500);
+    }
+
+    const uploadResponse = await fetchWithTimeout(
+      uploadUrl,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": mimeType,
+          "Content-Length": bytes.byteLength.toString(),
+        },
+        body: payload as ArrayBuffer,
+      },
+      TRANSFER_TIMEOUT_MS
+    );
+
+    if (!uploadResponse.ok) {
+      const err = await uploadResponse.text().catch(() => "");
+      throw new DriveApiError(
+        `Failed upload for ${filename} (${uploadResponse.status}): ${err}`,
+        uploadResponse.status
+      );
+    }
+
+    const result = await uploadResponse.json().catch(() => ({}));
+    if (!result?.id) {
+      throw new DriveApiError(`Upload response missing ID for ${filename}.`, 500);
+    }
+
+    return {
+      id: result.id,
+      name: result.name || filename,
+      size: result.size || bytes.byteLength.toString(),
+      modifiedTime: result.modifiedTime || new Date().toISOString(),
+    };
+  });
+}
+
+/**
+ * Uploads a single image directly to Google Drive appDataFolder.
+ * Returns the confirmed driveFileId.
+ */
+export async function uploadSingleImage(
+  accessToken: string,
+  relativePath: string,
+  imageBytes: Uint8Array
+): Promise<string> {
+  const ext = relativePath.split(".").pop()?.toLowerCase() || "jpg";
+  const mimeType = ext === "png" ? "image/png" : "image/jpeg";
+  // Encode relative path to a safe unique filename on Google Drive, escaping single quotes
+  const driveFileName = `img_${encodeURIComponent(relativePath).replace(/'/g, "%27")}`;
+
+  const result = await uploadBinaryToAppData(
+    accessToken,
+    driveFileName,
+    mimeType,
+    imageBytes
+  );
+
+  return result.id;
+}
+
+/**
+ * Downloads a single image from Google Drive by its file ID.
+ */
+export async function downloadSingleImage(
+  accessToken: string,
+  driveFileId: string
+): Promise<Uint8Array> {
+  return withRetry(async () => {
+    const downloadUrl = `${DRIVE_API_BASE}/${driveFileId}?alt=media`;
+
+    const response = await fetchWithTimeout(
+      downloadUrl,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+      TRANSFER_TIMEOUT_MS
+    );
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => "");
+      throw new DriveApiError(
+        `Failed to download image ${driveFileId} (${response.status}): ${err}`,
+        response.status
+      );
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  });
+}
+
+export interface DriveManifestInfo {
+  fileId: string | null;
+  manifest: Record<string, string>; // relativePath -> driveFileId
+}
+
+/**
+ * Retrieves the current manifest.json from appDataFolder.
+ * Returns fileId: null only if the manifest genuinely does not exist yet.
+ * Real network/API/parse failures are propagated so callers don't accidentally
+ * overwrite an existing manifest with a blank one.
+ */
+export async function getManifestInfo(
+  accessToken: string
+): Promise<DriveManifestInfo> {
+  const file = await findAppDataFile(accessToken, "manifest.json");
+  if (!file) {
+    return { fileId: null, manifest: {} };
+  }
+
+  const contentBytes = await downloadBackup(accessToken, file.id);
+  const text = new TextDecoder().decode(contentBytes);
+  const parsed = JSON.parse(text);
+
+  return {
+    fileId: file.id,
+    manifest: typeof parsed === "object" && parsed !== null ? parsed : {},
+  };
+}
+
+let manifestWriteQueue: Promise<void> = Promise.resolve();
+
+/**
+ * Updates manifest.json on Google Drive with serialized execution.
+ * Prevents read-modify-write lost-update races during concurrent batch uploads.
+ */
+export async function updateManifest(
+  accessToken: string,
+  relativePath: string,
+  driveFileId: string
+): Promise<void> {
+  manifestWriteQueue = manifestWriteQueue.catch(() => {}).then(async () => {
+    const current = await getManifestInfo(accessToken);
+    current.manifest[relativePath] = driveFileId;
+
+    const jsonStr = JSON.stringify(current.manifest, null, 2);
+    const bytes = new TextEncoder().encode(jsonStr);
+
+    if (current.fileId) {
+      // Overwrite existing manifest via PATCH media upload
+      await withRetry(async () => {
+        const patchUrl = `${DRIVE_UPLOAD_BASE}/${current.fileId}?uploadType=media`;
+        const response = await fetchWithTimeout(
+          patchUrl,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json; charset=UTF-8",
+            },
+            body: bytes,
+          },
+          DEFAULT_TIMEOUT_MS
+        );
+
+        if (!response.ok) {
+          const err = await response.text().catch(() => "");
+          throw new DriveApiError(
+            `Failed to update manifest.json (${response.status}): ${err}`,
+            response.status
+          );
+        }
+      });
+    } else {
+      // Create new manifest.json file
+      await uploadBinaryToAppData(
+        accessToken,
+        "manifest.json",
+        "application/json",
+        bytes
+      );
+    }
+  });
+
+  return manifestWriteQueue;
+}
+
+/**
+ * Uploads the standalone SQLite database snapshot (revision.db) to appDataFolder.
+ */
+export async function uploadDatabaseOnly(
+  accessToken: string,
+  dbBytes: Uint8Array
+): Promise<DriveBackupFile> {
+  const existing = await findAppDataFile(accessToken, "revlog_database.db");
+
+  if (existing) {
+    const payload =
+      dbBytes.byteOffset === 0 && dbBytes.byteLength === dbBytes.buffer.byteLength
+        ? dbBytes.buffer
+        : dbBytes.slice().buffer;
+
+    // Overwrite existing database file via PATCH media upload
+    return withRetry(async () => {
+      const patchUrl = `${DRIVE_UPLOAD_BASE}/${existing.id}?uploadType=media`;
+      const response = await fetchWithTimeout(
+        patchUrl,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/octet-stream",
+          },
+          body: payload as ArrayBuffer,
+        },
+        TRANSFER_TIMEOUT_MS
+      );
+
+      if (!response.ok) {
+        const err = await response.text().catch(() => "");
+        throw new DriveApiError(
+          `Failed to update revlog_database.db (${response.status}): ${err}`,
+          response.status
+        );
+      }
+
+      return {
+        id: existing.id,
+        name: "revlog_database.db",
+        size: dbBytes.byteLength.toString(),
+        modifiedTime: new Date().toISOString(),
+      };
+    });
+  }
+
+  // Create new revlog_database.db
+  return uploadBinaryToAppData(
+    accessToken,
+    "revlog_database.db",
+    "application/octet-stream",
+    dbBytes
+  );
+}
+
+/**
+ * Downloads the standalone database (revlog_database.db) from appDataFolder.
+ */
+export async function downloadDatabaseOnly(
+  accessToken: string
+): Promise<Uint8Array | null> {
+  const file = await findAppDataFile(accessToken, "revlog_database.db");
+  if (!file) return null;
+
+  return downloadBackup(accessToken, file.id);
+}
+

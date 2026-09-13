@@ -3,9 +3,11 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
-import { Alert } from "react-native";
+import { Alert, AppState, type AppStateStatus } from "react-native";
+import * as Network from "expo-network";
 import {
   configureGoogleAuth,
   getStoredUser,
@@ -17,7 +19,17 @@ import {
   signOutFromGoogle,
   type GoogleAuthUser,
 } from "@/services/googleAuth";
-import { createBackup, restoreBackup } from "@/services/backupService";
+import {
+  restoreFromManifest,
+  syncDatabaseOnly,
+  syncPendingImages,
+} from "@/services/backupService";
+import { getPendingCount } from "@/services/imageBackupRepo";
+import {
+  getBackupSettings,
+  setBackupEnabled as saveBackupEnabled,
+  setWifiOnly as saveWifiOnly,
+} from "@/services/backupSettingsRepo";
 import { isAuthError } from "@/services/googleDrive";
 
 async function withTokenRetry<T>(
@@ -48,9 +60,14 @@ export interface CloudSyncContextValue {
   progressMessage: string | null;
   lastSyncAt: string | null;
   lastBackupSize: string | null;
+  backupEnabled: boolean;
+  wifiOnly: boolean;
+  pendingCount: number;
+  toggleBackupEnabled: (val: boolean) => Promise<void>;
+  toggleWifiOnly: (val: boolean) => Promise<void>;
+  refreshPendingCount: () => Promise<void>;
   signIn: () => Promise<boolean>;
   signOut: () => Promise<void>;
-  sync: () => Promise<void>;
   restore: () => Promise<void>;
 }
 
@@ -69,6 +86,11 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [lastBackupSize, setLastBackupSize] = useState<string | null>(null);
 
+  const [backupEnabled, setBackupEnabled] = useState(true);
+  const [wifiOnly, setWifiOnly] = useState(true);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  const isSyncingRef = useRef(false);
   const isNativeSupported = isGoogleSigninSupported();
 
   const loadMetadata = useCallback(async () => {
@@ -77,6 +99,96 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     setLastBackupSize(meta.lastBackupSize);
   }, []);
 
+  const refreshPendingCount = useCallback(async () => {
+    try {
+      const count = await getPendingCount();
+      setPendingCount(count);
+    } catch (err) {
+      console.warn("[CloudSyncContext] refreshPendingCount error:", err);
+    }
+  }, []);
+
+  const loadSettings = useCallback(async () => {
+    try {
+      const settings = await getBackupSettings();
+      setBackupEnabled(settings.backupEnabled);
+      setWifiOnly(settings.wifiOnly);
+      await refreshPendingCount();
+    } catch (err) {
+      console.warn("[CloudSyncContext] loadSettings error:", err);
+    }
+  }, [refreshPendingCount]);
+
+  // ─── Automatic Sync Pipeline ────────────────────────────────────────────────
+  const runAutoSync = useCallback(async () => {
+    if (isSyncingRef.current || isRestoring || !user) {
+      return;
+    }
+
+    const settings = await getBackupSettings();
+    if (!settings.backupEnabled) {
+      return;
+    }
+
+    isSyncingRef.current = true;
+    setIsSyncing(true);
+
+    try {
+      // 1. Check current pending images
+      const count = await getPendingCount();
+      setPendingCount(count);
+
+      // 2. Upload any pending images
+      if (count > 0) {
+        await syncPendingImages();
+        const updatedCount = await getPendingCount();
+        setPendingCount(updatedCount);
+      }
+
+      // 3. Upload standalone database snapshot if no images are pending
+      await syncDatabaseOnly();
+
+      // 4. Reload metadata
+      await loadMetadata();
+    } catch (err) {
+      console.warn("[CloudSyncContext] runAutoSync error:", err);
+    } finally {
+      isSyncingRef.current = false;
+      setIsSyncing(false);
+    }
+  }, [isRestoring, user, loadMetadata]);
+
+  // ─── Network & AppState Listeners ───────────────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    // Trigger auto-sync when network reconnects or switches
+    const netSub = Network.addNetworkStateListener((state) => {
+      if (state.isConnected) {
+        runAutoSync();
+      }
+    });
+
+    // Trigger auto-sync when app returns to foreground
+    const appSub = AppState.addEventListener(
+      "change",
+      (nextState: AppStateStatus) => {
+        if (nextState === "active") {
+          runAutoSync();
+        }
+      }
+    );
+
+    // Initial check on login
+    runAutoSync();
+
+    return () => {
+      netSub.remove();
+      appSub.remove();
+    };
+  }, [user, runAutoSync]);
+
+  // ─── App Initialization ─────────────────────────────────────────────────────
   useEffect(() => {
     async function init() {
       try {
@@ -96,6 +208,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         await loadMetadata();
+        await loadSettings();
       } catch (err) {
         console.warn("[CloudSyncContext] Init silent sign-in error:", err);
       } finally {
@@ -104,8 +217,30 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     init();
-  }, [isNativeSupported, loadMetadata]);
+  }, [isNativeSupported, loadMetadata, loadSettings]);
 
+  // ─── Setting Toggles ────────────────────────────────────────────────────────
+  const toggleBackupEnabled = useCallback(
+    async (enabled: boolean) => {
+      setBackupEnabled(enabled);
+      await saveBackupEnabled(enabled);
+      if (enabled) {
+        runAutoSync();
+      }
+    },
+    [runAutoSync]
+  );
+
+  const toggleWifiOnly = useCallback(
+    async (wifi: boolean) => {
+      setWifiOnly(wifi);
+      await saveWifiOnly(wifi);
+      runAutoSync();
+    },
+    [runAutoSync]
+  );
+
+  // ─── Auth Operations ────────────────────────────────────────────────────────
   const signIn = useCallback(async () => {
     if (!isNativeSupported) {
       Alert.alert(
@@ -127,6 +262,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       setUser(result.user);
       await loadMetadata();
+      await refreshPendingCount();
       return true;
     } catch (err: any) {
       console.error("[CloudSyncContext] Sign-in failed:", err);
@@ -135,7 +271,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setIsSigningIn(false);
     }
-  }, [isNativeSupported, loadMetadata]);
+  }, [isNativeSupported, loadMetadata, refreshPendingCount]);
 
   const signOut = useCallback(async () => {
     try {
@@ -147,48 +283,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const sync = useCallback(async () => {
-    if (isSyncing || isRestoring) return;
-
-    if (!isNativeSupported) {
-      Alert.alert(
-        "Native Build Required",
-        "Google Drive sync requires native compilation. Please run a native development build ('npx expo run:android' or 'npx expo run:ios')."
-      );
-      return;
-    }
-
-    try {
-      setIsSyncing(true);
-      setProgressMessage("Connecting to Google Drive...");
-
-      const result = await withTokenRetry(
-        (token) =>
-          createBackup(token, (step) => {
-            setProgressMessage(step);
-          }),
-        (progress) => setProgressMessage(progress)
-      );
-
-      setLastSyncAt(result.syncedAt);
-      setLastBackupSize(result.sizeFormatted);
-
-      Alert.alert(
-        "Backup Successful",
-        `Your database and ${result.imageCount} image(s) have been backed up to Google Drive (${result.sizeFormatted}).`
-      );
-    } catch (err: any) {
-      console.error("[CloudSyncContext] Sync failed:", err);
-      Alert.alert(
-        "Sync Failed",
-        err?.message || "An unexpected error occurred during sync. Your local data was not affected."
-      );
-    } finally {
-      setIsSyncing(false);
-      setProgressMessage(null);
-    }
-  }, [isNativeSupported, isSyncing, isRestoring]);
-
+  // ─── Restore Pipeline ───────────────────────────────────────────────────────
   const restore = useCallback(async () => {
     if (isSyncing || isRestoring) return;
 
@@ -201,8 +296,8 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     Alert.alert(
-      "Restore Backup",
-      "This will replace your current local revision database and images with the latest version from your Google Drive. Continue?",
+      "Restore from Drive",
+      "This will replace your current local revision database and download missing images from your Google Drive backup. Continue?",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -215,23 +310,24 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
 
               const result = await withTokenRetry(
                 (token) =>
-                  restoreBackup(token, (step) => {
+                  restoreFromManifest(token, (step) => {
                     setProgressMessage(step);
                   }),
                 (progress) => setProgressMessage(progress)
               );
 
               await loadMetadata();
+              await refreshPendingCount();
 
               Alert.alert(
                 "Restore Completed",
-                `Successfully restored database and ${result.imageCount} image(s) from your Google Drive.`
+                `Successfully restored database and verified ${result.imageCount} image(s) from your Google Drive.`
               );
             } catch (err: any) {
               console.error("[CloudSyncContext] Restore failed:", err);
               Alert.alert(
                 "Restore Failed",
-                err?.message || "Could not complete backup restoration."
+                err?.message || "Could not complete backup restoration. Your local data was preserved."
               );
             } finally {
               setIsRestoring(false);
@@ -241,7 +337,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       ]
     );
-  }, [isNativeSupported, isSyncing, isRestoring, loadMetadata]);
+  }, [isNativeSupported, isSyncing, isRestoring, loadMetadata, refreshPendingCount]);
 
   return (
     <CloudSyncContext.Provider
@@ -256,9 +352,14 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         progressMessage,
         lastSyncAt,
         lastBackupSize,
+        backupEnabled,
+        wifiOnly,
+        pendingCount,
+        toggleBackupEnabled,
+        toggleWifiOnly,
+        refreshPendingCount,
         signIn,
         signOut,
-        sync,
         restore,
       }}
     >

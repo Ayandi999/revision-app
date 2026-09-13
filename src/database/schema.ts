@@ -1,4 +1,5 @@
-import { customType, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import { check, customType, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 /**
  * Robust JSON string-array column that safely parses valid JSON arrays
@@ -89,3 +90,39 @@ export const questions = sqliteTable("questions", {
 
 export type Question = typeof questions.$inferSelect;
 export type NewQuestion = typeof questions.$inferInsert;
+
+export const backupImages = sqliteTable("backup_images", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  relativePath: text("relative_path").notNull().unique(),
+  driveFileId: text("drive_file_id"),
+  status: text("status", {
+    enum: ["pending", "uploaded", "failed"],
+  })
+    .notNull()
+    .default("pending"),
+  uploadedAt: text("uploaded_at"),
+  retryCount: integer("retry_count").notNull().default(0),
+  lastAttemptAt: text("last_attempt_at"),
+});
+
+export type BackupImage = typeof backupImages.$inferSelect;
+export type NewBackupImage = typeof backupImages.$inferInsert;
+
+export const backupSettings = sqliteTable(
+  "backup_settings",
+  {
+    id: integer("id").primaryKey(),
+    backupEnabled: integer("backup_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    wifiOnly: integer("wifi_only", { mode: "boolean" })
+      .notNull()
+      .default(true),
+  },
+  (table) => ({
+    singletonCheck: check("singleton_check", sql`${table.id} = 1`),
+  })
+);
+
+export type BackupSetting = typeof backupSettings.$inferSelect;
+export type NewBackupSetting = typeof backupSettings.$inferInsert;

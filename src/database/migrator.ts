@@ -84,6 +84,32 @@ export function useAppMigrations() {
         }
       }
 
+      // 4d. Ensure 'backup_images' table exists
+      expodb.execSync(`
+        CREATE TABLE IF NOT EXISTS "backup_images" (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          relative_path TEXT NOT NULL UNIQUE,
+          drive_file_id TEXT,
+          status TEXT NOT NULL DEFAULT 'pending',
+          uploaded_at TEXT,
+          retry_count INTEGER NOT NULL DEFAULT 0,
+          last_attempt_at TEXT
+        );
+      `);
+
+      // 4e. Ensure 'backup_settings' table exists and has default row
+      expodb.execSync(`
+        CREATE TABLE IF NOT EXISTS "backup_settings" (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          backup_enabled INTEGER NOT NULL DEFAULT 1,
+          wifi_only INTEGER NOT NULL DEFAULT 1
+        );
+      `);
+      expodb.execSync(`
+        INSERT OR IGNORE INTO "backup_settings" (id, backup_enabled, wifi_only)
+        VALUES (1, 1, 1);
+      `);
+
       // 5. Reconcile __drizzle_migrations journal timestamps
       const existingEntries = expodb.getAllSync<{ created_at: number }>(
         "SELECT created_at FROM __drizzle_migrations;",
