@@ -138,26 +138,13 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isNativeSupported, loadMetadata]);
 
   const signOut = useCallback(async () => {
-    Alert.alert(
-      "Log Out of Google Drive",
-      "Your existing backups will remain safe on Google Drive, but new questions won't be backed up until you reconnect. Are you sure you want to log out?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Log Out",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await signOutFromGoogle();
-            } catch (err: any) {
-              console.error("[CloudSyncContext] Sign-out failed:", err);
-            } finally {
-              setUser(null);
-            }
-          },
-        },
-      ]
-    );
+    try {
+      await signOutFromGoogle();
+    } catch (err: any) {
+      console.error("[CloudSyncContext] Sign-out failed:", err);
+    } finally {
+      setUser(null);
+    }
   }, []);
 
   const sync = useCallback(async () => {

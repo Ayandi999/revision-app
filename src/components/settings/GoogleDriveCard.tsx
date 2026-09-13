@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
 import { Image } from "expo-image";
 import { useCloudSync } from "@/hooks/useCloudSync";
 import { GoogleDriveLogo } from "@/components/icons/GoogleDriveLogo";
+import { LogoutConfirmationModal } from "@/components/settings/LogoutConfirmationModal";
 
 export const GoogleDriveCard: React.FC = () => {
   const {
@@ -29,6 +30,7 @@ export const GoogleDriveCard: React.FC = () => {
     restore,
   } = useCloudSync();
 
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const isBusy = isSyncing || isRestoring;
 
   // Format date nicely
@@ -203,7 +205,7 @@ export const GoogleDriveCard: React.FC = () => {
             {/* Unlink / Logout Button at bottom */}
             <TouchableOpacity
               style={[styles.logoutButton, isBusy && styles.buttonDisabled]}
-              onPress={signOut}
+              onPress={() => setShowLogoutModal(true)}
               disabled={isBusy}
               activeOpacity={0.8}
             >
@@ -213,6 +215,13 @@ export const GoogleDriveCard: React.FC = () => {
           </View>
         </View>
       )}
+
+      {/* Stylized App Theme Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        visible={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={signOut}
+      />
     </View>
   );
 };
