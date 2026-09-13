@@ -25,6 +25,12 @@ const Settings = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* ─── Cloud Backup & Sync Section ─────────────────────── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Cloud Backup</Text>
+          <GoogleDriveCard />
+        </View>
+
         {/* ─── Target Exam Section ─────────────────────────────── */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Target Exam</Text>
@@ -67,12 +73,6 @@ const Settings = () => {
               <Ionicons name="chevron-forward" size={14} color={examColor} />
             </View>
           </TouchableOpacity>
-        </View>
-
-        {/* ─── Cloud Backup & Sync Section ─────────────────────── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Cloud Backup</Text>
-          <GoogleDriveCard />
         </View>
 
         {/* ─── Footer ─────────────────────────────────────────── */}

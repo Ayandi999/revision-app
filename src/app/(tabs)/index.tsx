@@ -6,6 +6,8 @@ import { useActiveExam } from "@/context/ExamContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
+import { Image } from "expo-image";
+import { useCloudSync } from "@/hooks/useCloudSync";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -44,6 +46,7 @@ const getAccuracyColor = (accuracy: number) => {
 export default function DashboardScreen() {
   const router = useRouter();
   const { syllabus } = useActiveExam();
+  const { user, isAuthenticated } = useCloudSync();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -115,13 +118,6 @@ export default function DashboardScreen() {
     loadStats();
   }, [loadStats]);
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning 🌞";
-    if (hour < 17) return "Good afternoon 🌅";
-    return "Good evening 🌑";
-  };
-
   const getFormattedDate = () => {
     return new Intl.DateTimeFormat("en-US", {
       weekday: "short",
@@ -129,6 +125,8 @@ export default function DashboardScreen() {
       day: "numeric",
     }).format(new Date());
   };
+
+  const displayName = user?.name ? user.name.trim().split(" ")[0] : "";
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
@@ -147,12 +145,36 @@ export default function DashboardScreen() {
         {/* ── Section 1: Header & Greeting ── */}
         <View style={styles.header}>
           <View style={styles.headerTextGroup}>
-            <Text style={styles.greetingText}>{getGreeting()} ,</Text>
-            <Text style={styles.headerTitle}>Welcome Back!</Text>
+            <Text style={styles.greetingText} numberOfLines={1}>
+              {isAuthenticated && displayName ? "Welcome back," : "Welcome back"}
+            </Text>
+            <Text style={styles.headerTitle} numberOfLines={1}>
+              {isAuthenticated && displayName ? displayName : "Ready to Revise!"}
+            </Text>
           </View>
-          <View style={styles.dateChip}>
-            <Ionicons name="calendar-outline" size={13} color="#94A3B8" />
-            <Text style={styles.dateChipText}>{getFormattedDate()}</Text>
+
+          <View style={styles.headerRightGroup}>
+            <View style={styles.dateChip}>
+              <Ionicons name="calendar-outline" size={13} color="#94A3B8" />
+              <Text style={styles.dateChipText}>{getFormattedDate()}</Text>
+            </View>
+
+            {isAuthenticated && (
+              user?.photo ? (
+                <Image
+                  source={{ uri: user.photo }}
+                  style={styles.headerAvatar}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : (
+                <View style={styles.headerAvatarFallback}>
+                  <Text style={styles.headerAvatarFallbackText}>
+                    {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+                  </Text>
+                </View>
+              )
+            )}
           </View>
         </View>
 
@@ -695,7 +717,36 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTextGroup: {
+    flex: 1,
     gap: 2,
+    marginRight: 10,
+  },
+  headerRightGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  headerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(59, 130, 246, 0.4)",
+  },
+  headerAvatarFallback: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(59, 130, 246, 0.2)",
+    borderWidth: 1.5,
+    borderColor: "rgba(59, 130, 246, 0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerAvatarFallbackText: {
+    color: "#60A5FA",
+    fontSize: 16,
+    fontWeight: "700",
   },
   greetingText: {
     color: "#94A3B8",
@@ -704,7 +755,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
     letterSpacing: -0.5,
   },

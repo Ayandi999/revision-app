@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { GoogleDriveLogo } from "@/components/icons/GoogleDriveLogo";
 
 export const GoogleDriveCard: React.FC = () => {
   const {
@@ -53,27 +54,29 @@ export const GoogleDriveCard: React.FC = () => {
 
   return (
     <View style={styles.card}>
-      {/* ─── Header ────────────────────────────────────────────── */}
+      {/* ─── Header with Top-Right Status ─────────────────────── */}
       <View style={styles.cardHeader}>
         <View style={styles.driveIconWrap}>
-          <Ionicons name="cloud-done-outline" size={20} color="#3B82F6" />
+          <GoogleDriveLogo size={24} />
         </View>
         <View style={styles.headerTextGroup}>
-          <View style={styles.titleRow}>
-            <Text style={styles.cardTitle}>Google Drive Cloud Sync</Text>
-            {isAuthenticated && (
-              <View style={styles.connectedBadge}>
-                <View style={styles.connectedDot} />
-                <Text style={styles.connectedText}>Connected</Text>
-              </View>
-            )}
-          </View>
+          <Text style={styles.cardTitle}>Google Drive Cloud Sync</Text>
           <Text style={styles.cardSubtitle}>
-            {isAuthenticated
-              ? "Your data is privately backed up to your Google Drive App Data folder"
-              : "Link your Google account to back up questions and diagrams securely"}
+            Sync your data with your Google Drive
           </Text>
         </View>
+
+        {/* Top-Right Connected Status Pill */}
+        {isAuthenticated ? (
+          <View style={styles.connectedBadge}>
+            <View style={styles.connectedDot} />
+            <Text style={styles.connectedText}>Connected</Text>
+          </View>
+        ) : (
+          <View style={styles.unlinkedBadge}>
+            <Text style={styles.unlinkedText}>Not Linked</Text>
+          </View>
+        )}
       </View>
 
       {/* ─── Unauthenticated State ─────────────────────────────── */}
@@ -114,10 +117,15 @@ export const GoogleDriveCard: React.FC = () => {
       ) : (
         /* ─── Authenticated State ───────────────────────────────── */
         <View style={styles.linkedContainer}>
-          {/* User profile row */}
+          {/* User profile info */}
           <View style={styles.userRow}>
             {user?.photo ? (
-              <Image source={{ uri: user.photo }} style={styles.userAvatar} />
+              <Image
+                source={{ uri: user.photo }}
+                style={styles.userAvatar}
+                contentFit="cover"
+                transition={200}
+              />
             ) : (
               <View style={styles.avatarFallback}>
                 <Text style={styles.avatarFallbackText}>
@@ -133,16 +141,6 @@ export const GoogleDriveCard: React.FC = () => {
                 {user?.email}
               </Text>
             </View>
-
-            <TouchableOpacity
-              style={styles.disconnectButton}
-              onPress={signOut}
-              disabled={isBusy}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Ionicons name="log-out-outline" size={16} color="#94A3B8" />
-              <Text style={styles.disconnectText}>Unlink</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Sync status overview */}
@@ -167,9 +165,10 @@ export const GoogleDriveCard: React.FC = () => {
           )}
 
           {/* Action buttons */}
-          <View style={styles.actionsRow}>
+          <View style={styles.actionsContainer}>
+            {/* Full-width Sync Changes Button */}
             <TouchableOpacity
-              style={[styles.syncButton, isBusy && styles.buttonDisabled]}
+              style={[styles.syncButtonFull, isBusy && styles.buttonDisabled]}
               onPress={sync}
               disabled={isBusy}
               activeOpacity={0.8}
@@ -184,8 +183,9 @@ export const GoogleDriveCard: React.FC = () => {
               )}
             </TouchableOpacity>
 
+            {/* Full-width Restore Button */}
             <TouchableOpacity
-              style={[styles.restoreButton, isBusy && styles.buttonDisabled]}
+              style={[styles.restoreButtonFull, isBusy && styles.buttonDisabled]}
               onPress={restore}
               disabled={isBusy}
               activeOpacity={0.8}
@@ -194,10 +194,21 @@ export const GoogleDriveCard: React.FC = () => {
                 <ActivityIndicator size="small" color="#94A3B8" />
               ) : (
                 <>
-                  <Ionicons name="cloud-download-outline" size={18} color="#94A3B8" />
-                  <Text style={styles.restoreButtonText}>Restore</Text>
+                  <Ionicons name="cloud-download-outline" size={18} color="#CBD5E1" />
+                  <Text style={styles.restoreButtonText}>Restore from Drive</Text>
                 </>
               )}
+            </TouchableOpacity>
+
+            {/* Unlink / Logout Button at bottom */}
+            <TouchableOpacity
+              style={[styles.logoutButton, isBusy && styles.buttonDisabled]}
+              onPress={signOut}
+              disabled={isBusy}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="log-out-outline" size={16} color="#EF4444" />
+              <Text style={styles.logoutButtonText}>Log out</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -234,23 +245,20 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: "rgba(59, 130, 246, 0.12)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 2,
   },
   headerTextGroup: {
     flex: 1,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
+    paddingRight: 4,
   },
   cardTitle: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
   },
   cardSubtitle: {
@@ -264,9 +272,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(16, 185, 129, 0.15)",
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 20,
     gap: 5,
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+    alignSelf: "flex-start",
   },
   connectedDot: {
     width: 6,
@@ -279,6 +290,21 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
     textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+  unlinkedBadge: {
+    backgroundColor: "rgba(148, 163, 184, 0.1)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.2)",
+    alignSelf: "flex-start",
+  },
+  unlinkedText: {
+    color: "#94A3B8",
+    fontSize: 10,
+    fontWeight: "600",
   },
   unlinkedContainer: {
     marginTop: 16,
@@ -341,24 +367,26 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.03)",
     padding: 10,
     borderRadius: 12,
-    gap: 10,
+    gap: 12,
   },
   userAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.3)",
   },
   avatarFallback: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: "#3B82F6",
     alignItems: "center",
     justifyContent: "center",
   },
   avatarFallbackText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "700",
   },
   userInfo: {
@@ -366,33 +394,20 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "600",
   },
   userEmail: {
     color: "#64748B",
-    fontSize: 11,
-    marginTop: 1,
-  },
-  disconnectButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  disconnectText: {
-    color: "#94A3B8",
     fontSize: 12,
-    fontWeight: "500",
+    marginTop: 1,
   },
   statsRow: {
     flexDirection: "row",
     backgroundColor: "rgba(255, 255, 255, 0.02)",
     borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     alignItems: "center",
   },
   statBox: {
@@ -430,40 +445,57 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
-  actionsRow: {
-    flexDirection: "row",
+  actionsContainer: {
     gap: 10,
     marginTop: 4,
   },
-  syncButton: {
-    flex: 2,
+  syncButtonFull: {
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#2563EB",
     borderRadius: 12,
-    paddingVertical: 12,
-    gap: 6,
+    paddingVertical: 13,
+    gap: 8,
   },
   syncButtonText: {
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "700",
   },
-  restoreButton: {
-    flex: 1,
+  restoreButtonFull: {
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 12,
     paddingVertical: 12,
-    gap: 6,
+    gap: 8,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
   },
   restoreButtonText: {
     color: "#CBD5E1",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  logoutButton: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(239, 68, 68, 0.08)",
+    borderRadius: 12,
+    paddingVertical: 11,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.2)",
+    marginTop: 2,
+  },
+  logoutButtonText: {
+    color: "#EF4444",
     fontSize: 13,
     fontWeight: "600",
   },

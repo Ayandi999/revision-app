@@ -9,12 +9,12 @@ import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ExamProvider } from "@/context/ExamContext";
+import { CloudSyncProvider } from "@/context/CloudSyncContext";
+import { OnboardingModal } from "@/components/OnboardingModal";
 
 // Keep the splash screen visible until fonts are ready
 SplashScreen.preventAutoHideAsync();
-
-import { ExamProvider } from "@/context/ExamContext";
-import { OnboardingModal } from "@/components/OnboardingModal";
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -39,9 +39,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ExamProvider>
-          <Slot />
-          <OnboardingModal />
-          <OtaUpdateNotification />
+          <CloudSyncProvider>
+            <Slot />
+            <OnboardingModal />
+            <OtaUpdateNotification />
+          </CloudSyncProvider>
         </ExamProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
