@@ -89,7 +89,7 @@ export function SyllabusDropdown({
 
         <Ionicons
           name={isOpen ? "chevron-up" : "chevron-down"}
-          size={18}
+          size={16}
           color={chevronColor}
         />
       </TouchableOpacity>
@@ -120,7 +120,7 @@ export function SyllabusDropdown({
                     {!item.badge && (
                       <Ionicons
                         name={isSelected ? "checkbox" : "square-outline"}
-                        size={18}
+                        size={16}
                         color={isSelected ? "#3B82F6" : "#6B7280"}
                       />
                     )}
@@ -153,7 +153,7 @@ export function SyllabusDropdown({
 
                   {/* Right: checkmark for badge-based single-select items */}
                   {item.badge && isSelected && (
-                    <Ionicons name="checkmark" size={18} color="#3B82F6" />
+                    <Ionicons name="checkmark" size={16} color="#3B82F6" />
                   )}
                 </TouchableOpacity>
               );
@@ -175,24 +175,24 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: "#94A3B8",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   dropdownSection: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: 14,
+    gap: 7,
   },
   dropdownInput: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#1E2028",
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
   },
   dropdownInputActive: {
     borderColor: "rgba(59, 130, 246, 0.35)",
@@ -202,28 +202,28 @@ const styles = StyleSheet.create({
   },
   dropdownInputValueContainer: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 8,
   },
   dropdownPlaceholder: {
     color: "#6B7280",
-    fontSize: 14,
+    fontSize: 13,
   },
   dropdownMenu: {
     backgroundColor: "#1E2028",
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
   },
   dropdownScrollContainer: {
-    maxHeight: 220,
+    maxHeight: 190,
   },
   dropdownItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 13,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.06)",
   },
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
   dropdownItemLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 8,
     flex: 1,
   },
   typeBadge: {
     backgroundColor: "#1c1b1b",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.12)",
   },
@@ -253,16 +253,16 @@ const styles = StyleSheet.create({
   },
   typeBadgeText: {
     color: "#E5E7EB",
-    fontSize: 12,
+    fontSize: 10.5,
     fontWeight: "700",
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   typeBadgeTextSelected: {
     color: "#3B82F6",
   },
   itemBadgeLabel: {
     color: "#94A3B8",
-    fontSize: 14,
+    fontSize: 12.5,
     fontWeight: "500",
     flex: 1,
   },

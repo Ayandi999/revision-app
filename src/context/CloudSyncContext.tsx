@@ -20,6 +20,7 @@ import {
   type GoogleAuthUser,
 } from "@/services/googleAuth";
 import {
+  canSyncNow,
   restoreFromManifest,
   syncDatabaseOnly,
   syncPendingImages,
@@ -58,6 +59,7 @@ export interface CloudSyncContextValue {
   isSyncing: boolean;
   isRestoring: boolean;
   progressMessage: string | null;
+  waitingReason: string | null;
   lastSyncAt: string | null;
   lastBackupSize: string | null;
   backupEnabled: boolean;
@@ -82,6 +84,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [progressMessage, setProgressMessage] = useState<string | null>(null);
+  const [waitingReason, setWaitingReason] = useState<string | null>(null);
 
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [lastBackupSize, setLastBackupSize] = useState<string | null>(null);
@@ -91,6 +94,12 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   const [pendingCount, setPendingCount] = useState(0);
 
   const isSyncingRef = useRef(false);
+  const lastSyncAttemptRef = useRef(0);
+  const userRef = useRef(user);
+  userRef.current = user;
+  const isRestoringRef = useRef(isRestoring);
+  isRestoringRef.current = isRestoring;
+
   const isNativeSupported = isGoogleSigninSupported();
 
   const loadMetadata = useCallback(async () => {
@@ -120,47 +129,82 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [refreshPendingCount]);
 
   // ─── Automatic Sync Pipeline ────────────────────────────────────────────────
-  const runAutoSync = useCallback(async () => {
-    if (isSyncingRef.current || isRestoring || !user) {
-      return;
-    }
-
-    const settings = await getBackupSettings();
-    if (!settings.backupEnabled) {
-      return;
-    }
-
-    isSyncingRef.current = true;
-    setIsSyncing(true);
-
-    try {
-      // 1. Check current pending images
-      const count = await getPendingCount();
-      setPendingCount(count);
-
-      // 2. Upload any pending images
-      if (count > 0) {
-        await syncPendingImages();
-        const updatedCount = await getPendingCount();
-        setPendingCount(updatedCount);
+  const runAutoSync = useCallback(
+    async (force = false) => {
+      if (isSyncingRef.current || isRestoringRef.current || !userRef.current) {
+        return;
       }
 
-      // 3. Upload standalone database snapshot if no images are pending
-      await syncDatabaseOnly();
+      // Cooldown guard: prevent automatic sync from running more than once every 45s unless forced
+      const now = Date.now();
+      if (!force && now - lastSyncAttemptRef.current < 45_000) {
+        return;
+      }
+      lastSyncAttemptRef.current = now;
 
-      // 4. Reload metadata
-      await loadMetadata();
-    } catch (err) {
-      console.warn("[CloudSyncContext] runAutoSync error:", err);
-    } finally {
-      isSyncingRef.current = false;
-      setIsSyncing(false);
-    }
-  }, [isRestoring, user, loadMetadata]);
+      const settings = await getBackupSettings();
+      if (!settings.backupEnabled) {
+        setWaitingReason(null);
+        return;
+      }
+
+      // Check network & Wi-Fi conditions upfront BEFORE setting isSyncing
+      const allowedCheck = await canSyncNow();
+      if (!allowedCheck.allowed) {
+        setWaitingReason(allowedCheck.reason || "Sync paused");
+        // Do not turn on isSyncing if conditions are not satisfied
+        return;
+      }
+      setWaitingReason(null);
+
+      isSyncingRef.current = true;
+      setIsSyncing(true);
+
+      const HARD_TIMEOUT_MS = 35_000;
+
+      try {
+        await Promise.race([
+          (async () => {
+            // 1. Check current pending images
+            const count = await getPendingCount();
+            setPendingCount(count);
+
+            // 2. Upload any pending images
+            if (count > 0) {
+              await syncPendingImages();
+              const updatedCount = await getPendingCount();
+              setPendingCount(updatedCount);
+            }
+
+            // 3. Upload standalone database snapshot if no images are pending
+            await syncDatabaseOnly();
+
+            // 4. Reload metadata
+            await loadMetadata();
+          })(),
+          new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error("Sync operation exceeded safety timeout (35s).")
+                ),
+              HARD_TIMEOUT_MS
+            )
+          ),
+        ]);
+      } catch (err) {
+        console.warn("[CloudSyncContext] runAutoSync error:", err);
+      } finally {
+        isSyncingRef.current = false;
+        setIsSyncing(false);
+      }
+    },
+    [loadMetadata]
+  );
 
   // ─── Network & AppState Listeners ───────────────────────────────────────────
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
     // Trigger auto-sync when network reconnects or switches
     const netSub = Network.addNetworkStateListener((state) => {
@@ -186,7 +230,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
       netSub.remove();
       appSub.remove();
     };
-  }, [user, runAutoSync]);
+  }, [user?.id, runAutoSync]);
 
   // ─── App Initialization ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -209,6 +253,9 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
 
         await loadMetadata();
         await loadSettings();
+        if (storedUser) {
+          runAutoSync(true);
+        }
       } catch (err) {
         console.warn("[CloudSyncContext] Init silent sign-in error:", err);
       } finally {
@@ -217,7 +264,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     init();
-  }, [isNativeSupported, loadMetadata, loadSettings]);
+  }, [isNativeSupported, loadMetadata, loadSettings, runAutoSync]);
 
   // ─── Setting Toggles ────────────────────────────────────────────────────────
   const toggleBackupEnabled = useCallback(
@@ -225,7 +272,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
       setBackupEnabled(enabled);
       await saveBackupEnabled(enabled);
       if (enabled) {
-        runAutoSync();
+        runAutoSync(true);
       }
     },
     [runAutoSync]
@@ -235,7 +282,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
     async (wifi: boolean) => {
       setWifiOnly(wifi);
       await saveWifiOnly(wifi);
-      runAutoSync();
+      runAutoSync(true);
     },
     [runAutoSync]
   );
@@ -350,6 +397,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         isSyncing,
         isRestoring,
         progressMessage,
+        waitingReason,
         lastSyncAt,
         lastBackupSize,
         backupEnabled,

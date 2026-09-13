@@ -2,13 +2,14 @@ import React, { useMemo, useState, useEffect } from "react";
 import {
   FlatList,
   Modal,
-  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { EXAM_OPTIONS, ExamOption, StreamOption } from "@/config/exams";
 import { useActiveExam } from "@/context/ExamContext";
@@ -78,7 +79,7 @@ export function OnboardingModal() {
       presentationStyle="fullScreen"
       onRequestClose={closeExamSwitcher}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom", "left", "right"]}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -88,14 +89,14 @@ export function OnboardingModal() {
                 style={styles.backButton}
                 activeOpacity={0.7}
               >
-                <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+                <Ionicons name="arrow-back" size={18} color="#FFFFFF" />
               </TouchableOpacity>
             ) : null}
-            <View>
+            <View style={styles.titleTextCol}>
               <Text style={styles.headerEyebrow}>
                 {isOnboardingCompleted ? "PREFERENCES" : "WELCOME"}
               </Text>
-              <Text style={styles.headerTitle}>
+              <Text style={styles.headerTitle} numberOfLines={1}>
                 {step === 1
                   ? "Which exam are you preparing for?"
                   : `Select ${selectedExam.shortName} Stream`}
@@ -109,7 +110,7 @@ export function OnboardingModal() {
               style={styles.closeButton}
               activeOpacity={0.7}
             >
-              <Ionicons name="close" size={22} color="#94A3B8" />
+              <Ionicons name="close" size={20} color="#94A3B8" />
             </TouchableOpacity>
           )}
         </View>
@@ -117,8 +118,12 @@ export function OnboardingModal() {
         {/* Content */}
         <View style={styles.content}>
           {step === 1 ? (
-            /* ── Step 1: Exam Selection ────────────────────────────── */
-            <View style={styles.stepOneWrapper}>
+            /* ── Step 1: Exam Selection (Scrollable) ─────────────────── */
+            <ScrollView
+              style={styles.stepOneScrollView}
+              contentContainerStyle={styles.stepOneScrollContent}
+              showsVerticalScrollIndicator={false}
+            >
               <Text style={styles.subtitle}>
                 Choose your target examination to customize your syllabus, topics, and revision workflow.
               </Text>
@@ -137,45 +142,62 @@ export function OnboardingModal() {
                         },
                       ]}
                       onPress={() => handleSelectExam(exam)}
-                      activeOpacity={0.8}
+                      activeOpacity={0.75}
                     >
-                      <View style={styles.cardHeader}>
-                        <View
-                          style={[
-                            styles.iconWrapper,
-                            { backgroundColor: `${exam.color}20`, borderColor: exam.color },
-                          ]}
-                        >
-                          <Ionicons
-                            name={exam.icon as any}
-                            size={26}
-                            color={exam.color}
-                          />
-                        </View>
+                      <View
+                        style={[
+                          styles.iconWrapper,
+                          {
+                            backgroundColor: `${exam.color}18`,
+                            borderColor: `${exam.color}40`,
+                          },
+                        ]}
+                      >
                         <Ionicons
-                          name="chevron-forward"
-                          size={18}
-                          color="#64748B"
+                          name={exam.icon as any}
+                          size={20}
+                          color={exam.color}
                         />
                       </View>
 
-                      <Text style={styles.examName}>{exam.name}</Text>
-                      <Text style={styles.examDesc}>{exam.description}</Text>
-
-                      <View style={styles.streamCountBadge}>
-                        <Text
-                          style={[styles.streamCountText, { color: exam.color }]}
-                        >
-                          {exam.streams.length === 1
-                            ? "1 Category"
-                            : `${exam.streams.length} Options Available`}
+                      <View style={styles.examTextContainer}>
+                        <View style={styles.examTitleLine}>
+                          <Text style={styles.examName} numberOfLines={1}>
+                            {exam.name}
+                          </Text>
+                          <View
+                            style={[
+                              styles.streamCountBadge,
+                              { backgroundColor: `${exam.color}18` },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.streamCountText,
+                                { color: exam.color },
+                              ]}
+                            >
+                              {exam.streams.length === 1
+                                ? "1 Category"
+                                : `${exam.streams.length} Streams`}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.examDesc} numberOfLines={1}>
+                          {exam.description}
                         </Text>
                       </View>
+
+                      <Ionicons
+                        name="chevron-forward"
+                        size={16}
+                        color="#64748B"
+                      />
                     </TouchableOpacity>
                   );
                 })}
               </View>
-            </View>
+            </ScrollView>
           ) : (
             /* ── Step 2: Stream / Category Selection ───────────────── */
             <View style={styles.stepTwoWrapper}>
@@ -317,8 +339,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingTop: 12,
+    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.06)",
   },
@@ -328,18 +350,21 @@ const styles = StyleSheet.create({
     gap: 12,
     flex: 1,
   },
+  titleTextCol: {
+    flex: 1,
+  },
   backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
   },
   closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
@@ -354,73 +379,88 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "800",
     letterSpacing: -0.3,
     marginTop: 2,
   },
   content: {
     flex: 1,
+  },
+  stepOneScrollView: {
+    flex: 1,
+  },
+  stepOneScrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 14,
+    paddingBottom: 36,
   },
   subtitle: {
     color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 19,
-    marginBottom: 16,
-  },
-  stepOneWrapper: {
-    flex: 1,
+    fontSize: 12.5,
+    lineHeight: 18,
+    marginBottom: 14,
   },
   examGrid: {
-    gap: 12,
+    gap: 10,
   },
   examCard: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#1A1A22",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.08)",
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
+    gap: 12,
   },
   iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
   },
+  examTextContainer: {
+    flex: 1,
+    gap: 3,
+  },
+  examTitleLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
   examName: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 14.5,
     fontWeight: "700",
-    letterSpacing: -0.3,
-    marginBottom: 4,
+    letterSpacing: -0.2,
+    flexShrink: 1,
   },
   examDesc: {
     color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 16,
-    marginBottom: 12,
+    fontSize: 11.5,
+    lineHeight: 15,
   },
   streamCountBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
     alignSelf: "flex-start",
   },
   streamCountText: {
-    fontSize: 11,
+    fontSize: 9.5,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   stepTwoWrapper: {
     flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
   },
   searchContainer: {
     flexDirection: "row",
@@ -428,8 +468,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#1A1A22",
     borderRadius: 12,
     paddingHorizontal: 12,
-    height: 44,
-    marginBottom: 12,
+    height: 42,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
     gap: 8,
@@ -441,7 +481,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   streamList: {
-    gap: 8,
+    gap: 6,
     paddingBottom: 24,
   },
   streamItem: {
@@ -449,9 +489,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#1A1A22",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.06)",
   },
@@ -460,32 +500,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     flex: 1,
-    paddingRight: 12,
+    paddingRight: 10,
   },
   codeBadge: {
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 6,
-    minWidth: 34,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 5,
+    minWidth: 32,
     alignItems: "center",
     justifyContent: "center",
   },
   codeBadgeText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "800",
   },
   streamName: {
     color: "#E2E8F0",
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: "500",
     flex: 1,
-    lineHeight: 18,
+    lineHeight: 17,
   },
   radioCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
     borderColor: "rgba(255, 255, 255, 0.2)",
     alignItems: "center",
     justifyContent: "center",

@@ -398,19 +398,6 @@ export function QuestionDetailModal({
                 </View>
               </View>
             ) : null}
-
-            {/* ── Section 5: Extracted OCR Text (if present) ──────────────── */}
-            {question.extractedText ? (
-              <View style={styles.sectionContainer}>
-                <View style={styles.sectionHeaderRow}>
-                  <Ionicons name="text" size={18} color="#94A3B8" />
-                  <Text style={styles.sectionHeading}>Extracted OCR Text</Text>
-                </View>
-                <View style={styles.ocrCard}>
-                  <Text style={styles.ocrCardText}>{question.extractedText}</Text>
-                </View>
-              </View>
-            ) : null}
           </ScrollView>
         </SafeAreaView>
       </View>
@@ -774,17 +761,5 @@ const styles = StyleSheet.create({
     color: "#FEF3C7",
     fontSize: 13,
     lineHeight: 18,
-  },
-  ocrCard: {
-    backgroundColor: "#161618",
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#2E2E34",
-  },
-  ocrCardText: {
-    color: "#CBD5E1",
-    fontSize: 12,
-    lineHeight: 17,
   },
 });

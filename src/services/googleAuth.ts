@@ -198,50 +198,67 @@ export async function signInWithGoogle(): Promise<SignInResult> {
   }
 }
 
+let silentSignInPromise: Promise<{
+  user: GoogleAuthUser;
+  accessToken: string;
+} | null> | null = null;
+
+let getAccessTokenPromise: Promise<string> | null = null;
+
 /**
  * Silent sign-in flow. Restores session without user interaction.
  * Uses native SDK's internal token refresh mechanism.
+ * Guarded against concurrent in-flight calls to avoid overwriting native promises.
  */
 export async function signInSilentlyWithGoogle(): Promise<{
   user: GoogleAuthUser;
   accessToken: string;
 } | null> {
   if (!isGoogleSigninSupported()) return null;
-  await ensureConfigured();
+  if (silentSignInPromise) return silentSignInPromise;
 
-  try {
-    const { GoogleSignin } = await getGoogleSigninModule();
-    const response = await GoogleSignin.signInSilently();
-    const userData: any = (response as any).data || response;
-    const tokens = await GoogleSignin.getTokens();
+  silentSignInPromise = (async () => {
+    await ensureConfigured();
 
-    const authUser: GoogleAuthUser = {
-      id: userData.user.id,
-      name: userData.user.name,
-      email: userData.user.email,
-      photo: userData.user.photo,
-    };
+    try {
+      const { GoogleSignin } = await getGoogleSigninModule();
+      const response = await GoogleSignin.signInSilently();
+      const userData: any = (response as any).data || response;
+      const tokens = await GoogleSignin.getTokens();
 
-    setCachedToken(tokens.accessToken);
-    await saveStoredUser(authUser);
+      const authUser: GoogleAuthUser = {
+        id: userData.user.id,
+        name: userData.user.name,
+        email: userData.user.email,
+        photo: userData.user.photo,
+      };
 
-    return {
-      user: authUser,
-      accessToken: tokens.accessToken,
-    };
-  } catch (error: any) {
-    const mod = await getGoogleSigninModule();
-    if (error.code === mod.statusCodes.SIGN_IN_REQUIRED) {
+      setCachedToken(tokens.accessToken);
+      await saveStoredUser(authUser);
+
+      return {
+        user: authUser,
+        accessToken: tokens.accessToken,
+      };
+    } catch (error: any) {
+      const mod = await getGoogleSigninModule();
+      if (error.code === mod.statusCodes.SIGN_IN_REQUIRED) {
+        return null;
+      }
+      console.warn("[googleAuth] Silent sign-in warning:", error?.message || error);
       return null;
+    } finally {
+      silentSignInPromise = null;
     }
-    console.warn("[googleAuth] Silent sign-in warning:", error?.message || error);
-    return null;
-  }
+  })();
+
+  return silentSignInPromise;
 }
 
 /**
  * Retrieves a valid, unexpired access token for Google API calls.
  * Checks token age against expiry, supports forceRefresh, and invokes silent re-auth as needed.
+ * Guarded against concurrent in-flight calls to avoid overlapping getTokens() calls.
  */
 export async function getValidAccessToken(forceRefresh = false): Promise<string> {
   if (!isGoogleSigninSupported()) {
@@ -250,46 +267,58 @@ export async function getValidAccessToken(forceRefresh = false): Promise<string>
     );
   }
 
-  await ensureConfigured();
-  const { GoogleSignin } = await getGoogleSigninModule();
-
   // 2. Token expiry check:
-  // If token is still valid (with 2-minute buffer) and forceRefresh is false, return cached token
+  // If token is still valid (with 2-minute buffer) and forceRefresh is false, return cached token immediately
   const isStillValid =
     cachedAccessToken && Date.now() < cachedTokenExpiresAt - 120_000;
   if (isStillValid && !forceRefresh) {
     return cachedAccessToken!;
   }
 
-  // If forceRefresh was requested, clear token cache from native SDK if possible
-  if (forceRefresh && cachedAccessToken) {
+  if (getAccessTokenPromise && !forceRefresh) {
+    return getAccessTokenPromise;
+  }
+
+  getAccessTokenPromise = (async () => {
     try {
-      await GoogleSignin.clearCachedAccessToken(cachedAccessToken);
-    } catch {
-      // Best-effort cleanup
+      await ensureConfigured();
+      const { GoogleSignin } = await getGoogleSigninModule();
+
+      // If forceRefresh was requested, clear token cache from native SDK if possible
+      if (forceRefresh && cachedAccessToken) {
+        try {
+          await GoogleSignin.clearCachedAccessToken(cachedAccessToken);
+        } catch {
+          // Best-effort cleanup
+        }
+        clearCachedToken();
+      }
+
+      // Silent re-auth to fetch a fresh token
+      const silentResult = await signInSilentlyWithGoogle();
+      if (silentResult?.accessToken) {
+        setCachedToken(silentResult.accessToken);
+        return silentResult.accessToken;
+      }
+
+      // Fallback to getTokens()
+      try {
+        const tokens = await GoogleSignin.getTokens();
+        if (tokens.accessToken) {
+          setCachedToken(tokens.accessToken);
+          return tokens.accessToken;
+        }
+      } catch {
+        // Handled below
+      }
+
+      throw new Error("Authentication required or expired. Please sign in again.");
+    } finally {
+      getAccessTokenPromise = null;
     }
-    clearCachedToken();
-  }
+  })();
 
-  // Silent re-auth to fetch a fresh token
-  const silentResult = await signInSilentlyWithGoogle();
-  if (silentResult?.accessToken) {
-    setCachedToken(silentResult.accessToken);
-    return silentResult.accessToken;
-  }
-
-  // Fallback to getTokens()
-  try {
-    const tokens = await GoogleSignin.getTokens();
-    if (tokens.accessToken) {
-      setCachedToken(tokens.accessToken);
-      return tokens.accessToken;
-    }
-  } catch {
-    // Handled below
-  }
-
-  throw new Error("Authentication required or expired. Please sign in again.");
+  return getAccessTokenPromise;
 }
 
 /**

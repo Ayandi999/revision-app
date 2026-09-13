@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { QuestionCard } from "@/components/revision/QuestionCard";
 import { ResultQuestionCard } from "@/components/revision/ResultQuestionCard";
@@ -376,9 +377,15 @@ export default function RevisionScreen() {
     const isOngoing = currentIndex > 0 || cache?.status === "in-progress";
 
     return (
-      <View style={styles.centeredContainer}>
-        <View style={styles.startCard}>
-          <View style={styles.startIconWrapper}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        <View style={styles.titleBlock}>
+          <Text style={styles.title}>Revision</Text>
+          <Text style={styles.titleSubtext}>Daily practice & scheduled recall</Text>
+        </View>
+
+        <View style={styles.readyContentContainer}>
+          <View style={styles.startCard}>
+            <View style={styles.startIconWrapper}>
             <Ionicons
               name={isOngoing ? "play-circle" : "school"}
               size={52}
@@ -432,7 +439,8 @@ export default function RevisionScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    );
+    </SafeAreaView>
+  );
   }
 
   // ── Render: Quiz ──────────────────────────────────────────────────────────
@@ -544,6 +552,34 @@ export default function RevisionScreen() {
 
 const styles = StyleSheet.create({
   // Shared
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#1c1b1b",
+  },
+  titleBlock: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 6,
+  },
+  title: {
+    color: "#FFFFFF",
+    fontSize: 26,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+  },
+  titleSubtext: {
+    color: "#94A3B8",
+    fontSize: 13,
+    fontWeight: "400",
+    marginTop: 4,
+  },
+  readyContentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+    paddingBottom: 110, // clears the floating bottom tab bar
+  },
   screenContainer: {
     flex: 1,
     backgroundColor: "#1c1b1b",

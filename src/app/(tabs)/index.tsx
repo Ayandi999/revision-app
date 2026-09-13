@@ -305,7 +305,7 @@ export default function DashboardScreen() {
                       ? "stats-chart"
                       : "arrow-forward"
                   }
-                  size={18}
+                  size={15}
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
@@ -365,7 +365,7 @@ export default function DashboardScreen() {
                           >
                             <Ionicons
                               name={meta.icon as any}
-                              size={18}
+                              size={15}
                               color={meta.color}
                             />
                           </View>
@@ -401,7 +401,7 @@ export default function DashboardScreen() {
                           </View>
                           <Ionicons
                             name={isSubjOpen ? "chevron-up" : "chevron-down"}
-                            size={18}
+                            size={16}
                             color="#94A3B8"
                           />
                         </View>
@@ -606,7 +606,7 @@ export default function DashboardScreen() {
                       { backgroundColor: "rgba(59, 130, 246, 0.15)" },
                     ]}
                   >
-                    <Ionicons name="book" size={18} color="#60A5FA" />
+                    <Ionicons name="book" size={15} color="#60A5FA" />
                   </View>
                 </View>
                 <Text style={styles.metricValue}>
@@ -625,7 +625,7 @@ export default function DashboardScreen() {
                       { backgroundColor: "rgba(16, 185, 129, 0.15)" },
                     ]}
                   >
-                    <Ionicons name="trending-up" size={18} color="#34D399" />
+                    <Ionicons name="trending-up" size={15} color="#34D399" />
                   </View>
                 </View>
                 <Text style={styles.metricValue}>
@@ -644,7 +644,7 @@ export default function DashboardScreen() {
                       { backgroundColor: "rgba(245, 158, 11, 0.15)" },
                     ]}
                   >
-                    <Ionicons name="trophy" size={18} color="#FBBF24" />
+                    <Ionicons name="trophy" size={15} color="#FBBF24" />
                   </View>
                 </View>
                 <Text style={styles.metricValue}>
@@ -670,7 +670,7 @@ export default function DashboardScreen() {
                   >
                     <Ionicons
                       name="time"
-                      size={18}
+                      size={15}
                       color={
                         (stats?.overdueCount ?? 0) > 0 ? "#F87171" : "#C084FC"
                       }
@@ -706,37 +706,37 @@ const styles = StyleSheet.create({
     backgroundColor: "#121216",
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 110, // Avoid overlapping floating tab bar
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 90, // Avoid overlapping floating tab bar
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 12,
   },
   headerTextGroup: {
     flex: 1,
-    gap: 2,
-    marginRight: 10,
+    gap: 1,
+    marginRight: 8,
   },
   headerRightGroup: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     borderWidth: 1.5,
     borderColor: "rgba(59, 130, 246, 0.4)",
   },
   headerAvatarFallback: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: "rgba(59, 130, 246, 0.2)",
     borderWidth: 1.5,
     borderColor: "rgba(59, 130, 246, 0.4)",
@@ -745,70 +745,70 @@ const styles = StyleSheet.create({
   },
   headerAvatarFallbackText: {
     color: "#60A5FA",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
   },
   greetingText: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "500",
   },
   headerTitle: {
     color: "#FFFFFF",
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "800",
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   dateChip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     backgroundColor: "#1E1E28",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.06)",
   },
   dateChipText: {
     color: "#CBD5E1",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   loadingContainer: {
-    paddingVertical: 50,
+    paddingVertical: 36,
     alignItems: "center",
-    gap: 12,
+    gap: 10,
   },
   loadingText: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12,
   },
   heroCard: {
     backgroundColor: "#191924",
-    borderRadius: 22,
-    padding: 20,
+    borderRadius: 16,
+    padding: 13,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.22)",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
   },
   heroHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 16,
   },
   statusBadgeDue: {
     backgroundColor: "rgba(59, 130, 246, 0.15)",
@@ -831,7 +831,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(148, 163, 184, 0.2)",
   },
   statusBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
   },
   statusTextDue: {
@@ -851,55 +851,55 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     backgroundColor: "rgba(239, 68, 68, 0.15)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "rgba(239, 68, 68, 0.25)",
   },
   overdueText: {
     color: "#F87171",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "600",
   },
   heroTitle: {
     color: "#FFFFFF",
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "800",
     letterSpacing: -0.3,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   heroSubtitle: {
     color: "#94A3B8",
-    fontSize: 13,
-    lineHeight: 19,
-    marginBottom: 16,
+    fontSize: 12,
+    lineHeight: 16,
+    marginBottom: 10,
   },
   progressBarContainer: {
-    height: 6,
+    height: 4,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 3,
+    borderRadius: 2,
     overflow: "hidden",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   progressBarFill: {
     height: "100%",
-    borderRadius: 3,
+    borderRadius: 2,
   },
   ctaButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 6,
     backgroundColor: "#2563EB",
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
     shadowColor: "#2563EB",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
   },
   ctaButtonSecondary: {
     backgroundColor: "#1E293B",
@@ -909,55 +909,55 @@ const styles = StyleSheet.create({
   },
   ctaButtonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
   sectionHeaderRow: {
-    marginTop: 26,
-    marginBottom: 14,
+    marginTop: 16,
+    marginBottom: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   sectionTitle: {
     color: "#F8FAFC",
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "700",
     letterSpacing: -0.3,
   },
   sortTogglePill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     backgroundColor: "rgba(59, 130, 246, 0.12)",
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 3.5,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.25)",
   },
   sortToggleText: {
     color: "#60A5FA",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "700",
   },
   metricsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: 8,
   },
   metricCard: {
     flex: 1,
     minWidth: "46%",
     backgroundColor: "#191924",
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 13,
+    padding: 11,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.06)",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
     elevation: 2,
   },
   metricTopRow: {
@@ -966,29 +966,29 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   metricIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },
   metricValue: {
     color: "#FFFFFF",
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "800",
-    letterSpacing: -0.5,
-    marginTop: 10,
+    letterSpacing: -0.4,
+    marginTop: 6,
   },
   metricLabel: {
     color: "#CBD5E1",
-    fontSize: 13,
+    fontSize: 11.5,
     fontWeight: "600",
-    marginTop: 2,
+    marginTop: 1,
   },
   metricSubtext: {
     color: "#64748B",
-    fontSize: 11,
-    marginTop: 2,
+    fontSize: 10,
+    marginTop: 1,
   },
   metricSubtextAlert: {
     color: "#F87171",
@@ -996,33 +996,33 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     backgroundColor: "#191924",
-    borderRadius: 18,
-    padding: 24,
+    borderRadius: 14,
+    padding: 16,
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.06)",
   },
   emptyCardText: {
     color: "#94A3B8",
-    fontSize: 12,
+    fontSize: 11.5,
     textAlign: "center",
-    lineHeight: 18,
+    lineHeight: 16,
   },
   subjectListContainer: {
-    gap: 12,
+    gap: 8,
   },
   subjectCard: {
     backgroundColor: "#191924",
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 13,
+    padding: 11,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.06)",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
   },
   subjectHeaderTouchable: {
     flexDirection: "row",
@@ -1032,13 +1032,13 @@ const styles = StyleSheet.create({
   subjectHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
     flex: 1,
   },
   subjectIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1047,68 +1047,68 @@ const styles = StyleSheet.create({
   },
   subjectNameText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 13.5,
     fontWeight: "700",
     letterSpacing: -0.2,
   },
   subjectMetaSubtext: {
     color: "#64748B",
-    fontSize: 11,
-    marginTop: 2,
+    fontSize: 10.5,
+    marginTop: 1,
   },
   subjectHeaderRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   accuracyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 6,
   },
   accuracyBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
   },
   subjectBarTrack: {
-    height: 4,
+    height: 3,
     backgroundColor: "rgba(255, 255, 255, 0.06)",
     borderRadius: 2,
     overflow: "hidden",
-    marginTop: 12,
+    marginTop: 8,
   },
   subjectBarFill: {
     height: "100%",
     borderRadius: 2,
   },
   topicsContainer: {
-    marginTop: 14,
-    paddingTop: 12,
+    marginTop: 8,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.06)",
-    gap: 10,
+    gap: 6,
   },
   topicsHelperRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginBottom: 2,
+    gap: 5,
+    marginBottom: 1,
   },
   topicsHelperText: {
     color: "#F59E0B",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
   },
   noSubtopicsText: {
     color: "#64748B",
-    fontSize: 12,
+    fontSize: 11,
     fontStyle: "italic",
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
   topicCard: {
     backgroundColor: "#13131c",
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 9,
+    padding: 8,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.04)",
   },
@@ -1119,57 +1119,57 @@ const styles = StyleSheet.create({
   },
   topicHeaderLeft: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 8,
   },
   topicNameText: {
     color: "#E2E8F0",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
   },
   topicStatsSubtext: {
     color: "#64748B",
-    fontSize: 11,
-    marginTop: 2,
+    fontSize: 10,
+    marginTop: 1,
   },
   topicHeaderRight: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   topicAccPill: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 5,
   },
   topicAccText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
   },
   topicBarTrack: {
-    height: 3,
+    height: 2.5,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderRadius: 2,
     overflow: "hidden",
-    marginTop: 8,
+    marginTop: 5,
   },
   topicBarFill: {
     height: "100%",
     borderRadius: 2,
   },
   subtopicsContainer: {
-    marginTop: 10,
-    paddingTop: 8,
+    marginTop: 6,
+    paddingTop: 6,
     borderTopWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.04)",
-    paddingLeft: 8,
-    gap: 8,
+    paddingLeft: 6,
+    gap: 5,
   },
   subtopicsLabel: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     letterSpacing: 0.5,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   subtopicRow: {
     flexDirection: "row",
@@ -1179,33 +1179,33 @@ const styles = StyleSheet.create({
   subtopicLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     flex: 1,
-    marginRight: 10,
+    marginRight: 8,
   },
   subtopicBullet: {
-    width: 4,
-    height: 4,
+    width: 3.5,
+    height: 3.5,
     borderRadius: 2,
     backgroundColor: "#64748B",
   },
   subtopicNameText: {
     color: "#CBD5E1",
-    fontSize: 12,
+    fontSize: 11,
     flex: 1,
   },
   subtopicStatsText: {
     color: "#64748B",
-    fontSize: 10,
-    marginLeft: 4,
+    fontSize: 9.5,
+    marginLeft: 3,
   },
   subtopicAccPill: {
-    paddingHorizontal: 5,
+    paddingHorizontal: 4,
     paddingVertical: 1,
     borderRadius: 4,
   },
   subtopicAccText: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "800",
   },
 });

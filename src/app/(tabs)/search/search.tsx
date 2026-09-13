@@ -245,6 +245,22 @@ export default function SearchScreen() {
   };
 
   // ─── Render Question Card Item ────────────────────────────────────────────
+  const formatAnswerSummary = (q: Question): string | null => {
+    if (q.questionType === "MCQ") {
+      return q.mcqAnswer ? `Option ${q.mcqAnswer}` : null;
+    }
+    if (q.questionType === "MSQ") {
+      if (Array.isArray(q.msqAnswer) && q.msqAnswer.length > 0) {
+        return `Options ${q.msqAnswer.join(", ")}`;
+      }
+      return null;
+    }
+    if (q.questionType === "NAT") {
+      return q.natAnswer ? `${q.natAnswer}` : null;
+    }
+    return null;
+  };
+
   const renderQuestionCard = ({
     item,
     index,
@@ -254,6 +270,7 @@ export default function SearchScreen() {
   }) => {
     const subjColor = getSubjectColor(item.subject);
     const resolvedImageUri = resolveImageUri(item.questionImageUri);
+    const answerSummary = formatAnswerSummary(item);
 
     return (
       <TouchableOpacity
@@ -263,114 +280,94 @@ export default function SearchScreen() {
           setSelectedQuestion(item);
         }}
       >
-        {/* Card Header: Subject, Type & Stats */}
-        <View style={styles.cardHeader}>
-          <View style={styles.cardHeaderLeft}>
-            <View
-              style={[
-                styles.subjectBadge,
-                { backgroundColor: `${subjColor}20`, borderColor: `${subjColor}55` },
-              ]}
-            >
-              <View
-                style={[styles.subjectDot, { backgroundColor: subjColor }]}
-              />
-              <Text style={[styles.subjectText, { color: subjColor }]}>
-                {item.subject}
-              </Text>
-            </View>
-
-            <View style={styles.typeBadge}>
-              <Text style={styles.typeBadgeText}>{item.questionType}</Text>
-            </View>
-          </View>
-
-          {/* Correct / Incorrect mini stats */}
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-              <Text style={styles.statText}>{item.correct}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Ionicons name="close-circle" size={14} color="#EF4444" />
-              <Text style={styles.statText}>{item.incorrect}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Card Body: Thumbnail & Content Snippet */}
-        <View style={styles.cardBody}>
-          {resolvedImageUri ? (
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={styles.thumbnailWrapper}
-              onPress={() => {
-                setZoomImageUri(resolvedImageUri);
-                setZoomTitle(`${item.subject} Question`);
-              }}
-            >
-              <Image
-                source={{ uri: resolvedImageUri }}
-                style={styles.thumbnailImage}
-                contentFit="cover"
-                transition={200}
-              />
-              <View style={styles.zoomOverlay}>
-                <Ionicons name="scan-outline" size={14} color="#FFFFFF" />
-              </View>
-            </TouchableOpacity>
-          ) : null}
-
-          <View style={styles.cardTextContent}>
-            {/* Extracted OCR Text preview if available */}
-            {item.extractedText ? (
-              <View style={styles.ocrSnippetContainer}>
-                <View style={styles.ocrLabelRow}>
-                  <Ionicons name="text-outline" size={12} color="#94A3B8" />
-                  <Text style={styles.ocrLabel}>Extracted Text</Text>
+        {/* 3-Column Compact Row: [Image w/ Type] | [Subject & Option with divider] | [Topic & Subtopic points] */}
+        <View style={styles.cardColumnsRow}>
+          {/* Column 1: Image Thumbnail with Question Type pinned on top */}
+          <View style={styles.imageCol}>
+            {resolvedImageUri ? (
+              <TouchableOpacity
+                activeOpacity={0.85}
+                style={styles.thumbnailWrapper}
+                onPress={() => {
+                  setZoomImageUri(resolvedImageUri);
+                  setZoomTitle(`${item.subject} Question`);
+                }}
+              >
+                <Image
+                  source={{ uri: resolvedImageUri }}
+                  style={styles.thumbnailImage}
+                  contentFit="cover"
+                  transition={200}
+                />
+                {/* Question Type on top of image */}
+                <View style={styles.imageTypeBadge}>
+                  <Text style={styles.imageTypeBadgeText}>{item.questionType}</Text>
                 </View>
-                <Text style={styles.ocrTextSnippet} numberOfLines={2}>
-                  {item.extractedText}
-                </Text>
+                <View style={styles.zoomOverlay}>
+                  <Ionicons name="scan-outline" size={9} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.thumbnailWrapper}>
+                <View style={styles.imageTypeBadge}>
+                  <Text style={styles.imageTypeBadgeText}>{item.questionType}</Text>
+                </View>
+                <View style={styles.noImageInner}>
+                  <Ionicons name="image-outline" size={16} color="#475569" />
+                </View>
               </View>
-            ) : null}
+            )}
+          </View>
 
-            {/* Personal Note if present */}
-            {item.personalNote ? (
-              <View style={styles.noteContainer}>
-                <Ionicons name="document-text-outline" size={12} color="#F59E0B" />
-                <Text style={styles.noteText} numberOfLines={2}>
-                  {item.personalNote}
-                </Text>
-              </View>
-            ) : null}
-
-            {!item.extractedText && !item.personalNote ? (
-              <Text style={styles.noTextNotice}>
-                Question #{item.id} — image stored
+          {/* Column 2: Subject on top, small separating line, and Answer below with green tick */}
+          <View style={styles.answerCol}>
+            <Text
+              style={[styles.colSubjectText, { color: subjColor }]}
+              numberOfLines={1}
+            >
+              {item.subject}
+            </Text>
+            <View style={styles.colDividerLine} />
+            <View style={styles.answerValueRow}>
+              <Ionicons name="checkmark-circle" size={11} color="#10B981" />
+              <Text style={styles.answerColValue} numberOfLines={1}>
+                {answerSummary ?? "—"}
               </Text>
-            ) : null}
+            </View>
+          </View>
+
+          {/* Column 3: Topic on top & Subtopics below as clean simple points */}
+          <View style={styles.taxonomyCol}>
+            <View style={styles.bulletItem}>
+              <Text style={styles.bulletDotTopic}>•</Text>
+              <Text style={styles.topicBulletText} numberOfLines={1}>
+                {item.topics && item.topics.length > 0
+                  ? item.topics[0]
+                  : "No topic"}
+              </Text>
+            </View>
+            <View style={styles.bulletItem}>
+              <Text style={styles.bulletDotSubtopic}>•</Text>
+              <Text style={styles.subtopicBulletText} numberOfLines={1}>
+                {item.subtopics && item.subtopics.length > 0
+                  ? item.subtopics[0]
+                  : "General"}
+              </Text>
+            </View>
+          </View>
+
+          {/* Column 4: Revision scores (correct green tick on top, incorrect red cross below) */}
+          <View style={styles.scoreCol}>
+            <View style={styles.scoreRow}>
+              <Ionicons name="checkmark-circle" size={10} color="#10B981" />
+              <Text style={styles.scoreCorrectText}>{item.correct}</Text>
+            </View>
+            <View style={styles.scoreRow}>
+              <Ionicons name="close-circle" size={10} color="#EF4444" />
+              <Text style={styles.scoreIncorrectText}>{item.incorrect}</Text>
+            </View>
           </View>
         </View>
-
-        {/* Card Footer: Topic Chips */}
-        {item.topics && item.topics.length > 0 ? (
-          <View style={styles.topicsFooter}>
-            {item.topics.slice(0, 3).map((topic, i) => (
-              <View key={i} style={styles.topicChip}>
-                <Ionicons name="pricetag-outline" size={10} color="#94A3B8" />
-                <Text style={styles.topicChipText} numberOfLines={1}>
-                  {topic}
-                </Text>
-              </View>
-            ))}
-            {item.topics.length > 3 ? (
-              <Text style={styles.moreTopicsText}>
-                +{item.topics.length - 3} more
-              </Text>
-            ) : null}
-          </View>
-        ) : null}
       </TouchableOpacity>
     );
   };
@@ -416,6 +413,14 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {/* ── Screen Title Header ────────────────────────────────────────────── */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Search Questions</Text>
+        <Text style={styles.headerSubtitle}>
+          Find questions by text, subject, topic, or notes
+        </Text>
+      </View>
+
       {/* ── Top Bar with Search & Filter Toggle ────────────────────────────── */}
       <View style={styles.searchHeader}>
         <View
@@ -741,6 +746,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1c1b1b",
   },
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 4,
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 26,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+  },
+  headerSubtitle: {
+    color: "#94A3B8",
+    fontSize: 13,
+    fontWeight: "400",
+    marginTop: 4,
+  },
   searchHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -944,175 +966,159 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 24,
-    gap: 12,
+    paddingBottom: 110,
+    gap: 8,
   },
   card: {
-    backgroundColor: "#242424",
-    borderRadius: 14,
+    backgroundColor: "#222224",
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#333333",
-    padding: 14,
-    gap: 10,
+    borderColor: "#303034",
+    padding: 6,
   },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  cardHeaderLeft: {
+  cardColumnsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-  subjectBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    gap: 5,
-  },
-  subjectDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  subjectText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  typeBadge: {
-    backgroundColor: "#334155",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  typeBadgeText: {
-    color: "#CBD5E1",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  statsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  statItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  statText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  cardBody: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
+  imageCol: {
+    width: 52,
+    height: 52,
   },
   thumbnailWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 10,
+    width: 52,
+    height: 52,
+    borderRadius: 6,
     overflow: "hidden",
-    backgroundColor: "#1c1b1b",
+    backgroundColor: "#18181A",
     borderWidth: 1,
-    borderColor: "#374151",
+    borderColor: "#333338",
     position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
   },
   thumbnailImage: {
     width: "100%",
     height: "100%",
   },
+  imageTypeBadge: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(15, 23, 42, 0.88)",
+    paddingVertical: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+  imageTypeBadgeText: {
+    color: "#38BDF8",
+    fontSize: 8.5,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  noImageInner: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
   zoomOverlay: {
     position: "absolute",
-    bottom: 3,
-    right: 3,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    borderRadius: 6,
-    padding: 3,
+    bottom: 2,
+    right: 2,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    borderRadius: 3,
+    padding: 1.5,
+    zIndex: 2,
   },
-  cardTextContent: {
-    flex: 1,
-    gap: 6,
+  answerCol: {
+    width: 88,
     justifyContent: "center",
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(255, 255, 255, 0.07)",
+    paddingLeft: 6,
   },
-  ocrSnippetContainer: {
-    backgroundColor: "#1c1b1b",
-    borderRadius: 8,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: "#2d2d2d",
+  colSubjectText: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.1,
+  },
+  colDividerLine: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    marginVertical: 2.5,
+  },
+  answerValueRow: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 3,
   },
-  ocrLabelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  ocrLabel: {
-    color: "#64748B",
-    fontSize: 10,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  ocrTextSnippet: {
-    color: "#CBD5E1",
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  noteContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "rgba(245, 158, 11, 0.08)",
-    padding: 6,
-    borderRadius: 6,
-    borderLeftWidth: 2,
-    borderLeftColor: "#F59E0B",
-    gap: 6,
-  },
-  noteText: {
+  answerColValue: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 14,
     flex: 1,
-    color: "#FDE68A",
-    fontSize: 11,
-    lineHeight: 15,
   },
-  noTextNotice: {
-    color: "#64748B",
-    fontSize: 12,
-    fontStyle: "italic",
+  taxonomyCol: {
+    flex: 1,
+    justifyContent: "center",
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(255, 255, 255, 0.07)",
+    paddingLeft: 6,
+    gap: 2,
   },
-  topicsFooter: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: 6,
-    borderTopWidth: 1,
-    borderTopColor: "#2d2d2d",
-    paddingTop: 8,
-  },
-  topicChip: {
+  bulletItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1c1b1b",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
     gap: 4,
   },
-  topicChipText: {
-    color: "#94A3B8",
+  bulletDotTopic: {
+    color: "#38BDF8",
     fontSize: 11,
-    maxWidth: 150,
+    lineHeight: 13,
   },
-  moreTopicsText: {
-    color: "#64748B",
+  topicBulletText: {
+    color: "#E2E8F0",
+    fontSize: 10.5,
+    fontWeight: "600",
+    flex: 1,
+  },
+  bulletDotSubtopic: {
+    color: "#14B8A6",
     fontSize: 11,
+    lineHeight: 13,
+  },
+  subtopicBulletText: {
+    color: "#94A3B8",
+    fontSize: 10,
+    flex: 1,
+  },
+  scoreCol: {
+    justifyContent: "center",
+    alignItems: "flex-start",
+    borderLeftWidth: 1,
+    borderLeftColor: "rgba(255, 255, 255, 0.07)",
+    paddingLeft: 6,
+    gap: 3,
+  },
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+  },
+  scoreCorrectText: {
+    color: "#10B981",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  scoreIncorrectText: {
+    color: "#EF4444",
+    fontSize: 10,
+    fontWeight: "700",
   },
   loadingContainer: {
     paddingVertical: 60,

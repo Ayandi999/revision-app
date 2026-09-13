@@ -347,16 +347,16 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedTopics.map((top) => (
           <View key={top} style={styles.dottedChip}>
-            <Ionicons name="layers-outline" size={12} color="#14B8A6" />
+            <Ionicons name="layers-outline" size={11} color="#14B8A6" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {top}
             </Text>
             <TouchableOpacity
               activeOpacity={0.6}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               onPress={() => handleToggleTopic(top)}
             >
-              <Ionicons name="close-circle" size={15} color="#9CA3AF" />
+              <Ionicons name="close-circle" size={13} color="#9CA3AF" />
             </TouchableOpacity>
           </View>
         ))}
@@ -368,16 +368,16 @@ const AddQuestion = () => {
       <View style={styles.chipRow}>
         {selectedSubtopics.map((subtop) => (
           <View key={subtop} style={styles.dottedChip}>
-            <Ionicons name="pricetag-outline" size={12} color="#14B8A6" />
+            <Ionicons name="pricetag-outline" size={11} color="#14B8A6" />
             <Text style={styles.dottedChipText} numberOfLines={1}>
               {subtop}
             </Text>
             <TouchableOpacity
               activeOpacity={0.6}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               onPress={() => handleToggleSubtopic(subtop)}
             >
-              <Ionicons name="close-circle" size={15} color="#9CA3AF" />
+              <Ionicons name="close-circle" size={13} color="#9CA3AF" />
             </TouchableOpacity>
           </View>
         ))}
@@ -388,15 +388,15 @@ const AddQuestion = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <View style={styles.titleBlock}>
+        <Text style={styles.title}>Add Question</Text>
+        <Text style={styles.titleSubtext}>Capture and categorize a new problem</Text>
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.titleBlock}>
-          <Text style={styles.title}>Add Question</Text>
-          <Text style={styles.titleSubtext}>Capture and categorize a new problem</Text>
-        </View>
-
         {/* ── Question Section ─────────────────────────────────────────── */}
         <CollapsibleSection
           title="Question"
@@ -427,10 +427,10 @@ const AddQuestion = () => {
                 disabled={questionPicker.isProcessing}
               >
                 {questionPicker.isProcessing ? (
-                  <ActivityIndicator size="large" color="#3B82F6" />
+                  <ActivityIndicator size="small" color="#3B82F6" />
                 ) : (
                   <>
-                    <Ionicons name="camera-outline" size={64} color="#3B82F6" />
+                    <Ionicons name="camera-outline" size={38} color="#3B82F6" />
                     <Text style={styles.emptyPickerHint}>Tap to add question image</Text>
                   </>
                 )}
@@ -482,7 +482,7 @@ const AddQuestion = () => {
                     <ActivityIndicator size="small" color="#60A5FA" />
                   ) : (
                     <>
-                      <Ionicons name="add-circle-outline" size={26} color="#60A5FA" />
+                      <Ionicons name="add-circle-outline" size={20} color="#60A5FA" />
                       <Text style={styles.addMoreText}>+ Add page</Text>
                     </>
                   )}
@@ -616,7 +616,7 @@ const AddQuestion = () => {
                   <ActivityIndicator size="small" color="#3B82F6" />
                 ) : (
                   <>
-                    <Ionicons name="camera-outline" size={46} color="#3B82F6" />
+                    <Ionicons name="camera-outline" size={30} color="#3B82F6" />
                     <Text style={styles.solutionCameraText}>
                       Add solution image{" "}
                       <Text style={styles.mandatoryAsterisk}>*</Text>
@@ -671,7 +671,7 @@ const AddQuestion = () => {
                     <ActivityIndicator size="small" color="#60A5FA" />
                   ) : (
                     <>
-                      <Ionicons name="add-circle-outline" size={26} color="#60A5FA" />
+                      <Ionicons name="add-circle-outline" size={20} color="#60A5FA" />
                       <Text style={styles.addMoreText}>+ Add page</Text>
                     </>
                   )}
@@ -817,7 +817,7 @@ const AddQuestion = () => {
             <ActivityIndicator color="#1c1b1b" size="small" />
           ) : (
             <>
-              <Ionicons name="checkmark-circle" size={22} color="#1c1b1b" />
+              <Ionicons name="checkmark-circle" size={20} color="#1c1b1b" />
               <Text style={styles.submitButtonText}>Add Question</Text>
             </>
           )}
@@ -881,51 +881,53 @@ const styles = StyleSheet.create({
     backgroundColor: "#1c1b1b",
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 110, // clears the floating bottom tab bar
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 90, // clears the floating bottom tab bar
   },
   title: {
     color: "#FFFFFF",
-    fontSize: 26,
-    fontWeight: "800",
+    fontSize: 22,
+    fontWeight: "700",
     letterSpacing: -0.3,
   },
   titleSubtext: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "400",
-    marginTop: 4,
+    marginTop: 3,
   },
   titleBlock: {
-    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 6,
   },
   mandatoryAsterisk: {
     color: "#EF4444",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
   // ── Camera placeholders ──────────────────────────────────────────────────
   cameraSection: {
     marginTop: 6,
     alignItems: "flex-start",
-    gap: 10,
+    gap: 8,
   },
   iconBox: {
     width: "100%",
-    height: 180,
-    borderWidth: 2,
+    height: 125,
+    borderWidth: 1.5,
     borderStyle: "dotted",
     borderColor: "rgba(59, 130, 246, 0.35)",
-    borderRadius: 20,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(59, 130, 246, 0.04)",
-    gap: 10,
+    gap: 8,
   },
   emptyPickerHint: {
     color: "#94A3B8",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
   },
   sectionLabelRow: {
@@ -936,23 +938,23 @@ const styles = StyleSheet.create({
   },
   imageCountBadge: {
     color: "#14B8A6",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
     backgroundColor: "rgba(20, 184, 166, 0.12)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: 6,
   },
   multiImageScroll: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
     paddingVertical: 4,
   },
   multiImageCard: {
-    width: 130,
-    height: 130,
-    borderRadius: 14,
+    width: 105,
+    height: 105,
+    borderRadius: 12,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1.5,
@@ -965,24 +967,24 @@ const styles = StyleSheet.create({
   },
   pageNumberBadge: {
     position: "absolute",
-    bottom: 6,
-    left: 6,
+    bottom: 5,
+    left: 5,
     backgroundColor: "rgba(0, 0, 0, 0.75)",
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 5,
   },
   pageNumberText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
   },
   multiImageDeleteBtn: {
     position: "absolute",
-    top: 4,
-    right: 4,
-    width: 28,
-    height: 28,
+    top: 3,
+    right: 3,
+    width: 26,
+    height: 26,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 10,
@@ -993,70 +995,70 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
   addMoreCard: {
-    width: 110,
-    height: 130,
-    borderRadius: 14,
-    borderWidth: 2,
+    width: 85,
+    height: 105,
+    borderRadius: 12,
+    borderWidth: 1.5,
     borderStyle: "dotted",
     borderColor: "rgba(59, 130, 246, 0.4)",
     backgroundColor: "rgba(59, 130, 246, 0.05)",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 5,
   },
   addMoreText: {
     color: "#60A5FA",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   solutionCameraBox: {
     width: "100%",
-    height: 130,
-    borderWidth: 2,
+    height: 95,
+    borderWidth: 1.5,
     borderStyle: "dotted",
     borderColor: "rgba(59, 130, 246, 0.35)",
-    borderRadius: 18,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(59, 130, 246, 0.04)",
-    gap: 8,
+    gap: 6,
   },
   solutionCameraText: {
     color: "#94A3B8",
     fontSize: 13,
     fontWeight: "500",
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   optionalLabel: {
     color: "#6B7280",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "400",
   },
   // ── Submit button ────────────────────────────────────────────────────────
   submitButton: {
-    marginTop: 26,
-    marginBottom: 20,
+    marginTop: 20,
+    marginBottom: 24,
     backgroundColor: "#14B8A6",
-    borderRadius: 16,
-    height: 54,
+    borderRadius: 12,
+    height: 48,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: 8,
     shadowColor: "#14B8A6",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   submitButtonDisabled: {
     opacity: 0.6,
   },
   submitButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
-    letterSpacing: 0.4,
+    letterSpacing: 0.2,
   },
   // ── Shared label/hint ────────────────────────────────────────────────────
   labelWithHint: {
@@ -1067,85 +1069,85 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: "#94A3B8",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   hintSubtle: {
     color: "#6B7280",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "400",
   },
   badgeCounterText: {
     color: "#3B82F6",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "600",
   },
   // ── Subject preview inside trigger ──────────────────────────────────────
   selectedSyllabusPreview: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 7,
   },
   syllabusIconTag: {
     backgroundColor: "rgba(20, 184, 166, 0.12)",
-    padding: 4,
+    padding: 3.5,
     borderRadius: 6,
   },
   selectedTypeDesc: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "500",
   },
   // ── Question-type badge inside trigger ───────────────────────────────────
   selectedTypePreview: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   typeBadge: {
     backgroundColor: "#1c1b1b",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
     borderRadius: 6,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.12)",
   },
   typeBadgeText: {
     color: "#E5E7EB",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "700",
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   // ── Chips ────────────────────────────────────────────────────────────────
   chipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    marginTop: 2,
+    gap: 7,
+    marginTop: 4,
   },
   dottedChip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    borderWidth: 1.5,
+    gap: 5,
+    borderWidth: 1,
     borderStyle: "dotted",
     borderColor: "rgba(20, 184, 166, 0.4)",
     backgroundColor: "rgba(20, 184, 166, 0.08)",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+    borderRadius: 8,
   },
   dottedChipText: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "500",
-    maxWidth: 220,
+    maxWidth: 200,
   },
   // ── Answer section ───────────────────────────────────────────────────────
   answerSection: {
-    marginTop: 28,
-    gap: 14,
+    marginTop: 16,
+    gap: 10,
   },
   answerHeader: {
     flexDirection: "row",
@@ -1154,18 +1156,18 @@ const styles = StyleSheet.create({
   },
   answerHint: {
     color: "#6B7280",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "500",
   },
   optionsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 12,
+    gap: 10,
   },
   optionCircle: {
     flex: 1,
-    height: 56,
-    borderRadius: 14,
+    height: 46,
+    borderRadius: 12,
     backgroundColor: "#1E2028",
     borderWidth: 1.5,
     borderColor: "rgba(59, 130, 246, 0.1)",
@@ -1178,7 +1180,7 @@ const styles = StyleSheet.create({
   },
   optionCircleText: {
     color: "#D1D5DB",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
   },
   optionCircleTextSelected: {
@@ -1190,39 +1192,39 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 16,
-    height: 48,
+    paddingHorizontal: 14,
+    height: 44,
     justifyContent: "center",
   },
   natInput: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
     padding: 0,
   },
   // ── Personal note ────────────────────────────────────────────────────────
   noteSection: {
-    gap: 8,
-    marginTop: 24,
+    gap: 6,
+    marginTop: 14,
   },
   noteLabel: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "500",
   },
   noteInputContainer: {
     backgroundColor: "#1E2028",
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 110,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minHeight: 85,
   },
   noteInput: {
     color: "#FFFFFF",
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     padding: 0,
   },
 });

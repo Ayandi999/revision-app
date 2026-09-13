@@ -43,7 +43,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
-        const color = isFocused ? "#3B82F6" : "#64748B";
+        const color = isFocused ? "#38BDF8" : "#64748B";
 
         const onPress = () => {
           const event = navigation.emit({
@@ -60,9 +60,21 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           <TouchableOpacity
             key={route.key}
             onPress={onPress}
-            style={[styles.tabBarItem, isFocused && styles.tabBarItemFocused]}
+            activeOpacity={0.7}
+            style={styles.tabBarItem}
           >
-            {options.tabBarIcon?.({ color, size: 20, focused: isFocused })}
+            <View
+              style={[
+                styles.iconContainer,
+                isFocused && styles.iconContainerFocused,
+              ]}
+            >
+              {options.tabBarIcon?.({
+                color,
+                size: isFocused ? 21 : 20,
+                focused: isFocused,
+              })}
+            </View>
             <Text
               style={[
                 styles.tabBarLabel,
@@ -174,8 +186,12 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="home" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "home" : "home-outline"}
+                size={focused ? 21 : 20}
+                color={color}
+              />
             ),
           }}
         />
@@ -184,8 +200,12 @@ export default function TabLayout() {
           name="newQuestion/addQuestion"
           options={{
             title: "Add Q",
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="add" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "add-circle" : "add-circle-outline"}
+                size={focused ? 22 : 20}
+                color={color}
+              />
             ),
           }}
         />
@@ -193,8 +213,12 @@ export default function TabLayout() {
           name="revision/revision"
           options={{
             title: "Revision",
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="eye" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "eye" : "eye-outline"}
+                size={focused ? 21 : 20}
+                color={color}
+              />
             ),
           }}
         />
@@ -202,8 +226,12 @@ export default function TabLayout() {
           name="search/search"
           options={{
             title: "Search",
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="search" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "search" : "search-outline"}
+                size={focused ? 21 : 20}
+                color={color}
+              />
             ),
           }}
         />
@@ -211,8 +239,12 @@ export default function TabLayout() {
           name="settings/settings"
           options={{
             title: "Settings",
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="settings-sharp" size={20} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "settings" : "settings-outline"}
+                size={focused ? 21 : 20}
+                color={color}
+              />
             ),
           }}
         />
@@ -232,7 +264,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.12)",
+    borderColor: "rgba(255, 255, 255, 0.08)",
     flexDirection: "row",
     alignItems: "center",
     shadowColor: "#000",
@@ -246,17 +278,26 @@ const styles = StyleSheet.create({
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 24,
-    marginVertical: 6,
-    marginHorizontal: 2,
+    paddingVertical: 4,
+    position: "relative",
   },
-  tabBarItemFocused: {
-    backgroundColor: "rgba(59, 130, 246, 0.12)",
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconContainerFocused: {
+    transform: [{ translateY: -3 }],
+    shadowColor: "#38BDF8",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.45,
+    shadowRadius: 6,
+    elevation: 6,
   },
   tabBarLabel: {
     fontSize: 10,
-    fontWeight: "600",
-    marginTop: 4,
+    fontWeight: "500",
+    marginTop: 2,
+    letterSpacing: 0.1,
   },
   tabBarLabelFocused: {
     fontWeight: "700",

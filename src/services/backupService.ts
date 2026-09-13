@@ -127,7 +127,7 @@ export async function canSyncNow(): Promise<{ allowed: boolean; reason?: string 
     }
 
     if (settings.wifiOnly && net.type !== Network.NetworkStateType.WIFI) {
-      return { allowed: false, reason: "Wi-Fi is not connected (Wi-Fi only enabled)." };
+      return { allowed: false, reason: "Waiting for Wi-Fi (Wi-Fi only enabled)" };
     }
 
     return { allowed: true };
@@ -145,9 +145,10 @@ export async function canSyncNow(): Promise<{ allowed: boolean; reason?: string 
  */
 export async function syncSingleImage(
   rawPath: string,
-  accessToken?: string
+  accessToken?: string,
+  isInternalBatch = false
 ): Promise<boolean> {
-  if (isOperationInProgress) {
+  if (isOperationInProgress && !isInternalBatch) {
     // Avoid operating against a closed or locked database during restore
     return false;
   }
@@ -241,7 +242,7 @@ export async function syncPendingImages(
       const batch = pending.slice(i, i + CONCURRENCY);
       await Promise.all(
         batch.map(async (item) => {
-          const success = await syncSingleImage(item.relativePath, token);
+          const success = await syncSingleImage(item.relativePath, token, true);
           if (success) uploaded++;
           else failed++;
           onProgress?.(uploaded + failed, pending.length);

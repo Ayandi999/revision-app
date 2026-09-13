@@ -23,6 +23,7 @@ export const GoogleDriveCard: React.FC = () => {
     isSyncing,
     isRestoring,
     progressMessage,
+    waitingReason,
     lastSyncAt,
     lastBackupSize,
     backupEnabled,
@@ -64,7 +65,7 @@ export const GoogleDriveCard: React.FC = () => {
       {/* ─── Header with Top-Right Status ─────────────────────── */}
       <View style={styles.cardHeader}>
         <View style={styles.driveIconWrap}>
-          <GoogleDriveLogo size={24} />
+          <GoogleDriveLogo size={20} />
         </View>
         <View style={styles.headerTextGroup}>
           <Text style={styles.cardTitle}>Google Drive Cloud Sync</Text>
@@ -170,6 +171,13 @@ export const GoogleDriveCard: React.FC = () => {
                 <ActivityIndicator size="small" color="#3B82F6" />
                 <Text style={styles.syncStatusText}>Backing up changes...</Text>
               </>
+            ) : waitingReason && pendingCount > 0 ? (
+              <>
+                <Ionicons name="wifi-outline" size={16} color="#F59E0B" />
+                <Text style={styles.syncStatusPendingText}>
+                  {waitingReason} ({pendingCount} queued)
+                </Text>
+              </>
             ) : pendingCount > 0 ? (
               <>
                 <Ionicons name="cloud-upload-outline" size={16} color="#F59E0B" />
@@ -199,6 +207,7 @@ export const GoogleDriveCard: React.FC = () => {
                 onValueChange={toggleBackupEnabled}
                 trackColor={{ false: "#334155", true: "#2563EB" }}
                 thumbColor={backupEnabled ? "#FFFFFF" : "#94A3B8"}
+                style={styles.compactSwitch}
               />
             </View>
 
@@ -215,6 +224,7 @@ export const GoogleDriveCard: React.FC = () => {
                   onValueChange={toggleWifiOnly}
                   trackColor={{ false: "#334155", true: "#2563EB" }}
                   thumbColor={wifiOnly ? "#FFFFFF" : "#94A3B8"}
+                  style={styles.compactSwitch}
                 />
               </View>
             )}
@@ -241,7 +251,7 @@ export const GoogleDriveCard: React.FC = () => {
                 <ActivityIndicator size="small" color="#94A3B8" />
               ) : (
                 <>
-                  <Ionicons name="cloud-download-outline" size={18} color="#CBD5E1" />
+                  <Ionicons name="cloud-download-outline" size={16} color="#CBD5E1" />
                   <Text style={styles.restoreButtonText}>Restore from Drive</Text>
                 </>
               )}
@@ -254,7 +264,7 @@ export const GoogleDriveCard: React.FC = () => {
               disabled={isBusy}
               activeOpacity={0.8}
             >
-              <Ionicons name="log-out-outline" size={16} color="#EF4444" />
+              <Ionicons name="log-out-outline" size={15} color="#EF4444" />
               <Text style={styles.logoutButtonText}>Log out</Text>
             </TouchableOpacity>
           </View>
@@ -274,8 +284,8 @@ export const GoogleDriveCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#1A1A22",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 12,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
   },
@@ -283,28 +293,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
+    paddingVertical: 12,
     gap: 8,
   },
   loadingText: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12,
   },
   cardHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 12,
+    gap: 10,
   },
   driveIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 2,
+    marginTop: 1,
   },
   headerTextGroup: {
     flex: 1,
@@ -312,88 +322,88 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 13.5,
     fontWeight: "700",
   },
   cardSubtitle: {
     color: "#94A3B8",
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: 3,
+    fontSize: 11,
+    lineHeight: 14,
+    marginTop: 1,
   },
   connectedBadge: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(16, 185, 129, 0.15)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-    gap: 5,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 12,
+    gap: 4,
     borderWidth: 1,
     borderColor: "rgba(16, 185, 129, 0.3)",
     alignSelf: "flex-start",
   },
   connectedDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
     backgroundColor: "#10B981",
   },
   connectedText: {
     color: "#10B981",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   unlinkedBadge: {
     backgroundColor: "rgba(148, 163, 184, 0.1)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(148, 163, 184, 0.2)",
     alignSelf: "flex-start",
   },
   unlinkedText: {
     color: "#94A3B8",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "600",
   },
   unlinkedContainer: {
-    marginTop: 16,
-    gap: 12,
+    marginTop: 10,
+    gap: 8,
   },
   nativeWarningBadge: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(245, 158, 11, 0.12)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    gap: 6,
     borderWidth: 1,
     borderColor: "rgba(245, 158, 11, 0.2)",
   },
   nativeWarningText: {
     color: "#FBBF24",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "500",
     flex: 1,
-    lineHeight: 16,
+    lineHeight: 15,
   },
   privacyBadge: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.03)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 6,
+    gap: 5,
   },
   privacyText: {
     color: "#64748B",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "500",
     flex: 1,
   },
@@ -402,45 +412,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#2563EB",
-    borderRadius: 12,
-    paddingVertical: 12,
-    gap: 8,
+    borderRadius: 10,
+    paddingVertical: 9,
+    gap: 6,
   },
   signInButtonText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
   linkedContainer: {
-    marginTop: 16,
-    gap: 12,
+    marginTop: 10,
+    gap: 8,
   },
   userRow: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.03)",
-    padding: 10,
-    borderRadius: 12,
-    gap: 12,
+    padding: 8,
+    borderRadius: 10,
+    gap: 10,
   },
   userAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.3)",
   },
   avatarFallback: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: "#3B82F6",
     alignItems: "center",
     justifyContent: "center",
   },
   avatarFallbackText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: "700",
   },
   userInfo: {
@@ -448,20 +458,19 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
   },
   userEmail: {
     color: "#64748B",
-    fontSize: 12,
-    marginTop: 1,
+    fontSize: 11,
   },
   statsRow: {
     flexDirection: "row",
     backgroundColor: "rgba(255, 255, 255, 0.02)",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     alignItems: "center",
   },
   statBox: {
@@ -469,53 +478,53 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    height: 24,
+    height: 20,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginHorizontal: 12,
+    marginHorizontal: 8,
   },
   statLabel: {
     color: "#64748B",
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: "700",
     letterSpacing: 0.5,
   },
   statValue: {
     color: "#E2E8F0",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
-    marginTop: 2,
+    marginTop: 1,
   },
   syncStatusBadge: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    gap: 8,
+    borderRadius: 8,
+    paddingVertical: 5,
+    paddingHorizontal: 9,
+    gap: 6,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.05)",
   },
   syncStatusText: {
     color: "#93C5FD",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
   },
   syncStatusPendingText: {
     color: "#FBBF24",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
   },
   syncStatusCompleteText: {
     color: "#10B981",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
   },
   settingsSection: {
     backgroundColor: "rgba(255, 255, 255, 0.02)",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 0,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.05)",
   },
@@ -523,7 +532,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
+    paddingVertical: 6,
   },
   settingRowBorder: {
     borderTopWidth: 1,
@@ -531,36 +540,39 @@ const styles = StyleSheet.create({
   },
   settingTextCol: {
     flex: 1,
-    paddingRight: 12,
+    paddingRight: 8,
   },
   settingTitle: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: "600",
   },
   settingSubtitle: {
     color: "#64748B",
-    fontSize: 11,
-    marginTop: 2,
-    lineHeight: 15,
+    fontSize: 10.5,
+    marginTop: 1,
+    lineHeight: 14,
+  },
+  compactSwitch: {
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
   },
   progressBanner: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(59, 130, 246, 0.1)",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 8,
   },
   progressText: {
     color: "#93C5FD",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
     flex: 1,
   },
   actionsContainer: {
-    gap: 10,
-    marginTop: 4,
+    gap: 6,
+    marginTop: 2,
   },
   restoreButtonFull: {
     width: "100%",
@@ -568,15 +580,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 12,
-    paddingVertical: 12,
-    gap: 8,
+    borderRadius: 8,
+    paddingVertical: 8,
+    gap: 6,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
   },
   restoreButtonText: {
     color: "#CBD5E1",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
   },
   logoutButton: {
@@ -585,16 +597,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(239, 68, 68, 0.08)",
-    borderRadius: 12,
-    paddingVertical: 11,
-    gap: 6,
+    borderRadius: 8,
+    paddingVertical: 7,
+    gap: 5,
     borderWidth: 1,
     borderColor: "rgba(239, 68, 68, 0.2)",
-    marginTop: 2,
+    marginTop: 0,
   },
   logoutButtonText: {
     color: "#EF4444",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
   },
   buttonDisabled: {
