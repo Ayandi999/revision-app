@@ -607,7 +607,7 @@ export default function DashboardScreen() {
                   {stats?.masteredCount ?? 0}
                 </Text>
                 <Text style={styles.metricLabel}>Mastered</Text>
-                <Text style={styles.metricSubtext}>Stage 5 (30-day)</Text>
+                <Text style={styles.metricSubtext}>30+ days recall</Text>
               </View>
 
               {/* Metric 4: Due & Overdue */}

@@ -99,7 +99,7 @@ export function OverallAccuracyBar({
             ]}
           >
             <Text style={[styles.scorePillText, { color: colors.textSecondary }]}>
-              {score} / {maxScore} pts
+              {correctCount} / {totalQuestions} Correct
             </Text>
           </View>
         </View>

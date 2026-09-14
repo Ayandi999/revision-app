@@ -41,14 +41,8 @@ export interface DashboardStats {
   sessionCompletedCount: number;
   sessionTotalCount: number;
   accuracyRate: number; // percentage 0-100
-  masteredCount: number; // stage 5 (30-day interval)
-  stageDistribution: {
-    1: number;
-    3: number;
-    7: number;
-    14: number;
-    30: number;
-  };
+  masteredCount: number; // long-term recall (>= 30-day interval)
+  stageDistribution: Record<number, number>;
   subjectStats: SubjectStat[];
 }
 
@@ -109,7 +103,7 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
       sessionTotalCount: 0,
       accuracyRate: 0,
       masteredCount: 0,
-      stageDistribution: { 1: 0, 3: 0, 7: 0, 14: 0, 30: 0 },
+      stageDistribution: { 1: 0, 3: 0, 7: 0, 15: 0, 30: 0, 60: 0, 120: 0, 240: 0, 365: 0 },
       subjectStats: [],
     };
   }
@@ -139,7 +133,7 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
       sessionTotalCount: 0,
       accuracyRate: 0,
       masteredCount: 0,
-      stageDistribution: { 1: 0, 3: 0, 7: 0, 14: 0, 30: 0 },
+      stageDistribution: { 1: 0, 3: 0, 7: 0, 15: 0, 30: 0, 60: 0, 120: 0, 240: 0, 365: 0 },
       subjectStats: [],
     };
   }
@@ -152,7 +146,17 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
   let totalCorrect = 0;
   let totalIncorrect = 0;
   let masteredCount = 0;
-  const stageDistribution = { 1: 0, 3: 0, 7: 0, 14: 0, 30: 0 };
+  const stageDistribution: Record<number, number> = {
+    1: 0,
+    3: 0,
+    7: 0,
+    15: 0,
+    30: 0,
+    60: 0,
+    120: 0,
+    240: 0,
+    365: 0,
+  };
 
   // Aggregation map for Subject -> Topic -> Subtopic
   const subjectMap = new Map<
@@ -196,11 +200,13 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
       totalCorrect += q.correct;
       totalIncorrect += q.incorrect;
 
-      const stage = q.nextRevision as 1 | 3 | 7 | 14 | 30;
+      const stage = q.nextRevision;
       if (stageDistribution[stage] !== undefined) {
         stageDistribution[stage]++;
-      } else if (q.nextRevision >= 30) {
-        stageDistribution[30]++;
+      } else if (stage >= 365) {
+        stageDistribution[365]++;
+      } else if (stage === 14) {
+        stageDistribution[15]++;
       } else {
         stageDistribution[1]++;
       }

@@ -6,7 +6,6 @@
  */
 
 import type { Question } from "../database/schema";
-import scoreConfig from "@/assets/scores/score.json";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,8 +20,8 @@ export type QuestionResult = {
 };
 
 export type ScoreResult = {
-  totalScore: number;
-  maxPossibleScore: number;
+  totalScore: number; // Equals correctCount
+  maxPossibleScore: number; // Equals total questions
   correctCount: number;
   incorrectCount: number;
   unansweredCount: number;
@@ -32,18 +31,13 @@ export type ScoreResult = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const CORRECT_POINTS = Number(scoreConfig.correct);
-const INCORRECT_POINTS = Number(scoreConfig.incorrect);
-const PARTIAL_POINTS = Number(scoreConfig.partially);
-
 /** Case-insensitive string comparison for answer matching. */
 function answersMatch(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
 /**
- * For MSQ: checks how many of the user's selected options are in the correct set,
- * and whether any are outside it.
+ * For MSQ: checks whether all correct options were selected and no wrong ones were picked.
  */
 function evaluateMSQ(
   userAnswer: string[],
@@ -71,17 +65,14 @@ function evaluateMSQ(
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 /**
- * Scores all questions in a revision session.
+ * Evaluates all questions in a revision session.
  *
- * This is a **pure scoring function** — it does NOT mutate question objects.
- * DB updates (correct / incorrect counters, revision scheduling) are handled
- * separately by `syncQuestionsToDB` in syncQuestion.ts.
+ * Pure count of correct vs incorrect answers — no negative points or weighted scores.
  */
 export function calculateScores(
   questionList: Question[],
   answers: (string | string[] | null)[],
 ): ScoreResult {
-  let totalScore = 0;
   let correctCount = 0;
   let incorrectCount = 0;
   let unansweredCount = 0;
@@ -126,10 +117,8 @@ export function calculateScores(
         answersMatch(userAns, correctAns);
 
       if (isCorrect) {
-        totalScore += CORRECT_POINTS;
         correctCount++;
       } else {
-        totalScore += INCORRECT_POINTS; // negative
         incorrectCount++;
       }
 
@@ -138,7 +127,7 @@ export function calculateScores(
         isCorrect,
         isUnanswered: false,
         isPartial: false,
-        pointsAwarded: isCorrect ? CORRECT_POINTS : INCORRECT_POINTS,
+        pointsAwarded: isCorrect ? 1 : 0,
         userAnswer: userAns,
         correctAnswer: correctAns,
       });
@@ -158,41 +147,38 @@ export function calculateScores(
 
       if (allCorrect) {
         // All options match exactly
-        totalScore += CORRECT_POINTS;
         correctCount++;
         questionResults.push({
           questionIndex: i,
           isCorrect: true,
           isUnanswered: false,
           isPartial: false,
-          pointsAwarded: CORRECT_POINTS,
+          pointsAwarded: 1,
           userAnswer: userAns,
           correctAnswer: correctAns,
         });
       } else if (hasWrong) {
         // At least one option outside the correct set
-        totalScore += INCORRECT_POINTS;
         incorrectCount++;
         questionResults.push({
           questionIndex: i,
           isCorrect: false,
           isUnanswered: false,
           isPartial: false,
-          pointsAwarded: INCORRECT_POINTS,
+          pointsAwarded: 0,
           userAnswer: userAns,
           correctAnswer: correctAns,
         });
       } else {
-        // Partial: some correct, none wrong
-        const partialScore = correctHits * PARTIAL_POINTS;
-        totalScore += partialScore;
+        // Partial: some correct, none wrong (treated as incorrect in strict count)
+        incorrectCount++;
         partialCount++;
         questionResults.push({
           questionIndex: i,
           isCorrect: false,
           isUnanswered: false,
           isPartial: true,
-          pointsAwarded: partialScore,
+          pointsAwarded: 0,
           userAnswer: userAns,
           correctAnswer: correctAns,
         });
@@ -214,8 +200,8 @@ export function calculateScores(
   }
 
   return {
-    totalScore,
-    maxPossibleScore: questionList.length * CORRECT_POINTS,
+    totalScore: correctCount,
+    maxPossibleScore: questionList.length,
     correctCount,
     incorrectCount,
     unansweredCount,

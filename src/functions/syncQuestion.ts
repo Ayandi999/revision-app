@@ -32,10 +32,11 @@ import { writeCache, type RevisionCache } from "./revisionQuestionFetch";
  * Ordered progression of revision intervals (in days).
  *
  * Stage 1 is the default for new / reset questions (= tomorrow).
- * After a correct answer we advance through: 3 → 7 → 14 → 30.
- * Once at 30 the question stays at 30-day intervals indefinitely.
+ * After a correct answer we advance through:
+ *   1 → 3 → 7 → 15 → 30 → 60 → 120 → 240 → 365.
+ * Once at 365, the question repeats yearly (every 365 days).
  */
-const REVISION_STAGES = [1, 3, 7, 14, 30] as const;
+export const REVISION_STAGES = [1, 3, 7, 15, 30, 60, 120, 240, 365] as const;
 
 // ─── Answer-checking helpers ─────────────────────────────────────────────────
 // These mirror the logic in scoreCalculator.ts so we stay consistent.
@@ -119,17 +120,18 @@ function evaluateAnswer(
 
 /**
  * Advances `nextRevision` to the next stage in the pattern.
- * If already at the last stage (30), stays at 30.
+ * If already at the last stage (365), stays at 365 (repeats yearly).
  */
 function advanceStage(currentStage: number): number {
   const idx = REVISION_STAGES.indexOf(currentStage as (typeof REVISION_STAGES)[number]);
 
   if (idx === -1) {
-    // Unknown stage (shouldn't happen) — start at the first progression stage
-    return REVISION_STAGES[1]; // 3
+    // If currentStage is between stages or legacy (e.g. 14), find next higher stage
+    const next = REVISION_STAGES.find((s) => s > currentStage);
+    return next ?? REVISION_STAGES[REVISION_STAGES.length - 1];
   }
 
-  // Move to the next stage, or stay at the last one
+  // Move to the next stage, or stay at the last one (365)
   return REVISION_STAGES[Math.min(idx + 1, REVISION_STAGES.length - 1)];
 }
 

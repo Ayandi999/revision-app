@@ -120,10 +120,6 @@ export function ResultQuestionCard({
               <Text style={[styles.statusText, { color: statusColor }]}>
                 {statusText}
               </Text>
-              <Text style={[styles.pointsText, { color: colors.textMuted }]}>
-                {result.pointsAwarded > 0 ? "+" : ""}
-                {result.pointsAwarded} pts
-              </Text>
             </View>
             <View style={styles.metaRow}>
               <Ionicons name="time-outline" size={12} color={colors.textMuted} />
