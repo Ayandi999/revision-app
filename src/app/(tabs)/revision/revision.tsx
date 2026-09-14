@@ -73,6 +73,10 @@ export default function RevisionScreen() {
   // Computing phase animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Track phase in ref to prevent infinite re-render loops with useFocusEffect
+  const phaseRef = useRef<Phase>(phase);
+  phaseRef.current = phase;
+
   // ── Dismiss results handler ───────────────────────────────────────────────
   const handleDone = useCallback(async () => {
     const todayStr = new Date().toISOString().split("T")[0];
@@ -133,10 +137,10 @@ export default function RevisionScreen() {
 
   // ── Fetch questions ───────────────────────────────────────────────────────
   const loadQuestions = useCallback(
-    async (isRefresh = false) => {
+    async (isRefresh = false, silent = false) => {
       if (isRefresh) {
         setRefreshing(true);
-      } else {
+      } else if (!silent) {
         setPhase("loading");
       }
       setErrorMsg("");
@@ -179,7 +183,7 @@ export default function RevisionScreen() {
           setScoreResult(scores);
 
           const todayStr = new Date().toISOString().split("T")[0];
-          let isDismissed = hasDismissedResults;
+          let isDismissed = false;
           try {
             const dismissedDate = await AsyncStorage.getItem(
               "@revision_results_dismissed_today",
@@ -246,16 +250,12 @@ export default function RevisionScreen() {
     [runScoring],
   );
 
-  useEffect(() => {
-    loadQuestions();
-  }, [loadQuestions]);
-
   useFocusEffect(
     useCallback(() => {
-      if (phase !== "quiz" && phase !== "computing") {
-        loadQuestions(false);
+      if (phaseRef.current !== "quiz" && phaseRef.current !== "computing") {
+        loadQuestions(false, phaseRef.current !== "loading");
       }
-    }, [loadQuestions, phase]),
+    }, [loadQuestions]),
   );
 
   // ── Start / Resume Quiz handler ───────────────────────────────────────────

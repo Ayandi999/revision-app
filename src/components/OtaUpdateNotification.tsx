@@ -3,7 +3,6 @@ import * as Updates from "expo-updates";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  DevSettings,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,17 +11,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/context/ThemeContext";
 
-const AUTO_DISMISS_DELAY_MS = 10000; // Auto-dismiss after 10 seconds
+const AUTO_DISMISS_DELAY_MS = 8000; // Auto-dismiss after 8 seconds
 
 export function OtaUpdateNotification() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { isUpdatePending } = Updates.useUpdates();
   const [visible, setVisible] = useState(false);
-  const [isRestarting, setIsRestarting] = useState(false);
 
   // Slide & Fade animation
-  const translateY = useRef(new Animated.Value(-120)).current;
+  const translateY = useRef(new Animated.Value(-100)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -32,17 +30,16 @@ export function OtaUpdateNotification() {
       Animated.spring(translateY, {
         toValue: 0,
         useNativeDriver: true,
-        damping: 15,
-        stiffness: 150,
+        damping: 18,
+        stiffness: 180,
       }),
       Animated.timing(opacity, {
         toValue: 1,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Clear any existing timer and auto-dismiss after delay
     if (dismissTimerRef.current) {
       clearTimeout(dismissTimerRef.current);
     }
@@ -58,13 +55,13 @@ export function OtaUpdateNotification() {
     }
     Animated.parallel([
       Animated.timing(translateY, {
-        toValue: -120,
-        duration: 250,
+        toValue: -100,
+        duration: 200,
         useNativeDriver: true,
       }),
       Animated.timing(opacity, {
         toValue: 0,
-        duration: 200,
+        duration: 150,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -79,7 +76,6 @@ export function OtaUpdateNotification() {
         .then(async (update) => {
           if (update.isAvailable) {
             await Updates.fetchUpdateAsync();
-            // Once fetched, isUpdatePending turns true automatically
           }
         })
         .catch((err) => {
@@ -95,31 +91,6 @@ export function OtaUpdateNotification() {
     }
   }, [isUpdatePending]);
 
-  const handleRestart = async () => {
-    try {
-      setIsRestarting(true);
-      if (dismissTimerRef.current) {
-        clearTimeout(dismissTimerRef.current);
-      }
-      if (__DEV__ || !Updates.isEnabled) {
-        if (DevSettings?.reload) {
-          DevSettings.reload();
-          return;
-        }
-        setTimeout(() => {
-          setIsRestarting(false);
-          hidePopup();
-        }, 800);
-        return;
-      }
-      await Updates.reloadAsync();
-    } catch (err) {
-      console.warn("[OTA Updates] Restart error:", err);
-      setIsRestarting(false);
-      hidePopup();
-    }
-  };
-
   if (!visible) return null;
 
   return (
@@ -127,7 +98,7 @@ export function OtaUpdateNotification() {
       style={[
         styles.container,
         {
-          top: Math.max(insets.top + 8, 16),
+          top: Math.max(insets.top + 6, 12),
           transform: [{ translateY }],
           opacity,
         },
@@ -137,51 +108,33 @@ export function OtaUpdateNotification() {
         style={[
           styles.content,
           {
-            backgroundColor: colors.modalCard,
-            borderColor: colors.primary,
+            backgroundColor: colors.card,
+            borderColor: colors.border,
             shadowColor: colors.shadow,
           },
         ]}
       >
         {/* Left update icon */}
         <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
-          <Ionicons name="sparkles" size={16} color={colors.primary} />
+          <Ionicons name="sparkles" size={13} color={colors.primary} />
         </View>
 
         {/* Text details */}
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>Update Available</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Update Ready</Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            A fresh update was downloaded. Restart to apply.
+            Reboot the app to install update
           </Text>
         </View>
-
-        {/* Restart action button */}
-        <TouchableOpacity
-          style={[styles.restartButton, { backgroundColor: colors.primary }]}
-          activeOpacity={0.8}
-          onPress={handleRestart}
-          disabled={isRestarting}
-        >
-          <Ionicons
-            name="refresh"
-            size={14}
-            color="#FFFFFF"
-            style={{ marginRight: 4 }}
-          />
-          <Text style={styles.restartButtonText}>
-            {isRestarting ? "Restarting..." : "Restart"}
-          </Text>
-        </TouchableOpacity>
 
         {/* Close (X) cross button */}
         <TouchableOpacity
           style={styles.closeButton}
-          activeOpacity={0.7}
+          activeOpacity={0.6}
           onPress={hidePopup}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="close" size={18} color={colors.textMuted} />
+          <Ionicons name="close" size={16} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
     </Animated.View>
@@ -191,31 +144,27 @@ export function OtaUpdateNotification() {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    left: 16,
-    right: 16,
+    left: 20,
+    right: 20,
     zIndex: 999999,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
-    shadowRadius: 16,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
   },
   content: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1E2028",
-    borderRadius: 18,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(56, 189, 248, 0.3)",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     gap: 10,
   },
   iconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -223,31 +172,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "700",
-    letterSpacing: -0.2,
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: -0.1,
   },
   subtitle: {
-    color: "#94A3B8",
     fontSize: 11,
-    lineHeight: 15,
-    marginTop: 1,
-  },
-  restartButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#0284C7",
-    paddingHorizontal: 11,
-    paddingVertical: 7,
-    borderRadius: 10,
-  },
-  restartButtonText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "700",
+    marginTop: 0.5,
   },
   closeButton: {
-    padding: 4,
+    padding: 2,
   },
 });

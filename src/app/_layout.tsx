@@ -7,6 +7,7 @@ import {
 import { useFonts } from "expo-font";
 import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
+import { Image, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -31,9 +32,23 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  // Don't render until fonts are loaded (or failed)
+  // Render centered logo on black background until fonts are loaded
   if (!fontsLoaded && !fontError) {
-    return null;
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#000000",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Image
+          source={require("../../assets/images/splash-icon.png")}
+          style={{ width: 220, height: 220, resizeMode: "contain" }}
+        />
+      </View>
+    );
   }
 
   return (

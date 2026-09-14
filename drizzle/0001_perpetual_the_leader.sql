@@ -1,0 +1,1 @@
+ALTER TABLE `questions` ADD `extracted_text` text;
