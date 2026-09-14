@@ -1,15 +1,23 @@
-import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
+import { DeleteQuestionModal } from "@/components/search/DeleteQuestionModal";
+import { EditQuestionModal } from "@/components/search/EditQuestionModal";
 import { QuestionDetailModal } from "@/components/search/QuestionDetailModal";
 import { StatusModal } from "@/components/StatusModal";
+import { SyllabusDropdown } from "@/components/SyllabusDropdown";
+import type { ThemeColors } from "@/constants/theme";
+import { useCloudSync } from "@/context/CloudSyncContext";
 import { useActiveExam } from "@/context/ExamContext";
+import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
 import { resolveImageUri } from "@/functions/imageHelpers";
-import { searchQuestions, type SearchFilters } from "@/functions/searchQuestions";
+import { deleteQuestionFromLocalDb } from "@/functions/queries";
 import {
-  SyllabusSchema,
+  searchQuestions,
+  type SearchFilters,
+} from "@/functions/searchQuestions";
+import {
   getSubjects,
   getSubtopicsForTopics,
   getTopics,
@@ -17,8 +25,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useCloudSync } from "@/context/CloudSyncContext";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -33,8 +40,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "@/context/ThemeContext";
-import type { ThemeColors } from "@/constants/theme";
 
 if (
   Platform.OS === "android" &&
@@ -91,7 +96,16 @@ export default function SearchScreen() {
   const [zoomTitle, setZoomTitle] = useState("Question Image");
 
   // ─── Selected Question for Detail Modal ───────────────────────────────────
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null,
+  );
+
+  // ─── Delete & Edit Question Modal State ───────────────────────────────────
+  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(
+    null,
+  );
+  const [isDeletingQuestion, setIsDeletingQuestion] = useState(false);
+  const [questionToEdit, setQuestionToEdit] = useState<Question | null>(null);
 
   // ─── Debounce Search Input ────────────────────────────────────────────────
   useEffect(() => {
@@ -129,11 +143,11 @@ export default function SearchScreen() {
   const availableSubjects = useMemo(() => getSubjects(syllabus), [syllabus]);
   const availableTopics = useMemo(
     () => getTopics(syllabus, selectedSubject),
-    [syllabus, selectedSubject]
+    [syllabus, selectedSubject],
   );
   const availableSubtopics = useMemo(
     () => getSubtopicsForTopics(syllabus, selectedSubject, selectedTopics),
-    [syllabus, selectedSubject, selectedTopics]
+    [syllabus, selectedSubject, selectedTopics],
   );
 
   // Active filter count indicator
@@ -162,10 +176,10 @@ export default function SearchScreen() {
       const stillAvailable = getSubtopicsForTopics(
         syllabus,
         selectedSubject,
-        remaining
+        remaining,
       );
       setSelectedSubtopics((prev) =>
-        prev.filter((s) => stillAvailable.includes(s))
+        prev.filter((s) => stillAvailable.includes(s)),
       );
     } else {
       setSelectedTopics((prev) => [...prev, topic]);
@@ -176,7 +190,7 @@ export default function SearchScreen() {
     setSelectedSubtopics((prev) =>
       prev.includes(subtopic)
         ? prev.filter((s) => s !== subtopic)
-        : [...prev, subtopic]
+        : [...prev, subtopic],
     );
   };
 
@@ -223,14 +237,14 @@ export default function SearchScreen() {
         setIsRefreshing(false);
       }
     },
-    [debouncedQuery, selectedSubject, selectedTopics, selectedSubtopics]
+    [debouncedQuery, selectedSubject, selectedTopics, selectedSubtopics],
   );
 
   // Re-fetch search results when tab is focused
   useFocusEffect(
     useCallback(() => {
       fetchResults(0, false);
-    }, [fetchResults])
+    }, [fetchResults]),
   );
 
   // Trigger search when query, filters, or cloud restore state changes
@@ -249,6 +263,39 @@ export default function SearchScreen() {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!questionToDelete) return;
+    setIsDeletingQuestion(true);
+    try {
+      const result = await deleteQuestionFromLocalDb(questionToDelete.id);
+      if (result.success) {
+        setQuestionsList((prev) =>
+          prev.filter((q) => q.id !== questionToDelete.id),
+        );
+        setTotalCount((prev) => Math.max(0, prev - 1));
+        if (selectedQuestion?.id === questionToDelete.id) {
+          setSelectedQuestion(null);
+        }
+        setQuestionToDelete(null);
+      } else {
+        console.error("[SearchScreen] Failed to delete question:", result.error);
+      }
+    } catch (err) {
+      console.error("[SearchScreen] Delete error:", err);
+    } finally {
+      setIsDeletingQuestion(false);
+    }
+  };
+
+  const handleQuestionUpdated = (updated: Question) => {
+    setQuestionsList((prev) =>
+      prev.map((q) => (q.id === updated.id ? updated : q)),
+    );
+    if (selectedQuestion?.id === updated.id) {
+      setSelectedQuestion(updated);
+    }
+  };
+
   // ─── Helpers for Badges ───────────────────────────────────────────────────
   const getSubjectColor = (subject: string) => {
     const s = subject.toLowerCase();
@@ -260,22 +307,6 @@ export default function SearchScreen() {
   };
 
   // ─── Render Question Card Item ────────────────────────────────────────────
-  const formatAnswerSummary = (q: Question): string | null => {
-    if (q.questionType === "MCQ") {
-      return q.mcqAnswer ? `Option ${q.mcqAnswer}` : null;
-    }
-    if (q.questionType === "MSQ") {
-      if (Array.isArray(q.msqAnswer) && q.msqAnswer.length > 0) {
-        return `Options ${q.msqAnswer.join(", ")}`;
-      }
-      return null;
-    }
-    if (q.questionType === "NAT") {
-      return q.natAnswer ? `${q.natAnswer}` : null;
-    }
-    return null;
-  };
-
   const renderQuestionCard = ({
     item,
     index,
@@ -285,7 +316,7 @@ export default function SearchScreen() {
   }) => {
     const subjColor = getSubjectColor(item.subject);
     const resolvedImageUri = resolveImageUri(item.questionImageUri);
-    const answerSummary = formatAnswerSummary(item);
+    const cleanExtractedText = item.extractedText?.replace(/\s+/g, " ").trim();
 
     return (
       <TouchableOpacity
@@ -295,7 +326,7 @@ export default function SearchScreen() {
           setSelectedQuestion(item);
         }}
       >
-        {/* 3-Column Compact Row: [Image w/ Type] | [Subject & Option with divider] | [Topic & Subtopic points] */}
+        {/* 3-Column Compact Row: [Image w/ Type] | [Subject & Extracted OCR Text] | [Scores] */}
         <View style={styles.cardColumnsRow}>
           {/* Column 1: Image Thumbnail with Question Type pinned on top */}
           <View style={styles.imageCol}>
@@ -316,7 +347,9 @@ export default function SearchScreen() {
                 />
                 {/* Question Type on top of image */}
                 <View style={styles.imageTypeBadge}>
-                  <Text style={styles.imageTypeBadgeText}>{item.questionType}</Text>
+                  <Text style={styles.imageTypeBadgeText}>
+                    {item.questionType}
+                  </Text>
                 </View>
                 <View style={styles.zoomOverlay}>
                   <Ionicons name="scan-outline" size={9} color="#FFFFFF" />
@@ -325,7 +358,9 @@ export default function SearchScreen() {
             ) : (
               <View style={styles.thumbnailWrapper}>
                 <View style={styles.imageTypeBadge}>
-                  <Text style={styles.imageTypeBadgeText}>{item.questionType}</Text>
+                  <Text style={styles.imageTypeBadgeText}>
+                    {item.questionType}
+                  </Text>
                 </View>
                 <View style={styles.noImageInner}>
                   <Ionicons name="image-outline" size={16} color="#475569" />
@@ -334,44 +369,27 @@ export default function SearchScreen() {
             )}
           </View>
 
-          {/* Column 2: Subject on top, small separating line, and Answer below with green tick */}
-          <View style={styles.answerCol}>
+          {/* Column 2 (Middle): Subject on top and OCR extracted text snippet below */}
+          <View style={styles.middleCol}>
             <Text
               style={[styles.colSubjectText, { color: subjColor }]}
               numberOfLines={1}
             >
               {item.subject}
             </Text>
-            <View style={styles.colDividerLine} />
-            <View style={styles.answerValueRow}>
-              <Ionicons name="checkmark-circle" size={11} color="#10B981" />
-              <Text style={styles.answerColValue} numberOfLines={1}>
-                {answerSummary ?? "—"}
-              </Text>
-            </View>
+            <Text
+              style={[
+                styles.extractedSnippetText,
+                !cleanExtractedText && styles.extractedSnippetPlaceholder,
+              ]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              {cleanExtractedText || "No text extracted"}
+            </Text>
           </View>
 
-          {/* Column 3: Topic on top & Subtopics below as clean simple points */}
-          <View style={styles.taxonomyCol}>
-            <View style={styles.bulletItem}>
-              <Text style={styles.bulletDotTopic}>•</Text>
-              <Text style={styles.topicBulletText} numberOfLines={1}>
-                {item.topics && item.topics.length > 0
-                  ? item.topics[0]
-                  : "No topic"}
-              </Text>
-            </View>
-            <View style={styles.bulletItem}>
-              <Text style={styles.bulletDotSubtopic}>•</Text>
-              <Text style={styles.subtopicBulletText} numberOfLines={1}>
-                {item.subtopics && item.subtopics.length > 0
-                  ? item.subtopics[0]
-                  : "General"}
-              </Text>
-            </View>
-          </View>
-
-          {/* Column 4: Revision scores (correct green tick on top, incorrect red cross below) */}
+          {/* Column 3: Revision scores (correct green tick on top, incorrect red cross below) */}
           <View style={styles.scoreCol}>
             <View style={styles.scoreRow}>
               <Ionicons name="checkmark-circle" size={10} color="#10B981" />
@@ -447,7 +465,11 @@ export default function SearchScreen() {
           <Ionicons
             name="search"
             size={18}
-            color={isOcrAvailable === false ? colors.textPlaceholder : colors.textMuted}
+            color={
+              isOcrAvailable === false
+                ? colors.textPlaceholder
+                : colors.textMuted
+            }
             style={styles.searchIcon}
           />
           <TextInput
@@ -474,7 +496,11 @@ export default function SearchScreen() {
               style={styles.clearButton}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="close-circle" size={18} color={colors.textMuted} />
+              <Ionicons
+                name="close-circle"
+                size={18}
+                color={colors.textMuted}
+              />
             </TouchableOpacity>
           ) : null}
 
@@ -501,7 +527,9 @@ export default function SearchScreen() {
             name={isFilterPanelOpen ? "funnel" : "funnel-outline"}
             size={18}
             color={
-              activeFiltersCount > 0 || isFilterPanelOpen ? "#FFFFFF" : colors.textMuted
+              activeFiltersCount > 0 || isFilterPanelOpen
+                ? "#FFFFFF"
+                : colors.textMuted
             }
           />
           {activeFiltersCount > 0 ? (
@@ -530,7 +558,8 @@ export default function SearchScreen() {
           {selectedTopics.length > 0 ? (
             <View style={styles.activePill}>
               <Text style={styles.activePillText}>
-                {selectedTopics.length} topic{selectedTopics.length > 1 ? "s" : ""}
+                {selectedTopics.length} topic
+                {selectedTopics.length > 1 ? "s" : ""}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -558,8 +587,8 @@ export default function SearchScreen() {
         <View style={styles.noticeBanner}>
           <Ionicons name="information-circle" size={18} color="#3B82F6" />
           <Text style={styles.noticeText}>
-            Image OCR search is unavailable on this device/runtime. Subject, topic &
-            note search works normally.
+            Image OCR search is unavailable on this device/runtime. Subject,
+            topic & note search works normally.
           </Text>
           <TouchableOpacity
             onPress={() => setIsOcrNoticeDismissed(true)}
@@ -663,7 +692,11 @@ export default function SearchScreen() {
             : `${totalCount} question${totalCount === 1 ? "" : "s"} found`}
         </Text>
         {isLoading ? (
-          <ActivityIndicator size="small" color={colors.primary} style={{ marginLeft: 8 }} />
+          <ActivityIndicator
+            size="small"
+            color={colors.primary}
+            style={{ marginLeft: 8 }}
+          />
         ) : null}
       </View>
 
@@ -693,7 +726,11 @@ export default function SearchScreen() {
           ) : (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconWrapper}>
-                <Ionicons name="search-outline" size={40} color={colors.textPlaceholder} />
+                <Ionicons
+                  name="search-outline"
+                  size={40}
+                  color={colors.textPlaceholder}
+                />
               </View>
               <Text style={styles.emptyTitle}>No questions found</Text>
               <Text style={styles.emptySubtitle}>
@@ -742,6 +779,25 @@ export default function SearchScreen() {
         visible={!!selectedQuestion}
         question={selectedQuestion}
         onClose={() => setSelectedQuestion(null)}
+        onEdit={(q) => setQuestionToEdit(q)}
+        onDelete={(q) => setQuestionToDelete(q)}
+      />
+
+      {/* ── Delete Question Modal ──────────────────────────────────────────── */}
+      <DeleteQuestionModal
+        visible={!!questionToDelete}
+        question={questionToDelete}
+        isDeleting={isDeletingQuestion}
+        onClose={() => setQuestionToDelete(null)}
+        onConfirm={handleConfirmDelete}
+      />
+
+      {/* ── Edit Question Modal ────────────────────────────────────────────── */}
+      <EditQuestionModal
+        visible={!!questionToEdit}
+        question={questionToEdit}
+        onClose={() => setQuestionToEdit(null)}
+        onSaveSuccess={handleQuestionUpdated}
       />
 
       {/* ── OCR Unavailable Modal ──────────────────────────────────────────── */}
@@ -867,8 +923,12 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     activePill: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.15)" : "rgba(37, 99, 235, 0.1)",
-      borderColor: isDark ? "rgba(59, 130, 246, 0.4)" : "rgba(37, 99, 235, 0.3)",
+      backgroundColor: isDark
+        ? "rgba(59, 130, 246, 0.15)"
+        : "rgba(37, 99, 235, 0.1)",
+      borderColor: isDark
+        ? "rgba(59, 130, 246, 0.4)"
+        : "rgba(37, 99, 235, 0.3)",
       borderWidth: 1,
       paddingHorizontal: 10,
       paddingVertical: 4,
@@ -892,9 +952,13 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     noticeBanner: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(37, 99, 235, 0.08)",
+      backgroundColor: isDark
+        ? "rgba(59, 130, 246, 0.1)"
+        : "rgba(37, 99, 235, 0.08)",
       borderWidth: 1,
-      borderColor: isDark ? "rgba(59, 130, 246, 0.25)" : "rgba(37, 99, 235, 0.2)",
+      borderColor: isDark
+        ? "rgba(59, 130, 246, 0.25)"
+        : "rgba(37, 99, 235, 0.2)",
       borderRadius: 10,
       marginHorizontal: 16,
       marginBottom: 8,
@@ -1025,7 +1089,9 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       top: 0,
       left: 0,
       right: 0,
-      backgroundColor: isDark ? "rgba(15, 23, 42, 0.88)" : "rgba(15, 23, 42, 0.75)",
+      backgroundColor: isDark
+        ? "rgba(15, 23, 42, 0.88)"
+        : "rgba(15, 23, 42, 0.75)",
       paddingVertical: 1,
       alignItems: "center",
       justifyContent: "center",
@@ -1052,69 +1118,27 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       padding: 1.5,
       zIndex: 2,
     },
-    answerCol: {
-      width: 88,
+    middleCol: {
+      flex: 1,
       justifyContent: "center",
       borderLeftWidth: 1,
       borderLeftColor: colors.border,
-      paddingLeft: 6,
+      paddingLeft: 8,
+      gap: 3,
     },
     colSubjectText: {
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: "700",
       letterSpacing: 0.1,
     },
-    colDividerLine: {
-      width: "100%",
-      height: 1,
-      backgroundColor: colors.border,
-      marginVertical: 2.5,
-    },
-    answerValueRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 3,
-    },
-    answerColValue: {
-      color: colors.text,
+    extractedSnippetText: {
+      color: colors.textSecondary,
       fontSize: 11,
-      fontWeight: "700",
-      lineHeight: 14,
-      flex: 1,
+      lineHeight: 15,
     },
-    taxonomyCol: {
-      flex: 1,
-      justifyContent: "center",
-      borderLeftWidth: 1,
-      borderLeftColor: colors.border,
-      paddingLeft: 6,
-      gap: 2,
-    },
-    bulletItem: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 4,
-    },
-    bulletDotTopic: {
-      color: isDark ? "#38BDF8" : "#0284C7",
-      fontSize: 11,
-      lineHeight: 13,
-    },
-    topicBulletText: {
-      color: colors.text,
-      fontSize: 10.5,
-      fontWeight: "600",
-      flex: 1,
-    },
-    bulletDotSubtopic: {
-      color: isDark ? "#14B8A6" : "#0D9488",
-      fontSize: 11,
-      lineHeight: 13,
-    },
-    subtopicBulletText: {
-      color: colors.textMuted,
-      fontSize: 10,
-      flex: 1,
+    extractedSnippetPlaceholder: {
+      color: colors.textPlaceholder,
+      fontStyle: "italic",
     },
     scoreCol: {
       justifyContent: "center",
@@ -1160,7 +1184,9 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       width: 72,
       height: 72,
       borderRadius: 36,
-      backgroundColor: isDark ? "rgba(148, 163, 184, 0.08)" : "rgba(148, 163, 184, 0.12)",
+      backgroundColor: isDark
+        ? "rgba(148, 163, 184, 0.08)"
+        : "rgba(148, 163, 184, 0.12)",
       justifyContent: "center",
       alignItems: "center",
       marginBottom: 8,

@@ -21,12 +21,16 @@ interface QuestionDetailModalProps {
   visible: boolean;
   question: Question | null;
   onClose: () => void;
+  onEdit?: (question: Question) => void;
+  onDelete?: (question: Question) => void;
 }
 
 export function QuestionDetailModal({
   visible,
   question,
   onClose,
+  onEdit,
+  onDelete,
 }: QuestionDetailModalProps) {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
@@ -103,14 +107,60 @@ export function QuestionDetailModal({
               </View>
             </View>
 
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={onClose}
-              style={[styles.closeBtn, { backgroundColor: colors.cardSecondary }]}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close" size={20} color={colors.textMuted} />
-            </TouchableOpacity>
+            <View style={styles.headerRight}>
+              {onEdit && (
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => onEdit(question)}
+                  style={[
+                    styles.headerActionBtn,
+                    {
+                      backgroundColor: colors.cardSecondary,
+                      borderColor: colors.cardSecondaryBorder,
+                    },
+                  ]}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                >
+                  <Ionicons name="pencil" size={15} color={colors.primary} />
+                </TouchableOpacity>
+              )}
+
+              {onDelete && (
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => onDelete(question)}
+                  style={[
+                    styles.headerActionBtn,
+                    {
+                      backgroundColor: colors.cardSecondary,
+                      borderColor: colors.cardSecondaryBorder,
+                    },
+                  ]}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={15}
+                    color={colors.danger}
+                  />
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={onClose}
+                style={[
+                  styles.closeBtn,
+                  {
+                    backgroundColor: colors.cardSecondary,
+                    borderColor: colors.cardSecondaryBorder,
+                  },
+                ]}
+                hitSlop={{ top: 8, bottom: 8, left: 6, right: 8 }}
+              >
+                <Ionicons name="close" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Scrollable Content */}
@@ -504,11 +554,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "600",
   },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerActionBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   closeBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#27272A",
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
