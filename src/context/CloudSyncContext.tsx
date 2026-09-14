@@ -19,6 +19,7 @@ import {
   signOutFromGoogle,
   type GoogleAuthUser,
 } from "@/services/googleAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   canSyncNow,
   restoreFromManifest,
@@ -62,6 +63,7 @@ export interface CloudSyncContextValue {
   waitingReason: string | null;
   lastSyncAt: string | null;
   lastBackupSize: string | null;
+  lastRestoredAt: string | null;
   backupEnabled: boolean;
   wifiOnly: boolean;
   pendingCount: number;
@@ -88,6 +90,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [lastBackupSize, setLastBackupSize] = useState<string | null>(null);
+  const [lastRestoredAt, setLastRestoredAt] = useState<string | null>(null);
 
   const [backupEnabled, setBackupEnabled] = useState(true);
   const [wifiOnly, setWifiOnly] = useState(true);
@@ -363,12 +366,19 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
                 (progress) => setProgressMessage(progress)
               );
 
+              // Invalidate stale caches so Home & Revision tabs reload freshly
+              try {
+                await AsyncStorage.removeItem("revision-data");
+                await AsyncStorage.removeItem("@revision_results_dismissed_today");
+              } catch {}
+
+              setLastRestoredAt(result.restoredAt);
               await loadMetadata();
               await refreshPendingCount();
 
               Alert.alert(
                 "Restore Completed",
-                `Successfully restored database and verified ${result.imageCount} image(s) from your Google Drive.`
+                `Successfully restored ${result.questionCount} question(s) and verified ${result.imageCount} image(s) from your Google Drive.`
               );
             } catch (err: any) {
               console.error("[CloudSyncContext] Restore failed:", err);
@@ -400,6 +410,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         waitingReason,
         lastSyncAt,
         lastBackupSize,
+        lastRestoredAt,
         backupEnabled,
         wifiOnly,
         pendingCount,

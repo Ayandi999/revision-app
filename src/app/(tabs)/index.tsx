@@ -78,7 +78,7 @@ export default function DashboardScreen() {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
   const { syllabus } = useActiveExam();
-  const { user, isAuthenticated } = useCloudSync();
+  const { user, isAuthenticated, lastRestoredAt } = useCloudSync();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -141,7 +141,7 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     loadStats();
-  }, [loadStats]);
+  }, [loadStats, lastRestoredAt]);
 
   useFocusEffect(
     useCallback(() => {

@@ -8,15 +8,46 @@ import { openDatabaseSync, type SQLiteDatabase } from 'expo-sqlite';
  * rather than destructuring at import time, ensuring you always reference the active open
  * connection across database reopenings.
  */
-export let expodb: SQLiteDatabase = openDatabaseSync('revision.db');
-export let db = drizzle(expodb, { schema });
+let _expodb: SQLiteDatabase = openDatabaseSync('revision.db');
+let _db = drizzle(_expodb, { schema });
+
+/**
+ * Proxied expodb and db instances.
+ * Using ES6 Proxies guarantees that any file importing `expodb` or `db` always forwards
+ * queries to the currently active database connection, preventing stale closed-connection
+ * errors when the database is closed and reopened during cloud restore.
+ */
+export const expodb: SQLiteDatabase = new Proxy({} as SQLiteDatabase, {
+  get(_target, prop) {
+    const val = (_expodb as any)[prop];
+    return typeof val === 'function' ? val.bind(_expodb) : val;
+  },
+  set(_target, prop, value) {
+    (_expodb as any)[prop] = value;
+    return true;
+  },
+});
+
+export const db: ReturnType<typeof drizzle<typeof schema>> = new Proxy(
+  {} as ReturnType<typeof drizzle<typeof schema>>,
+  {
+    get(_target, prop) {
+      const val = (_db as any)[prop];
+      return typeof val === 'function' ? val.bind(_db) : val;
+    },
+    set(_target, prop, value) {
+      (_db as any)[prop] = value;
+      return true;
+    },
+  }
+);
 
 /**
  * Executes a full WAL checkpoint to flush pending write transactions into the primary db file.
  * Throws if SQLite fails to flush so callers can catch and prevent backing up stale files.
  */
 export function checkpointDatabaseSync(): void {
-  expodb.execSync('PRAGMA wal_checkpoint(TRUNCATE);');
+  _expodb.execSync('PRAGMA wal_checkpoint(TRUNCATE);');
 }
 
 /**
@@ -24,7 +55,7 @@ export function checkpointDatabaseSync(): void {
  * Throws if the close operation fails.
  */
 export function closeDatabaseSync(): void {
-  expodb.closeSync();
+  _expodb.closeSync();
 }
 
 /**
@@ -32,6 +63,6 @@ export function closeDatabaseSync(): void {
  * Throws if the database file cannot be opened.
  */
 export function reopenDatabaseSync(): void {
-  expodb = openDatabaseSync('revision.db');
-  db = drizzle(expodb, { schema });
+  _expodb = openDatabaseSync('revision.db');
+  _db = drizzle(_expodb, { schema });
 }

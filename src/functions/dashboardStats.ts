@@ -191,26 +191,23 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
 
     const totalTries = q.correct + q.incorrect;
 
-    // A question must appear in revision and be attempted at least once
-    // before it is factored into taxonomy, mastery, and stage statistics.
-    if (totalTries === 0) {
-      continue;
-    }
+    // Track stage distribution & mastery only if attempted
+    if (totalTries > 0) {
+      totalCorrect += q.correct;
+      totalIncorrect += q.incorrect;
 
-    totalCorrect += q.correct;
-    totalIncorrect += q.incorrect;
+      const stage = q.nextRevision as 1 | 3 | 7 | 14 | 30;
+      if (stageDistribution[stage] !== undefined) {
+        stageDistribution[stage]++;
+      } else if (q.nextRevision >= 30) {
+        stageDistribution[30]++;
+      } else {
+        stageDistribution[1]++;
+      }
 
-    const stage = q.nextRevision as 1 | 3 | 7 | 14 | 30;
-    if (stageDistribution[stage] !== undefined) {
-      stageDistribution[stage]++;
-    } else if (q.nextRevision >= 30) {
-      stageDistribution[30]++;
-    } else {
-      stageDistribution[1]++;
-    }
-
-    if (q.nextRevision >= 30) {
-      masteredCount++;
+      if (q.nextRevision >= 30) {
+        masteredCount++;
+      }
     }
 
     // Process taxonomy

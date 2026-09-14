@@ -1,10 +1,15 @@
 import * as Network from "expo-network";
 import { Directory, File, Paths } from "expo-file-system";
+import { defaultDatabaseDirectory } from "expo-sqlite";
+import { sql } from "drizzle-orm";
 import {
   checkpointDatabaseSync,
   closeDatabaseSync,
   reopenDatabaseSync,
+  expodb,
+  db,
 } from "@/database/db";
+import { questions } from "@/database/schema";
 import {
   uploadSingleImage,
   downloadSingleImage,
@@ -12,6 +17,9 @@ import {
   updateManifest,
   uploadDatabaseOnly,
   downloadDatabaseOnly,
+  findAppDataFile,
+  listFileRevisions,
+  downloadRevisionBytes,
 } from "./googleDrive";
 import { getValidAccessToken, saveSyncMetadata } from "./googleAuth";
 import {
@@ -63,6 +71,23 @@ export function isSafeRelativePath(path: string): boolean {
   return true;
 }
 
+/**
+ * Safely wraps a directory path into an expo-file-system Directory with a guaranteed
+ * 'file://' scheme so native Android Java URI parsing never fails with "URI is not absolute".
+ */
+function getSqliteDirectory(): Directory {
+  if (defaultDatabaseDirectory && typeof defaultDatabaseDirectory === "string") {
+    if (defaultDatabaseDirectory.startsWith("file://")) {
+      return new Directory(defaultDatabaseDirectory);
+    }
+    const clean = defaultDatabaseDirectory.startsWith("/")
+      ? defaultDatabaseDirectory
+      : `/${defaultDatabaseDirectory}`;
+    return new Directory(`file://${clean}`);
+  }
+  return new Directory(Paths.document, "SQLite");
+}
+
 // ─── Safe Database Snapshot ───────────────────────────────────────────────────
 
 /**
@@ -72,9 +97,15 @@ export function isSafeRelativePath(path: string): boolean {
 async function createDatabaseSnapshot(): Promise<Uint8Array> {
   checkpointDatabaseSync();
 
-  const originalDb = new File(Paths.document, "SQLite", "revision.db");
+  const sqliteDir = getSqliteDirectory();
+  let originalDb = new File(sqliteDir, "revision.db");
   if (!originalDb.exists) {
-    throw new Error("SQLite database file not found at documentDirectory/SQLite/revision.db");
+    const fallbackDb = new File(Paths.document, "SQLite", "revision.db");
+    if (fallbackDb.exists) {
+      originalDb = fallbackDb;
+    } else {
+      throw new Error(`SQLite database file not found at ${sqliteDir.uri}/revision.db`);
+    }
   }
 
   const stagingFile = new File(Paths.cache, `revision_staging_${Date.now()}.db`);
@@ -292,6 +323,25 @@ export async function syncDatabaseOnly(
       }
     }
 
+    // Safety check: Never overwrite an existing remote cloud backup with an empty local database
+    try {
+      const [{ count: localQuestionCount }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(questions);
+
+      if (localQuestionCount === 0) {
+        const remoteDbFile = await findAppDataFile(token, "revlog_database.db");
+        if (remoteDbFile) {
+          console.warn(
+            "[backupService] Safety abort: local database has 0 questions, but Google Drive has an existing backup. Skipping DB overwrite."
+          );
+          return false;
+        }
+      }
+    } catch (countErr) {
+      console.warn("[backupService] Pre-backup question count check error:", countErr);
+    }
+
     const dbBytes = await createDatabaseSnapshot();
     const uploadedFile = await uploadDatabaseOnly(token, dbBytes);
 
@@ -318,12 +368,14 @@ export async function syncDatabaseOnly(
 export interface RestoreResult {
   restoredAt: string;
   imageCount: number;
+  questionCount: number;
   metadata: Record<string, any> | null;
 }
 
 /**
  * Restores database from revlog_database.db and synchronizes missing images via manifest.json.
  * Validates SQLite magic header before filesystem operations to prevent corrupt/truncated overwrites.
+ * Automatically checks Google Drive version history if the restored database snapshot has 0 questions.
  */
 export async function restoreFromManifest(
   accessToken: string,
@@ -356,7 +408,7 @@ export async function restoreFromManifest(
 
     onProgress?.("Restoring database & images...");
 
-    const sqliteDir = new Directory(Paths.document, "SQLite");
+    const sqliteDir = getSqliteDirectory();
     if (!sqliteDir.exists) {
       sqliteDir.create({ intermediates: true, idempotent: true });
     }
@@ -458,6 +510,61 @@ export async function restoreFromManifest(
       }
     }
 
+    // 4. Inspect restored question count
+    let questionCount = 0;
+    try {
+      const rows = expodb.getAllSync<{ count: number }>(
+        "SELECT count(*) as count FROM questions;"
+      );
+      questionCount = rows[0]?.count ?? 0;
+    } catch (countErr) {
+      console.warn("[backupService] Failed to query restored question count:", countErr);
+    }
+
+    // 5. Automatic revision recovery:
+    // If the restored DB has 0 questions but manifest has images, the database was likely
+    // overwritten by an empty auto-sync on a fresh reinstall. Check previous Drive revisions!
+    if (questionCount === 0 && Object.keys(manifestInfo.manifest).length > 0) {
+      try {
+        onProgress?.("Checking cloud history for previous database version...");
+        const remoteDbFile = await findAppDataFile(accessToken, "revlog_database.db");
+        if (remoteDbFile) {
+          const revisions = await listFileRevisions(accessToken, remoteDbFile.id);
+          // Revisions are oldest to newest. Sort in reverse to test newest revisions first
+          const previousRevs = revisions.slice(0, -1).reverse();
+          for (const rev of previousRevs) {
+            try {
+              onProgress?.("Recovering previous database backup...");
+              const revBytes = await downloadRevisionBytes(accessToken, remoteDbFile.id, rev.id);
+              if (isValidSqliteFile(revBytes)) {
+                closeDatabaseSync();
+                targetDb.write(revBytes);
+                reopenDatabaseSync();
+
+                const testRows = expodb.getAllSync<{ count: number }>(
+                  "SELECT count(*) as count FROM questions;"
+                );
+                const recoveredCount = testRows[0]?.count ?? 0;
+                if (recoveredCount > 0) {
+                  questionCount = recoveredCount;
+                  console.log(
+                    `[backupService] Successfully recovered ${recoveredCount} questions from previous Drive revision ${rev.id}!`
+                  );
+                  // Repair latest revision on Google Drive so future restores work immediately
+                  uploadDatabaseOnly(accessToken, revBytes).catch(() => {});
+                  break;
+                }
+              }
+            } catch (revErr) {
+              console.warn(`[backupService] Revision ${rev.id} recovery attempt failed:`, revErr);
+            }
+          }
+        }
+      } catch (historyErr) {
+        console.warn("[backupService] Revision history check failed:", historyErr);
+      }
+    }
+
     // Seed all manifest images in backup_images table using single-query atomic upsert
     try {
       for (const [relPath, driveFileId] of Object.entries(manifestInfo.manifest)) {
@@ -481,6 +588,7 @@ export async function restoreFromManifest(
     return {
       restoredAt,
       imageCount: Object.keys(manifestInfo.manifest).length,
+      questionCount,
       metadata: { type: "incremental_manifest" },
     };
   } finally {

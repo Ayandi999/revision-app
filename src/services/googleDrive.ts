@@ -484,3 +484,68 @@ export async function downloadDatabaseOnly(
   return downloadBackup(accessToken, file.id);
 }
 
+export interface DriveFileRevision {
+  id: string;
+  modifiedTime: string;
+  size?: string;
+}
+
+/**
+ * Lists version history / revisions for a file in Google Drive.
+ */
+export async function listFileRevisions(
+  accessToken: string,
+  fileId: string
+): Promise<DriveFileRevision[]> {
+  return withRetry(async () => {
+    const url = `${DRIVE_API_BASE}/${fileId}/revisions?fields=revisions(id,modifiedTime,size)`;
+    const response = await fetchWithTimeout(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json().catch(() => ({}));
+    return (data.revisions || []) as DriveFileRevision[];
+  });
+}
+
+/**
+ * Downloads a specific previous revision of a file from Google Drive.
+ */
+export async function downloadRevisionBytes(
+  accessToken: string,
+  fileId: string,
+  revisionId: string
+): Promise<Uint8Array> {
+  return withRetry(async () => {
+    const url = `${DRIVE_API_BASE}/${fileId}/revisions/${revisionId}?alt=media`;
+    const response = await fetchWithTimeout(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+      TRANSFER_TIMEOUT_MS
+    );
+
+    if (!response.ok) {
+      const err = await response.text().catch(() => "");
+      throw new DriveApiError(
+        `Failed to download revision ${revisionId} (${response.status}): ${err}`,
+        response.status
+      );
+    }
+
+    const buffer = await response.arrayBuffer();
+    return new Uint8Array(buffer);
+  });
+}
+
+

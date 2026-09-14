@@ -16,7 +16,9 @@ import {
 } from "@/types/syllabus";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCloudSync } from "@/context/CloudSyncContext";
 import {
   ActivityIndicator,
   FlatList,
@@ -51,8 +53,9 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const { syllabus } = useActiveExam();
+  const { lastRestoredAt } = useCloudSync();
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedSubtopics, setSelectedSubtopics] = useState<string[]>([]);
@@ -223,10 +226,17 @@ export default function SearchScreen() {
     [debouncedQuery, selectedSubject, selectedTopics, selectedSubtopics]
   );
 
-  // Trigger search when query or filters change
+  // Re-fetch search results when tab is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchResults(0, false);
+    }, [fetchResults])
+  );
+
+  // Trigger search when query, filters, or cloud restore state changes
   useEffect(() => {
     fetchResults(0, true);
-  }, [fetchResults]);
+  }, [fetchResults, lastRestoredAt]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
