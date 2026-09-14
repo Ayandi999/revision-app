@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import { useTheme } from "@/context/ThemeContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,8 @@ export function ResultsPieChart({
   unanswered,
   total,
 }: ResultsPieChartProps) {
+  const { colors, isDark } = useTheme();
+
   if (total === 0) return null;
 
   const correctPct = correct / total;
@@ -50,7 +53,7 @@ export function ResultsPieChart({
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
-            stroke="rgba(255,255,255,0.06)"
+            stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}
             strokeWidth={STROKE_WIDTH}
             fill="none"
           />
@@ -61,7 +64,7 @@ export function ResultsPieChart({
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={RADIUS}
-              stroke="#4B5563"
+              stroke={colors.textMuted}
               strokeWidth={STROKE_WIDTH}
               fill="none"
               strokeDasharray={`${unansweredLen} ${CIRCUMFERENCE - unansweredLen}`}
@@ -78,7 +81,7 @@ export function ResultsPieChart({
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={RADIUS}
-              stroke="#EF4444"
+              stroke={colors.error}
               strokeWidth={STROKE_WIDTH}
               fill="none"
               strokeDasharray={`${incorrectLen} ${CIRCUMFERENCE - incorrectLen}`}
@@ -95,7 +98,7 @@ export function ResultsPieChart({
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={RADIUS}
-              stroke="#22C55E"
+              stroke={colors.success}
               strokeWidth={STROKE_WIDTH}
               fill="none"
               strokeDasharray={`${correctLen} ${CIRCUMFERENCE - correctLen}`}
@@ -109,25 +112,25 @@ export function ResultsPieChart({
 
         {/* Center text — empty donut center */}
         <View style={styles.centerLabel}>
-          <Text style={styles.percentageText}>{percentage}%</Text>
-          <Text style={styles.percentageSubtext}>Accuracy</Text>
+          <Text style={[styles.percentageText, { color: colors.text }]}>{percentage}%</Text>
+          <Text style={[styles.percentageSubtext, { color: colors.textMuted }]}>Accuracy</Text>
         </View>
       </View>
 
       {/* Legend */}
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: "#22C55E" }]} />
-          <Text style={styles.legendText}>Correct ({correct})</Text>
+          <View style={[styles.legendDot, { backgroundColor: colors.success }]} />
+          <Text style={[styles.legendText, { color: colors.textMuted }]}>Correct ({correct})</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: "#EF4444" }]} />
-          <Text style={styles.legendText}>Incorrect ({incorrect})</Text>
+          <View style={[styles.legendDot, { backgroundColor: colors.error }]} />
+          <Text style={[styles.legendText, { color: colors.textMuted }]}>Incorrect ({incorrect})</Text>
         </View>
         {unanswered > 0 && (
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: "#4B5563" }]} />
-            <Text style={styles.legendText}>Unanswered ({unanswered})</Text>
+            <View style={[styles.legendDot, { backgroundColor: colors.textMuted }]} />
+            <Text style={[styles.legendText, { color: colors.textMuted }]}>Unanswered ({unanswered})</Text>
           </View>
         )}
       </View>
@@ -154,13 +157,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   percentageText: {
-    color: "#FFFFFF",
     fontSize: 36,
     fontWeight: "800",
     letterSpacing: -1,
   },
   percentageSubtext: {
-    color: "#94A3B8",
     fontSize: 13,
     fontWeight: "500",
     marginTop: 2,
@@ -184,7 +185,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   legendText: {
-    color: "#94A3B8",
     fontSize: 13,
     fontWeight: "500",
   },

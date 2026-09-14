@@ -9,6 +9,7 @@ import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { ExamProvider } from "@/context/ExamContext";
 import { CloudSyncProvider } from "@/context/CloudSyncContext";
 import { OnboardingModal } from "@/components/OnboardingModal";
@@ -38,13 +39,15 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ExamProvider>
-          <CloudSyncProvider>
-            <Slot />
-            <OnboardingModal />
-            <OtaUpdateNotification />
-          </CloudSyncProvider>
-        </ExamProvider>
+        <ThemeProvider>
+          <ExamProvider>
+            <CloudSyncProvider>
+              <Slot />
+              <OnboardingModal />
+              <OtaUpdateNotification />
+            </CloudSyncProvider>
+          </ExamProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

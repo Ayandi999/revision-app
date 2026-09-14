@@ -4,6 +4,8 @@ import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
 import { StatusModal, StatusModalType } from "@/components/StatusModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
 import { useActiveExam } from "@/context/ExamContext";
+import { useTheme } from "@/context/ThemeContext";
+import type { ThemeColors } from "@/constants/theme";
 import { resolveImageUri } from "@/functions/imageHelpers";
 import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
@@ -72,6 +74,9 @@ function animatedToggle(setter: React.Dispatch<React.SetStateAction<boolean>>) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const AddQuestion = () => {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
+
   // ── Question-type picker state ──────────────────────────────────────────
   const [selectedType, setSelectedType] = useState<QuestionTypeOption>(
     QUESTION_TYPES[0],
@@ -771,7 +776,7 @@ const AddQuestion = () => {
                   <TextInput
                     style={styles.natInput}
                     placeholder="Type in your answer"
-                    placeholderTextColor="#6B7280"
+                    placeholderTextColor={colors.textPlaceholder}
                     keyboardType="default"
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -792,7 +797,7 @@ const AddQuestion = () => {
               <TextInput
                 style={styles.noteInput}
                 placeholder="Write your explanation, key insights, or mistakes to avoid..."
-                placeholderTextColor="#6B7280"
+                placeholderTextColor={colors.textPlaceholder}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -814,10 +819,10 @@ const AddQuestion = () => {
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <ActivityIndicator color="#1c1b1b" size="small" />
+            <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
             <>
-              <Ionicons name="checkmark-circle" size={20} color="#1c1b1b" />
+              <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
               <Text style={styles.submitButtonText}>Add Question</Text>
             </>
           )}
@@ -875,356 +880,357 @@ export default AddQuestion;
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#1c1b1b",
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 90, // clears the floating bottom tab bar
-  },
-  title: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "700",
-    letterSpacing: -0.3,
-  },
-  titleSubtext: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "400",
-    marginTop: 3,
-  },
-  titleBlock: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 6,
-  },
-  mandatoryAsterisk: {
-    color: "#EF4444",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  // ── Camera placeholders ──────────────────────────────────────────────────
-  cameraSection: {
-    marginTop: 6,
-    alignItems: "flex-start",
-    gap: 8,
-  },
-  iconBox: {
-    width: "100%",
-    height: 125,
-    borderWidth: 1.5,
-    borderStyle: "dotted",
-    borderColor: "rgba(59, 130, 246, 0.35)",
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(59, 130, 246, 0.04)",
-    gap: 8,
-  },
-  emptyPickerHint: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  sectionLabelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  imageCountBadge: {
-    color: "#14B8A6",
-    fontSize: 11,
-    fontWeight: "700",
-    backgroundColor: "rgba(20, 184, 166, 0.12)",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  multiImageScroll: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingVertical: 4,
-  },
-  multiImageCard: {
-    width: 105,
-    height: 105,
-    borderRadius: 12,
-    overflow: "hidden",
-    position: "relative",
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.15)",
-    backgroundColor: "#16181D",
-  },
-  multiImageThumb: {
-    width: "100%",
-    height: "100%",
-  },
-  pageNumberBadge: {
-    position: "absolute",
-    bottom: 5,
-    left: 5,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 5,
-  },
-  pageNumberText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  multiImageDeleteBtn: {
-    position: "absolute",
-    top: 3,
-    right: 3,
-    width: 26,
-    height: 26,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-  },
-  multiImageCloseIcon: {
-    textShadowColor: "rgba(0, 0, 0, 0.85)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  addMoreCard: {
-    width: 85,
-    height: 105,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderStyle: "dotted",
-    borderColor: "rgba(59, 130, 246, 0.4)",
-    backgroundColor: "rgba(59, 130, 246, 0.05)",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 5,
-  },
-  addMoreText: {
-    color: "#60A5FA",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  solutionCameraBox: {
-    width: "100%",
-    height: 95,
-    borderWidth: 1.5,
-    borderStyle: "dotted",
-    borderColor: "rgba(59, 130, 246, 0.35)",
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(59, 130, 246, 0.04)",
-    gap: 6,
-  },
-  solutionCameraText: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "500",
-    letterSpacing: 0.1,
-  },
-  optionalLabel: {
-    color: "#6B7280",
-    fontSize: 11.5,
-    fontWeight: "400",
-  },
-  // ── Submit button ────────────────────────────────────────────────────────
-  submitButton: {
-    marginTop: 20,
-    marginBottom: 24,
-    backgroundColor: "#14B8A6",
-    borderRadius: 12,
-    height: 48,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: "#14B8A6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "700",
-    letterSpacing: 0.2,
-  },
-  // ── Shared label/hint ────────────────────────────────────────────────────
-  labelWithHint: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  sectionLabel: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "500",
-    letterSpacing: 0.1,
-  },
-  hintSubtle: {
-    color: "#6B7280",
-    fontSize: 11.5,
-    fontWeight: "400",
-  },
-  badgeCounterText: {
-    color: "#3B82F6",
-    fontSize: 11.5,
-    fontWeight: "600",
-  },
-  // ── Subject preview inside trigger ──────────────────────────────────────
-  selectedSyllabusPreview: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-  },
-  syllabusIconTag: {
-    backgroundColor: "rgba(20, 184, 166, 0.12)",
-    padding: 3.5,
-    borderRadius: 6,
-  },
-  selectedTypeDesc: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  // ── Question-type badge inside trigger ───────────────────────────────────
-  selectedTypePreview: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  typeBadge: {
-    backgroundColor: "#1c1b1b",
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
-  },
-  typeBadgeText: {
-    color: "#E5E7EB",
-    fontSize: 11.5,
-    fontWeight: "700",
-    letterSpacing: 0.4,
-  },
-  // ── Chips ────────────────────────────────────────────────────────────────
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 7,
-    marginTop: 4,
-  },
-  dottedChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    borderWidth: 1,
-    borderStyle: "dotted",
-    borderColor: "rgba(20, 184, 166, 0.4)",
-    backgroundColor: "rgba(20, 184, 166, 0.08)",
-    paddingVertical: 4,
-    paddingHorizontal: 9,
-    borderRadius: 8,
-  },
-  dottedChipText: {
-    color: "#FFFFFF",
-    fontSize: 11.5,
-    fontWeight: "500",
-    maxWidth: 200,
-  },
-  // ── Answer section ───────────────────────────────────────────────────────
-  answerSection: {
-    marginTop: 16,
-    gap: 10,
-  },
-  answerHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  answerHint: {
-    color: "#6B7280",
-    fontSize: 11.5,
-    fontWeight: "500",
-  },
-  optionsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  optionCircle: {
-    flex: 1,
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: "#1E2028",
-    borderWidth: 1.5,
-    borderColor: "rgba(59, 130, 246, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  optionCircleSelected: {
-    borderColor: "#3B82F6",
-    backgroundColor: "rgba(59, 130, 246, 0.12)",
-  },
-  optionCircleText: {
-    color: "#D1D5DB",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  optionCircleTextSelected: {
-    color: "#3B82F6",
-  },
-  // ── NAT input ────────────────────────────────────────────────────────────
-  natInputContainer: {
-    backgroundColor: "#1E2028",
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 14,
-    height: 44,
-    justifyContent: "center",
-  },
-  natInput: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-    padding: 0,
-  },
-  // ── Personal note ────────────────────────────────────────────────────────
-  noteSection: {
-    gap: 6,
-    marginTop: 14,
-  },
-  noteLabel: {
-    color: "#94A3B8",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  noteInputContainer: {
-    backgroundColor: "#1E2028",
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    minHeight: 85,
-  },
-  noteInput: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    lineHeight: 18,
-    padding: 0,
-  },
-});
+const createStyles = (colors: ThemeColors, isDark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    scrollContent: {
+      paddingHorizontal: 16,
+      paddingTop: 8,
+      paddingBottom: 90, // clears the floating bottom tab bar
+    },
+    title: {
+      color: colors.text,
+      fontSize: 22,
+      fontWeight: "700",
+      letterSpacing: -0.3,
+    },
+    titleSubtext: {
+      color: colors.textMuted,
+      fontSize: 12,
+      fontWeight: "400",
+      marginTop: 3,
+    },
+    titleBlock: {
+      paddingHorizontal: 16,
+      paddingTop: 10,
+      paddingBottom: 6,
+    },
+    mandatoryAsterisk: {
+      color: colors.danger,
+      fontSize: 13,
+      fontWeight: "700",
+    },
+    // ── Camera placeholders ──────────────────────────────────────────────────
+    cameraSection: {
+      marginTop: 6,
+      alignItems: "flex-start",
+      gap: 8,
+    },
+    iconBox: {
+      width: "100%",
+      height: 125,
+      borderWidth: 1.5,
+      borderStyle: "dotted",
+      borderColor: isDark ? "rgba(59, 130, 246, 0.35)" : "rgba(37, 99, 235, 0.3)",
+      borderRadius: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.04)" : "rgba(37, 99, 235, 0.04)",
+      gap: 8,
+    },
+    emptyPickerHint: {
+      color: colors.textMuted,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    sectionLabelRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "100%",
+    },
+    imageCountBadge: {
+      color: isDark ? "#14B8A6" : "#0D9488",
+      fontSize: 11,
+      fontWeight: "700",
+      backgroundColor: isDark ? "rgba(20, 184, 166, 0.12)" : "rgba(13, 148, 136, 0.12)",
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+      borderRadius: 6,
+    },
+    multiImageScroll: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      paddingVertical: 4,
+    },
+    multiImageCard: {
+      width: 105,
+      height: 105,
+      borderRadius: 12,
+      overflow: "hidden",
+      position: "relative",
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.cardSecondary,
+    },
+    multiImageThumb: {
+      width: "100%",
+      height: "100%",
+    },
+    pageNumberBadge: {
+      position: "absolute",
+      bottom: 5,
+      left: 5,
+      backgroundColor: "rgba(0, 0, 0, 0.75)",
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 5,
+    },
+    pageNumberText: {
+      color: "#FFFFFF",
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    multiImageDeleteBtn: {
+      position: "absolute",
+      top: 3,
+      right: 3,
+      width: 26,
+      height: 26,
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 10,
+    },
+    multiImageCloseIcon: {
+      textShadowColor: isDark ? "rgba(0, 0, 0, 0.85)" : "rgba(0, 0, 0, 0.4)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
+    },
+    addMoreCard: {
+      width: 85,
+      height: 105,
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderStyle: "dotted",
+      borderColor: isDark ? "rgba(59, 130, 246, 0.4)" : "rgba(37, 99, 235, 0.35)",
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.05)" : "rgba(37, 99, 235, 0.05)",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 5,
+    },
+    addMoreText: {
+      color: colors.primary,
+      fontSize: 11,
+      fontWeight: "600",
+    },
+    solutionCameraBox: {
+      width: "100%",
+      height: 95,
+      borderWidth: 1.5,
+      borderStyle: "dotted",
+      borderColor: isDark ? "rgba(59, 130, 246, 0.35)" : "rgba(37, 99, 235, 0.3)",
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.04)" : "rgba(37, 99, 235, 0.04)",
+      gap: 6,
+    },
+    solutionCameraText: {
+      color: colors.textMuted,
+      fontSize: 13,
+      fontWeight: "500",
+      letterSpacing: 0.1,
+    },
+    optionalLabel: {
+      color: colors.textPlaceholder,
+      fontSize: 11.5,
+      fontWeight: "400",
+    },
+    // ── Submit button ────────────────────────────────────────────────────────
+    submitButton: {
+      marginTop: 20,
+      marginBottom: 24,
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      height: 48,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    submitButtonDisabled: {
+      opacity: 0.6,
+    },
+    submitButtonText: {
+      color: "#FFFFFF",
+      fontSize: 15,
+      fontWeight: "700",
+      letterSpacing: 0.2,
+    },
+    // ── Shared label/hint ────────────────────────────────────────────────────
+    labelWithHint: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      width: "100%",
+    },
+    sectionLabel: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      fontWeight: "500",
+      letterSpacing: 0.1,
+    },
+    hintSubtle: {
+      color: colors.textPlaceholder,
+      fontSize: 11.5,
+      fontWeight: "400",
+    },
+    badgeCounterText: {
+      color: colors.primary,
+      fontSize: 11.5,
+      fontWeight: "600",
+    },
+    // ── Subject preview inside trigger ──────────────────────────────────────
+    selectedSyllabusPreview: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+    },
+    syllabusIconTag: {
+      backgroundColor: isDark ? "rgba(20, 184, 166, 0.12)" : "rgba(13, 148, 136, 0.12)",
+      padding: 3.5,
+      borderRadius: 6,
+    },
+    selectedTypeDesc: {
+      color: colors.text,
+      fontSize: 13,
+      fontWeight: "500",
+    },
+    // ── Question-type badge inside trigger ───────────────────────────────────
+    selectedTypePreview: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    typeBadge: {
+      backgroundColor: colors.cardSecondary,
+      paddingHorizontal: 7,
+      paddingVertical: 2.5,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    typeBadgeText: {
+      color: colors.text,
+      fontSize: 11.5,
+      fontWeight: "700",
+      letterSpacing: 0.4,
+    },
+    // ── Chips ────────────────────────────────────────────────────────────────
+    chipRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 7,
+      marginTop: 4,
+    },
+    dottedChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      borderWidth: 1,
+      borderStyle: "dotted",
+      borderColor: isDark ? "rgba(20, 184, 166, 0.4)" : "rgba(13, 148, 136, 0.4)",
+      backgroundColor: isDark ? "rgba(20, 184, 166, 0.08)" : "rgba(13, 148, 136, 0.08)",
+      paddingVertical: 4,
+      paddingHorizontal: 9,
+      borderRadius: 8,
+    },
+    dottedChipText: {
+      color: colors.text,
+      fontSize: 11.5,
+      fontWeight: "500",
+      maxWidth: 200,
+    },
+    // ── Answer section ───────────────────────────────────────────────────────
+    answerSection: {
+      marginTop: 16,
+      gap: 10,
+    },
+    answerHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    answerHint: {
+      color: colors.textPlaceholder,
+      fontSize: 11.5,
+      fontWeight: "500",
+    },
+    optionsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      gap: 10,
+    },
+    optionCircle: {
+      flex: 1,
+      height: 46,
+      borderRadius: 12,
+      backgroundColor: colors.cardSecondary,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    optionCircleSelected: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primaryLight,
+    },
+    optionCircleText: {
+      color: colors.textSecondary,
+      fontSize: 16,
+      fontWeight: "700",
+    },
+    optionCircleTextSelected: {
+      color: colors.primary,
+    },
+    // ── NAT input ────────────────────────────────────────────────────────────
+    natInputContainer: {
+      backgroundColor: colors.cardSecondary,
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      paddingHorizontal: 14,
+      height: 44,
+      justifyContent: "center",
+    },
+    natInput: {
+      color: colors.text,
+      fontSize: 14,
+      fontWeight: "600",
+      padding: 0,
+    },
+    // ── Personal note ────────────────────────────────────────────────────────
+    noteSection: {
+      gap: 6,
+      marginTop: 14,
+    },
+    noteLabel: {
+      color: colors.textSecondary,
+      fontSize: 12,
+      fontWeight: "500",
+    },
+    noteInputContainer: {
+      backgroundColor: colors.cardSecondary,
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      minHeight: 85,
+    },
+    noteInput: {
+      color: colors.text,
+      fontSize: 13,
+      lineHeight: 18,
+      padding: 0,
+    },
+  });

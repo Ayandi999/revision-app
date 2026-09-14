@@ -13,8 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { colors } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -37,13 +39,20 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   return (
     <GlassView
       glassEffectStyle="regular"
-      colorScheme="dark"
-      style={styles.tabBar}
+      colorScheme={colors.glassScheme}
+      style={[
+        styles.tabBar,
+        {
+          backgroundColor: colors.tabBarBg,
+          borderColor: colors.tabBarBorder,
+          shadowColor: colors.shadow,
+        },
+      ]}
     >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
-        const color = isFocused ? "#38BDF8" : "#64748B";
+        const color = isFocused ? colors.tabBarActive : colors.tabBarInactive;
 
         const onPress = () => {
           const event = navigation.emit({
@@ -67,6 +76,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               style={[
                 styles.iconContainer,
                 isFocused && styles.iconContainerFocused,
+                isFocused && { shadowColor: colors.tabBarActive },
               ]}
             >
               {options.tabBarIcon?.({
@@ -92,6 +102,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 }
 
 export default function TabLayout() {
+  const { colors } = useTheme();
   //-------------Creating the Databse:-----------------------
   const { success, error, retry, resetDatabase } = useAppMigrations();
   if (error) {
@@ -101,14 +112,14 @@ export default function TabLayout() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#1c1b1b",
+          backgroundColor: colors.bg,
           padding: 24,
         }}
       >
         <Ionicons name="alert-circle" size={48} color="#EF4444" />
         <Text
           style={{
-            color: "#FFFFFF",
+            color: colors.text,
             fontSize: 18,
             fontWeight: "700",
             marginTop: 12,
@@ -131,7 +142,7 @@ export default function TabLayout() {
         <View style={{ flexDirection: "row", gap: 12 }}>
           <TouchableOpacity
             style={{
-              backgroundColor: "#3B82F6",
+              backgroundColor: colors.primary,
               paddingHorizontal: 16,
               paddingVertical: 10,
               borderRadius: 8,
@@ -142,7 +153,7 @@ export default function TabLayout() {
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              backgroundColor: "#374151",
+              backgroundColor: colors.cardSecondary,
               paddingHorizontal: 16,
               paddingVertical: 10,
               borderRadius: 8,
@@ -164,17 +175,17 @@ export default function TabLayout() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#1c1b1b",
+          backgroundColor: colors.bg,
         }}
       >
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
   //--------------------------------------------------------
   return (
     <>
-      <StatusBar style="light" backgroundColor="#1c1b1b" />
+      <StatusBar style={colors.statusBarStyle} backgroundColor={colors.bg} />
       <Tabs
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{

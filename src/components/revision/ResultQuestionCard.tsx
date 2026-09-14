@@ -16,6 +16,7 @@ import type { Question } from "@/database/schema";
 import { getQuestionImages, getSolutionImages } from "@/functions/imageHelpers";
 import type { QuestionResult } from "@/functions/scoreCalculator";
 import { ImageZoomModal } from "./ImageZoomModal";
+import { useTheme } from "@/context/ThemeContext";
 
 // Enable LayoutAnimation on Android
 if (
@@ -57,6 +58,7 @@ export function ResultQuestionCard({
   timeTaken,
   index,
 }: ResultQuestionCardProps) {
+  const { colors } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
   const [zoomTitle, setZoomTitle] = useState("Solution");
@@ -71,12 +73,12 @@ export function ResultQuestionCard({
   };
 
   const statusColor = result.isUnanswered
-    ? "#4B5563"
+    ? colors.textMuted
     : result.isCorrect
-      ? "#22C55E"
+      ? colors.success
       : result.isPartial
-        ? "#F59E0B"
-        : "#EF4444";
+        ? colors.warning
+        : colors.error;
 
   const statusText = result.isUnanswered
     ? "Skipped"
@@ -98,12 +100,12 @@ export function ResultQuestionCard({
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={toggle}
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
     >
       {/* Collapsed Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <View style={[styles.indexBadge, { borderColor: statusColor }]}>
+          <View style={[styles.indexBadge, { borderColor: statusColor, backgroundColor: colors.cardSecondary }]}>
             <Text style={[styles.indexText, { color: statusColor }]}>
               {index + 1}
             </Text>
@@ -118,16 +120,16 @@ export function ResultQuestionCard({
               <Text style={[styles.statusText, { color: statusColor }]}>
                 {statusText}
               </Text>
-              <Text style={styles.pointsText}>
+              <Text style={[styles.pointsText, { color: colors.textMuted }]}>
                 {result.pointsAwarded > 0 ? "+" : ""}
                 {result.pointsAwarded} pts
               </Text>
             </View>
             <View style={styles.metaRow}>
-              <Ionicons name="time-outline" size={12} color="#6B7280" />
-              <Text style={styles.metaText}>{formatTime(timeTaken)}</Text>
-              <View style={styles.typePill}>
-                <Text style={styles.typePillText}>
+              <Ionicons name="time-outline" size={12} color={colors.textMuted} />
+              <Text style={[styles.metaText, { color: colors.textMuted }]}>{formatTime(timeTaken)}</Text>
+              <View style={[styles.typePill, { backgroundColor: colors.primaryLight }]}>
+                <Text style={[styles.typePillText, { color: colors.primary }]}>
                   {question.questionType}
                 </Text>
               </View>
@@ -145,7 +147,7 @@ export function ResultQuestionCard({
               setZoomTitle(`Question ${index + 1}`);
             }
           }}
-          style={styles.thumbnailWrapper}
+          style={[styles.thumbnailWrapper, { backgroundColor: colors.cardSecondary }]}
         >
           {firstQuestionImage ? (
             <>
@@ -165,7 +167,7 @@ export function ResultQuestionCard({
             </>
           ) : (
             <View style={styles.thumbnailPlaceholder}>
-              <Ionicons name="image-outline" size={18} color="#4B5563" />
+              <Ionicons name="image-outline" size={18} color={colors.textMuted} />
             </View>
           )}
         </TouchableOpacity>
@@ -173,7 +175,7 @@ export function ResultQuestionCard({
         <Ionicons
           name={expanded ? "chevron-up" : "chevron-down"}
           size={18}
-          color="#6B7280"
+          color={colors.textMuted}
           style={styles.chevron}
         />
       </View>
@@ -182,28 +184,28 @@ export function ResultQuestionCard({
       {expanded && (
         <View style={styles.expandedBody}>
           {/* Answer comparison */}
-          <View style={styles.answerRow}>
+          <View style={[styles.answerRow, { backgroundColor: colors.cardSecondary }]}>
             <View style={styles.answerBlock}>
-              <Text style={styles.answerLabel}>Your Answer</Text>
+              <Text style={[styles.answerLabel, { color: colors.textMuted }]}>Your Answer</Text>
               <Text
                 style={[
                   styles.answerValue,
                   {
                     color: result.isCorrect
-                      ? "#22C55E"
+                      ? colors.success
                       : result.isUnanswered
-                        ? "#6B7280"
-                        : "#EF4444",
+                        ? colors.textMuted
+                        : colors.error,
                   },
                 ]}
               >
                 {formatAnswer(result.userAnswer)}
               </Text>
             </View>
-            <View style={styles.answerDivider} />
+            <View style={[styles.answerDivider, { backgroundColor: colors.borderSubtle }]} />
             <View style={styles.answerBlock}>
-              <Text style={styles.answerLabel}>Correct Answer</Text>
-              <Text style={[styles.answerValue, { color: "#22C55E" }]}>
+              <Text style={[styles.answerLabel, { color: colors.textMuted }]}>Correct Answer</Text>
+              <Text style={[styles.answerValue, { color: colors.success }]}>
                 {formatAnswer(result.correctAnswer)}
               </Text>
             </View>
@@ -213,12 +215,12 @@ export function ResultQuestionCard({
           {questionImages.length > 1 && (
             <View style={styles.solutionSection}>
               <View style={styles.solutionHeaderRow}>
-                <Text style={styles.solutionLabel}>
+                <Text style={[styles.solutionLabel, { color: colors.text }]}>
                   Question ({questionImages.length} pages)
                 </Text>
-                <View style={styles.tapToZoomBadge}>
-                  <Ionicons name="scan-outline" size={12} color="#3B82F6" />
-                  <Text style={styles.tapToZoomText}>Tap to zoom</Text>
+                <View style={[styles.tapToZoomBadge, { backgroundColor: colors.primaryLight }]}>
+                  <Ionicons name="scan-outline" size={12} color={colors.primary} />
+                  <Text style={[styles.tapToZoomText, { color: colors.primary }]}>Tap to zoom</Text>
                 </View>
               </View>
 
@@ -231,7 +233,10 @@ export function ResultQuestionCard({
                   <TouchableOpacity
                     key={`${uri}-${idx}`}
                     activeOpacity={0.85}
-                    style={styles.stripCard}
+                    style={[
+                      styles.stripCard,
+                      { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                    ]}
                     onPress={(e) => {
                       e.stopPropagation();
                       setZoomImageUri(uri);
@@ -256,12 +261,12 @@ export function ResultQuestionCard({
           {solutionImages.length > 0 && (
             <View style={styles.solutionSection}>
               <View style={styles.solutionHeaderRow}>
-                <Text style={styles.solutionLabel}>
+                <Text style={[styles.solutionLabel, { color: colors.text }]}>
                   Solution {solutionImages.length > 1 ? `(${solutionImages.length} pages)` : ""}
                 </Text>
-                <View style={styles.tapToZoomBadge}>
-                  <Ionicons name="scan-outline" size={12} color="#3B82F6" />
-                  <Text style={styles.tapToZoomText}>Tap to zoom</Text>
+                <View style={[styles.tapToZoomBadge, { backgroundColor: colors.primaryLight }]}>
+                  <Ionicons name="scan-outline" size={12} color={colors.primary} />
+                  <Text style={[styles.tapToZoomText, { color: colors.primary }]}>Tap to zoom</Text>
                 </View>
               </View>
 
@@ -273,7 +278,10 @@ export function ResultQuestionCard({
                     setZoomImageUri(solutionImages[0]);
                     setZoomTitle(`Solution — Question ${index + 1}`);
                   }}
-                  style={styles.solutionImageWrapper}
+                  style={[
+                    styles.solutionImageWrapper,
+                    { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                  ]}
                 >
                   <Image
                     source={{ uri: solutionImages[0] }}
@@ -295,7 +303,10 @@ export function ResultQuestionCard({
                     <TouchableOpacity
                       key={`${uri}-${idx}`}
                       activeOpacity={0.85}
-                      style={styles.stripCard}
+                      style={[
+                        styles.stripCard,
+                        { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                      ]}
                       onPress={(e) => {
                         e.stopPropagation();
                         setZoomImageUri(uri);
@@ -319,12 +330,12 @@ export function ResultQuestionCard({
 
           {/* Personal Notes */}
           {question.personalNote && question.personalNote.trim().length > 0 && (
-            <View style={styles.notesSection}>
+            <View style={[styles.notesSection, { backgroundColor: colors.cardSecondary }]}>
               <View style={styles.notesHeader}>
-                <Ionicons name="document-text-outline" size={14} color="#3B82F6" />
-                <Text style={styles.notesLabel}>Notes</Text>
+                <Ionicons name="document-text-outline" size={14} color={colors.primary} />
+                <Text style={[styles.notesLabel, { color: colors.primary }]}>Notes</Text>
               </View>
-              <Text style={styles.notesText}>{question.personalNote}</Text>
+              <Text style={[styles.notesText, { color: colors.text }]}>{question.personalNote}</Text>
             </View>
           )}
         </View>

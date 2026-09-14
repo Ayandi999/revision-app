@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { EXAM_OPTIONS, ExamOption, StreamOption } from "@/config/exams";
 import { useActiveExam } from "@/context/ExamContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export function OnboardingModal() {
   const {
@@ -70,6 +71,8 @@ export function OnboardingModal() {
     await setExamAndStream(selectedExamId, selectedStreamId);
   };
 
+  const { colors } = useTheme();
+
   if (!isModalOpen) return null;
 
   return (
@@ -79,9 +82,9 @@ export function OnboardingModal() {
       presentationStyle="fullScreen"
       onRequestClose={closeExamSwitcher}
     >
-      <SafeAreaView style={styles.container} edges={["top", "bottom", "left", "right"]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={["top", "bottom", "left", "right"]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <View style={styles.headerLeft}>
             {step === 2 ? (
               <TouchableOpacity
@@ -89,14 +92,14 @@ export function OnboardingModal() {
                 style={styles.backButton}
                 activeOpacity={0.7}
               >
-                <Ionicons name="arrow-back" size={18} color="#FFFFFF" />
+                <Ionicons name="arrow-back" size={18} color={colors.text} />
               </TouchableOpacity>
             ) : null}
             <View style={styles.titleTextCol}>
-              <Text style={styles.headerEyebrow}>
+              <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
                 {isOnboardingCompleted ? "PREFERENCES" : "WELCOME"}
               </Text>
-              <Text style={styles.headerTitle} numberOfLines={1}>
+              <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
                 {step === 1
                   ? "Which exam are you preparing for?"
                   : `Select ${selectedExam.shortName} Stream`}
@@ -110,7 +113,7 @@ export function OnboardingModal() {
               style={styles.closeButton}
               activeOpacity={0.7}
             >
-              <Ionicons name="close" size={20} color="#94A3B8" />
+              <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -124,7 +127,7 @@ export function OnboardingModal() {
               contentContainerStyle={styles.stepOneScrollContent}
               showsVerticalScrollIndicator={false}
             >
-              <Text style={styles.subtitle}>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>
                 Choose your target examination to customize your syllabus, topics, and revision workflow.
               </Text>
 
@@ -136,6 +139,7 @@ export function OnboardingModal() {
                       key={exam.id}
                       style={[
                         styles.examCard,
+                        { backgroundColor: colors.card, borderColor: colors.cardBorder },
                         isSelected && {
                           borderColor: exam.color,
                           backgroundColor: `${exam.color}15`,
@@ -162,7 +166,7 @@ export function OnboardingModal() {
 
                       <View style={styles.examTextContainer}>
                         <View style={styles.examTitleLine}>
-                          <Text style={styles.examName} numberOfLines={1}>
+                          <Text style={[styles.examName, { color: colors.text }]} numberOfLines={1}>
                             {exam.name}
                           </Text>
                           <View
@@ -183,7 +187,7 @@ export function OnboardingModal() {
                             </Text>
                           </View>
                         </View>
-                        <Text style={styles.examDesc} numberOfLines={1}>
+                        <Text style={[styles.examDesc, { color: colors.textMuted }]} numberOfLines={1}>
                           {exam.description}
                         </Text>
                       </View>
@@ -191,7 +195,7 @@ export function OnboardingModal() {
                       <Ionicons
                         name="chevron-forward"
                         size={16}
-                        color="#64748B"
+                        color={colors.textMuted}
                       />
                     </TouchableOpacity>
                   );
@@ -201,7 +205,7 @@ export function OnboardingModal() {
           ) : (
             /* ── Step 2: Stream / Category Selection ───────────────── */
             <View style={styles.stepTwoWrapper}>
-              <Text style={styles.subtitle}>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>
                 Select your specific discipline or category for{" "}
                 <Text style={{ color: selectedExam.color, fontWeight: "700" }}>
                   {selectedExam.name}
@@ -211,12 +215,12 @@ export function OnboardingModal() {
 
               {/* Search bar for GATE (or large lists) */}
               {selectedExam.streams.length > 4 && (
-                <View style={styles.searchContainer}>
-                  <Ionicons name="search-outline" size={18} color="#94A3B8" />
+                <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+                  <Ionicons name="search-outline" size={18} color={colors.textMuted} />
                   <TextInput
-                    style={styles.searchInput}
+                    style={[styles.searchInput, { color: colors.text }]}
                     placeholder={`Search ${selectedExam.shortName} disciplines (e.g. CS, DA, Mechanical)...`}
-                    placeholderTextColor="#64748B"
+                    placeholderTextColor={colors.textPlaceholder}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     autoCapitalize="none"
@@ -224,7 +228,7 @@ export function OnboardingModal() {
                   />
                   {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery("")}>
-                      <Ionicons name="close-circle" size={18} color="#64748B" />
+                      <Ionicons name="close-circle" size={18} color={colors.textMuted} />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -241,6 +245,7 @@ export function OnboardingModal() {
                     <TouchableOpacity
                       style={[
                         styles.streamItem,
+                        { backgroundColor: colors.card, borderColor: colors.cardBorder },
                         isSelected && {
                           borderColor: selectedExam.color,
                           backgroundColor: `${selectedExam.color}18`,
@@ -256,13 +261,13 @@ export function OnboardingModal() {
                               styles.codeBadge,
                               isSelected
                                 ? { backgroundColor: selectedExam.color }
-                                : { backgroundColor: "rgba(255, 255, 255, 0.08)" },
+                                : { backgroundColor: colors.cardSecondary },
                             ]}
                           >
                             <Text
                               style={[
                                 styles.codeBadgeText,
-                                isSelected ? { color: "#FFFFFF" } : { color: "#E2E8F0" },
+                                isSelected ? { color: "#FFFFFF" } : { color: colors.text },
                               ]}
                             >
                               {item.code}
@@ -272,7 +277,8 @@ export function OnboardingModal() {
                         <Text
                           style={[
                             styles.streamName,
-                            isSelected && { color: "#FFFFFF", fontWeight: "700" },
+                            { color: colors.textSecondary },
+                            isSelected && { color: colors.text, fontWeight: "700" },
                           ]}
                           numberOfLines={2}
                         >
@@ -283,6 +289,7 @@ export function OnboardingModal() {
                       <View
                         style={[
                           styles.radioCircle,
+                          { borderColor: colors.border },
                           isSelected && {
                             borderColor: selectedExam.color,
                             backgroundColor: selectedExam.color,
@@ -298,7 +305,7 @@ export function OnboardingModal() {
                 }}
                 ListEmptyComponent={
                   <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>No disciplines found</Text>
+                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>No disciplines found</Text>
                   </View>
                 }
               />
@@ -308,7 +315,7 @@ export function OnboardingModal() {
 
         {/* Footer CTA */}
         {step === 2 && (
-          <View style={styles.footer}>
+          <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
             <TouchableOpacity
               style={[
                 styles.confirmButton,

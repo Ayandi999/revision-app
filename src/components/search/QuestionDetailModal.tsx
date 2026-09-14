@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { ClipPath, Defs, G, Rect } from "react-native-svg";
+import { useTheme } from "@/context/ThemeContext";
 
 interface QuestionDetailModalProps {
   visible: boolean;
@@ -28,6 +29,7 @@ export function QuestionDetailModal({
   onClose,
 }: QuestionDetailModalProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const [zoomUri, setZoomUri] = useState<string | null>(null);
   const [zoomTitle, setZoomTitle] = useState<string>("Image");
 
@@ -73,10 +75,10 @@ export function QuestionDetailModal({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <SafeAreaView style={styles.safeContainer} edges={["top", "bottom"]}>
+      <View style={[styles.modalOverlay, { backgroundColor: colors.bg }]}>
+        <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.bg }]} edges={["top", "bottom"]}>
           {/* Header Bar */}
-          <View style={styles.headerBar}>
+          <View style={[styles.headerBar, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
             <View style={styles.headerLeft}>
               <View
                 style={[
@@ -89,18 +91,25 @@ export function QuestionDetailModal({
                   {question.subject}
                 </Text>
               </View>
-              <View style={styles.typeBadge}>
-                <Text style={styles.typeBadgeText}>{question.questionType}</Text>
+              <View
+                style={[
+                  styles.typeBadge,
+                  { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                ]}
+              >
+                <Text style={[styles.typeBadgeText, { color: colors.textSecondary }]}>
+                  {question.questionType}
+                </Text>
               </View>
             </View>
 
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={onClose}
-              style={styles.closeBtn}
+              style={[styles.closeBtn, { backgroundColor: colors.cardSecondary }]}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="close" size={20} color="#CBD5E1" />
+              <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -113,11 +122,11 @@ export function QuestionDetailModal({
             showsVerticalScrollIndicator={false}
           >
             {/* ── Section 1: Attempt Stats & SVG Ratio Bar ────────────────── */}
-            <View style={styles.statsCard}>
+            <View style={[styles.statsCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <View style={styles.statsCardHeader}>
                 <View style={styles.statsHeaderLeft}>
-                  <Ionicons name="stats-chart" size={16} color="#3B82F6" />
-                  <Text style={styles.statsTitle}>Revision Performance</Text>
+                  <Ionicons name="stats-chart" size={16} color={colors.primary} />
+                  <Text style={[styles.statsTitle, { color: colors.text }]}>Revision Performance</Text>
                 </View>
                 <View style={styles.stagePill}>
                   <Text style={styles.stagePillText}>
@@ -136,7 +145,7 @@ export function QuestionDetailModal({
                   </Defs>
                   <G clipPath="url(#barClip)">
                     {/* Base Background Track */}
-                    <Rect x="0" y="0" width="100" height="12" fill="#334155" />
+                    <Rect x="0" y="0" width="100" height="12" fill={colors.border} />
                     {totalAttempts > 0 && (
                       <>
                         <Rect
@@ -164,9 +173,9 @@ export function QuestionDetailModal({
                 <View style={styles.statsLegendRow}>
                   <View style={styles.legendItem}>
                     <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-                    <Text style={styles.legendText}>
+                    <Text style={[styles.legendText, { color: colors.textMuted }]}>
                       Correct:{" "}
-                      <Text style={styles.boldWhite}>
+                      <Text style={[styles.boldWhite, { color: colors.text }]}>
                         {correct} ({correctPercent}%)
                       </Text>
                     </Text>
@@ -174,26 +183,26 @@ export function QuestionDetailModal({
 
                   <View style={styles.legendItem}>
                     <Ionicons name="close-circle" size={14} color="#EF4444" />
-                    <Text style={styles.legendText}>
+                    <Text style={[styles.legendText, { color: colors.textMuted }]}>
                       Incorrect:{" "}
-                      <Text style={styles.boldWhite}>
+                      <Text style={[styles.boldWhite, { color: colors.text }]}>
                         {incorrect} ({incorrectPercent}%)
                       </Text>
                     </Text>
                   </View>
                 </View>
               ) : (
-                <Text style={styles.noAttemptsText}>
+                <Text style={[styles.noAttemptsText, { color: colors.textMuted }]}>
                   Not attempted yet in revision tests
                 </Text>
               )}
 
               {/* Next Revision Date */}
-              <View style={styles.revisionDateRow}>
-                <Ionicons name="calendar-outline" size={14} color="#94A3B8" />
-                <Text style={styles.revisionDateText}>
+              <View style={[styles.revisionDateRow, { borderTopColor: colors.borderSubtle }]}>
+                <Ionicons name="calendar-outline" size={14} color={colors.textMuted} />
+                <Text style={[styles.revisionDateText, { color: colors.textMuted }]}>
                   Next Revision:{" "}
-                  <Text style={styles.boldWhite}>
+                  <Text style={[styles.boldWhite, { color: colors.text }]}>
                     {formatRevisionDate(question.nextRevisionDate)}
                   </Text>
                 </Text>
@@ -201,10 +210,10 @@ export function QuestionDetailModal({
             </View>
 
             {/* ── Section 2: Question Media & Taxonomy (Top) ──────────────── */}
-            <View style={styles.sectionContainer}>
+            <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <View style={styles.sectionHeaderRow}>
-                <Ionicons name="help-circle" size={18} color="#3B82F6" />
-                <Text style={styles.sectionHeading}>
+                <Ionicons name="help-circle" size={18} color={colors.primary} />
+                <Text style={[styles.sectionHeading, { color: colors.text }]}>
                   Question {questionImages.length > 1 ? `(${questionImages.length} pages)` : ""}
                 </Text>
               </View>
@@ -231,13 +240,16 @@ export function QuestionDetailModal({
               {/* Question Image(s) */}
               {questionImages.length === 0 ? (
                 <View style={styles.noImageNotice}>
-                  <Ionicons name="image-outline" size={20} color="#64748B" />
-                  <Text style={styles.noImageText}>No question image provided</Text>
+                  <Ionicons name="image-outline" size={20} color={colors.textMuted} />
+                  <Text style={[styles.noImageText, { color: colors.textMuted }]}>No question image provided</Text>
                 </View>
               ) : questionImages.length === 1 ? (
                 <TouchableOpacity
                   activeOpacity={0.88}
-                  style={styles.imageCardWrapper}
+                  style={[
+                    styles.imageCardWrapper,
+                    { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                  ]}
                   onPress={() => {
                     setZoomUri(questionImages[0]);
                     setZoomTitle(`${question.subject} Question`);
@@ -264,7 +276,10 @@ export function QuestionDetailModal({
                     <TouchableOpacity
                       key={`${uri}-${idx}`}
                       activeOpacity={0.88}
-                      style={styles.stripCard}
+                      style={[
+                        styles.stripCard,
+                        { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                      ]}
                       onPress={() => {
                         setZoomUri(uri);
                         setZoomTitle(`${question.subject} Question (Page ${idx + 1})`);
@@ -285,17 +300,22 @@ export function QuestionDetailModal({
             </View>
 
             {/* ── Section 3: Solution & Answer (Below Question) ───────────── */}
-            <View style={styles.sectionContainer}>
+            <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <View style={styles.sectionHeaderRow}>
                 <Ionicons name="bulb" size={18} color="#10B981" />
-                <Text style={styles.sectionHeading}>
+                <Text style={[styles.sectionHeading, { color: colors.text }]}>
                   Solution & Answer {solutionImages.length > 1 ? `(${solutionImages.length} pages)` : ""}
                 </Text>
               </View>
 
               {/* Correct Answer Display */}
-              <View style={styles.answerCard}>
-                <Text style={styles.answerHeaderLabel}>Correct Answer</Text>
+              <View
+                style={[
+                  styles.answerCard,
+                  { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                ]}
+              >
+                <Text style={[styles.answerHeaderLabel, { color: colors.textMuted }]}>Correct Answer</Text>
                 {question.questionType === "MCQ" && (
                   <View style={styles.optionPill}>
                     <Ionicons name="checkmark-circle" size={18} color="#10B981" />
@@ -320,15 +340,15 @@ export function QuestionDetailModal({
                         </View>
                       ))
                     ) : (
-                      <Text style={styles.plainAnswerText}>—</Text>
+                      <Text style={[styles.plainAnswerText, { color: colors.textMuted }]}>—</Text>
                     )}
                   </View>
                 )}
 
                 {question.questionType === "NAT" && (
-                  <View style={styles.natBox}>
-                    <Text style={styles.natLabel}>Numerical Value:</Text>
-                    <Text style={styles.natValueText}>
+                  <View style={[styles.natBox, { backgroundColor: colors.card }]}>
+                    <Text style={[styles.natLabel, { color: colors.textMuted }]}>Numerical Value:</Text>
+                    <Text style={[styles.natValueText, { color: colors.primary }]}>
                       {question.natAnswer || "—"}
                     </Text>
                   </View>
@@ -339,7 +359,10 @@ export function QuestionDetailModal({
               {solutionImages.length === 1 ? (
                 <TouchableOpacity
                   activeOpacity={0.88}
-                  style={styles.imageCardWrapper}
+                  style={[
+                    styles.imageCardWrapper,
+                    { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                  ]}
                   onPress={() => {
                     setZoomUri(solutionImages[0]);
                     setZoomTitle(`${question.subject} Solution`);
@@ -366,7 +389,10 @@ export function QuestionDetailModal({
                     <TouchableOpacity
                       key={`${uri}-${idx}`}
                       activeOpacity={0.88}
-                      style={styles.stripCard}
+                      style={[
+                        styles.stripCard,
+                        { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                      ]}
                       onPress={() => {
                         setZoomUri(uri);
                         setZoomTitle(`${question.subject} Solution (Page ${idx + 1})`);
@@ -388,13 +414,22 @@ export function QuestionDetailModal({
 
             {/* ── Section 4: Personal Notes ───────────────────────────────── */}
             {question.personalNote ? (
-              <View style={styles.sectionContainer}>
+              <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                 <View style={styles.sectionHeaderRow}>
-                  <Ionicons name="document-text" size={18} color="#F59E0B" />
-                  <Text style={styles.sectionHeading}>Personal Notes</Text>
+                  <Ionicons name="document-text" size={18} color={colors.warning} />
+                  <Text style={[styles.sectionHeading, { color: colors.text }]}>Personal Notes</Text>
                 </View>
-                <View style={styles.noteCard}>
-                  <Text style={styles.noteCardText}>{question.personalNote}</Text>
+                <View
+                  style={[
+                    styles.noteCard,
+                    {
+                      backgroundColor: colors.warningBg,
+                      borderColor: colors.warning,
+                      borderLeftColor: colors.warning,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.noteCardText, { color: colors.text }]}>{question.personalNote}</Text>
                 </View>
               </View>
             ) : null}

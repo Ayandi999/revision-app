@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/ThemeContext";
 
 interface ImagePickerModalProps {
   visible: boolean;
@@ -26,6 +27,7 @@ export function ImagePickerModal({
   title = "Add Image",
 }: ImagePickerModalProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
     <Modal
@@ -34,31 +36,40 @@ export function ImagePickerModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
+      <Pressable
+        style={[styles.backdrop, { backgroundColor: colors.modalBackdrop }]}
+        onPress={onClose}
+      >
         <Pressable
           style={[
             styles.sheet,
-            { paddingBottom: Math.max(insets.bottom, 16) + 12 },
+            {
+              backgroundColor: colors.modalCard,
+              borderColor: colors.modalBorder,
+              paddingBottom: Math.max(insets.bottom, 16) + 12,
+            },
           ]}
           onPress={(e) => e.stopPropagation()}
         >
           {/* Top Grab Handle */}
           <View style={styles.handleContainer}>
-            <View style={styles.handle} />
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
           </View>
 
           {/* Header */}
           <View style={styles.header}>
             <View>
-              <Text style={styles.title}>{title}</Text>
-              <Text style={styles.subtitle}>Choose photo source</Text>
+              <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+                Choose photo source
+              </Text>
             </View>
             <TouchableOpacity
               onPress={onClose}
-              style={styles.closeBtn}
+              style={[styles.closeBtn, { backgroundColor: colors.cardSecondary }]}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="close" size={20} color="#9CA3AF" />
+              <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -66,48 +77,60 @@ export function ImagePickerModal({
           <View style={styles.optionsContainer}>
             {/* Camera */}
             <TouchableOpacity
-              style={styles.optionCard}
+              style={[
+                styles.optionCard,
+                {
+                  backgroundColor: colors.cardSecondary,
+                  borderColor: colors.cardSecondaryBorder,
+                },
+              ]}
               activeOpacity={0.7}
               onPress={onSelectCamera}
             >
-              <View style={styles.iconCircle}>
-                <Ionicons name="camera" size={24} color="#3B82F6" />
+              <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="camera" size={24} color={colors.primary} />
               </View>
               <View style={styles.optionTextContainer}>
-                <Text style={styles.optionTitle}>Take Photo</Text>
-                <Text style={styles.optionSubtitle}>
+                <Text style={[styles.optionTitle, { color: colors.text }]}>Take Photo</Text>
+                <Text style={[styles.optionSubtitle, { color: colors.textMuted }]}>
                   Use camera to snap a photo
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#6B7280" />
+              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </TouchableOpacity>
 
             {/* Gallery */}
             <TouchableOpacity
-              style={styles.optionCard}
+              style={[
+                styles.optionCard,
+                {
+                  backgroundColor: colors.cardSecondary,
+                  borderColor: colors.cardSecondaryBorder,
+                },
+              ]}
               activeOpacity={0.7}
               onPress={onSelectGallery}
             >
-              <View style={styles.iconCircle}>
-                <Ionicons name="images" size={24} color="#3B82F6" />
+              <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="images" size={24} color={colors.primary} />
               </View>
               <View style={styles.optionTextContainer}>
-                <Text style={styles.optionTitle}>Choose from Gallery</Text>
-                <Text style={styles.optionSubtitle}>
+                <Text style={[styles.optionTitle, { color: colors.text }]}>Choose from Gallery</Text>
+                <Text style={[styles.optionSubtitle, { color: colors.textMuted }]}>
                   Pick an existing photo or screenshot
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#6B7280" />
+              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
 
           {/* Cancel button */}
           <TouchableOpacity
-            style={styles.cancelButton}
+            style={[styles.cancelButton, { backgroundColor: colors.cardSecondary }]}
             activeOpacity={0.7}
             onPress={onClose}
           >
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={[styles.cancelText, { color: colors.text }]}>Cancel</Text>
           </TouchableOpacity>
         </Pressable>
       </Pressable>
@@ -118,15 +141,12 @@ export function ImagePickerModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: "#1E2028",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.1)",
     paddingHorizontal: 20,
     paddingTop: 10,
   },
@@ -138,7 +158,6 @@ const styles = StyleSheet.create({
     width: 38,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   header: {
     flexDirection: "row",
@@ -150,19 +169,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#FFFFFF",
     letterSpacing: 0.3,
   },
   subtitle: {
     fontSize: 13,
-    color: "#94A3B8",
     marginTop: 2,
   },
   closeBtn: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -173,17 +189,14 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2a2929",
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.06)",
   },
   iconCircle: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "rgba(59, 130, 246, 0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -194,22 +207,18 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#FFFFFF",
     marginBottom: 2,
   },
   optionSubtitle: {
     fontSize: 12,
-    color: "#94A3B8",
   },
   cancelButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.06)",
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
   },
   cancelText: {
-    color: "#E5E7EB",
     fontSize: 15,
     fontWeight: "600",
   },

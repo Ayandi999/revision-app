@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -11,7 +12,7 @@ interface CollapsibleSectionProps {
   isCollapsed: boolean;
   onToggle: () => void;
   children: React.ReactNode;
-  /** Accent color for the section icon. Defaults to #3B82F6. */
+  /** Accent color for the section icon. Defaults to theme primary. */
   accentColor?: string;
 }
 
@@ -23,23 +24,36 @@ export function CollapsibleSection({
   isCollapsed,
   onToggle,
   children,
-  accentColor = "#3B82F6",
+  accentColor,
 }: CollapsibleSectionProps) {
+  const { colors } = useTheme();
+  const effectiveAccent = accentColor || colors.primary;
+
   return (
-    <View style={styles.collapsibleSection}>
+    <View
+      style={[
+        styles.collapsibleSection,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.cardBorder,
+        },
+      ]}
+    >
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.sectionHeader}
         onPress={onToggle}
       >
         <View style={styles.sectionHeaderLeft}>
-          <Ionicons name={icon as any} size={18} color={accentColor} />
-          <Text style={styles.sectionHeaderTitle}>{title}</Text>
+          <Ionicons name={icon as any} size={18} color={effectiveAccent} />
+          <Text style={[styles.sectionHeaderTitle, { color: colors.text }]}>
+            {title}
+          </Text>
         </View>
         <Ionicons
           name={isCollapsed ? "chevron-forward" : "chevron-down"}
           size={18}
-          color="#94A3B8"
+          color={colors.textMuted}
         />
       </TouchableOpacity>
 
@@ -53,10 +67,8 @@ export function CollapsibleSection({
 const styles = StyleSheet.create({
   collapsibleSection: {
     marginTop: 14,
-    backgroundColor: "#1E2028",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
   },
   sectionHeader: {
@@ -72,7 +84,6 @@ const styles = StyleSheet.create({
     gap: 9,
   },
   sectionHeaderTitle: {
-    color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "600",
     letterSpacing: 0.1,

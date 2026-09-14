@@ -31,6 +31,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "@/context/ThemeContext";
+import type { ThemeColors } from "@/constants/theme";
 
 if (
   Platform.OS === "android" &&
@@ -42,6 +44,9 @@ if (
 const PAGE_SIZE = 20;
 
 export default function SearchScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
+
   // ─── Search & Filter State ────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -432,7 +437,7 @@ export default function SearchScreen() {
           <Ionicons
             name="search"
             size={18}
-            color={isOcrAvailable === false ? "#475569" : "#94A3B8"}
+            color={isOcrAvailable === false ? colors.textPlaceholder : colors.textMuted}
             style={styles.searchIcon}
           />
           <TextInput
@@ -445,7 +450,7 @@ export default function SearchScreen() {
                 ? "OCR search unavailable"
                 : "Search by text, note, or subject..."
             }
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textPlaceholder}
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
@@ -459,7 +464,7 @@ export default function SearchScreen() {
               style={styles.clearButton}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Ionicons name="close-circle" size={18} color="#94A3B8" />
+              <Ionicons name="close-circle" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           ) : null}
 
@@ -486,7 +491,7 @@ export default function SearchScreen() {
             name={isFilterPanelOpen ? "funnel" : "funnel-outline"}
             size={18}
             color={
-              activeFiltersCount > 0 || isFilterPanelOpen ? "#FFFFFF" : "#94A3B8"
+              activeFiltersCount > 0 || isFilterPanelOpen ? "#FFFFFF" : colors.textMuted
             }
           />
           {activeFiltersCount > 0 ? (
@@ -648,7 +653,7 @@ export default function SearchScreen() {
             : `${totalCount} question${totalCount === 1 ? "" : "s"} found`}
         </Text>
         {isLoading ? (
-          <ActivityIndicator size="small" color="#3B82F6" style={{ marginLeft: 8 }} />
+          <ActivityIndicator size="small" color={colors.primary} style={{ marginLeft: 8 }} />
         ) : null}
       </View>
 
@@ -663,7 +668,8 @@ export default function SearchScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor="#3B82F6"
+            tintColor={colors.primary}
+            colors={[colors.primary]}
           />
         }
         onEndReached={handleLoadMore}
@@ -671,13 +677,13 @@ export default function SearchScreen() {
         ListEmptyComponent={
           isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#3B82F6" />
+              <ActivityIndicator size="large" color={colors.primary} />
               <Text style={styles.loadingText}>Fetching questions...</Text>
             </View>
           ) : (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconWrapper}>
-                <Ionicons name="search-outline" size={40} color="#475569" />
+                <Ionicons name="search-outline" size={40} color={colors.textPlaceholder} />
               </View>
               <Text style={styles.emptyTitle}>No questions found</Text>
               <Text style={styles.emptySubtitle}>
@@ -702,7 +708,7 @@ export default function SearchScreen() {
         ListFooterComponent={
           isLoadingMore ? (
             <View style={styles.loadingMoreContainer}>
-              <ActivityIndicator size="small" color="#3B82F6" />
+              <ActivityIndicator size="small" color={colors.primary} />
               <Text style={styles.loadingMoreText}>Loading more...</Text>
             </View>
           ) : hasMore ? null : questionsList.length > 0 ? (
@@ -741,451 +747,454 @@ export default function SearchScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#1c1b1b",
-  },
-  headerContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 4,
-  },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 26,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-  },
-  headerSubtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "400",
-    marginTop: 4,
-  },
-  searchHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 8,
-    gap: 10,
-  },
-  searchBarWrapper: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#262626",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#374151",
-    paddingHorizontal: 12,
-    height: 46,
-  },
-  searchBarDisabled: {
-    opacity: 0.65,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    color: "#F8FAFC",
-    fontSize: 15,
-    paddingVertical: 0,
-  },
-  searchInputDisabled: {
-    color: "#64748B",
-  },
-  clearButton: {
-    padding: 4,
-  },
-  filterButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: "#262626",
-    borderWidth: 1,
-    borderColor: "#374151",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-  },
-  filterButtonOpen: {
-    borderColor: "#3B82F6",
-    backgroundColor: "rgba(59, 130, 246, 0.15)",
-  },
-  filterButtonActive: {
-    backgroundColor: "#2563EB",
-    borderColor: "#3B82F6",
-  },
-  filterBadge: {
-    position: "absolute",
-    top: -4,
-    right: -4,
-    backgroundColor: "#EF4444",
-    borderRadius: 9,
-    minWidth: 18,
-    height: 18,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
-    borderWidth: 1.5,
-    borderColor: "#1c1b1b",
-  },
-  filterBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  quickActiveFiltersRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    gap: 8,
-    flexWrap: "wrap",
-  },
-  activePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#1E293B",
-    borderColor: "#3B82F6",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 14,
-    gap: 6,
-  },
-  activePillText: {
-    color: "#93C5FD",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  clearAllFiltersBtn: {
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-  },
-  clearAllFiltersText: {
-    color: "#94A3B8",
-    fontSize: 12,
-    textDecorationLine: "underline",
-  },
-  noticeBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.25)",
-    borderRadius: 10,
-    marginHorizontal: 16,
-    marginBottom: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  noticeText: {
-    flex: 1,
-    color: "#93C5FD",
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  filterPanel: {
-    backgroundColor: "#242424",
-    marginHorizontal: 16,
-    marginBottom: 10,
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "#374151",
-  },
-  filterPanelHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  filterPanelTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  filterPanelTitle: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  resetFiltersText: {
-    color: "#3B82F6",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  filterChipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginVertical: 4,
-  },
-  selectedFilterChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#334155",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    gap: 4,
-  },
-  selectedFilterChipText: {
-    color: "#F1F5F9",
-    fontSize: 11,
-    maxWidth: 160,
-  },
-  applyFilterButton: {
-    backgroundColor: "#3B82F6",
-    borderRadius: 10,
-    paddingVertical: 8,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  applyFilterButtonText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  resultsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  resultsCountText: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 110,
-    gap: 8,
-  },
-  card: {
-    backgroundColor: "#222224",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#303034",
-    padding: 6,
-  },
-  cardColumnsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  imageCol: {
-    width: 52,
-    height: 52,
-  },
-  thumbnailWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 6,
-    overflow: "hidden",
-    backgroundColor: "#18181A",
-    borderWidth: 1,
-    borderColor: "#333338",
-    position: "relative",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  thumbnailImage: {
-    width: "100%",
-    height: "100%",
-  },
-  imageTypeBadge: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(15, 23, 42, 0.88)",
-    paddingVertical: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 2,
-  },
-  imageTypeBadgeText: {
-    color: "#38BDF8",
-    fontSize: 8.5,
-    fontWeight: "800",
-    letterSpacing: 0.4,
-  },
-  noImageInner: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-  zoomOverlay: {
-    position: "absolute",
-    bottom: 2,
-    right: 2,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    borderRadius: 3,
-    padding: 1.5,
-    zIndex: 2,
-  },
-  answerCol: {
-    width: 88,
-    justifyContent: "center",
-    borderLeftWidth: 1,
-    borderLeftColor: "rgba(255, 255, 255, 0.07)",
-    paddingLeft: 6,
-  },
-  colSubjectText: {
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.1,
-  },
-  colDividerLine: {
-    width: "100%",
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    marginVertical: 2.5,
-  },
-  answerValueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  answerColValue: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-    lineHeight: 14,
-    flex: 1,
-  },
-  taxonomyCol: {
-    flex: 1,
-    justifyContent: "center",
-    borderLeftWidth: 1,
-    borderLeftColor: "rgba(255, 255, 255, 0.07)",
-    paddingLeft: 6,
-    gap: 2,
-  },
-  bulletItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  bulletDotTopic: {
-    color: "#38BDF8",
-    fontSize: 11,
-    lineHeight: 13,
-  },
-  topicBulletText: {
-    color: "#E2E8F0",
-    fontSize: 10.5,
-    fontWeight: "600",
-    flex: 1,
-  },
-  bulletDotSubtopic: {
-    color: "#14B8A6",
-    fontSize: 11,
-    lineHeight: 13,
-  },
-  subtopicBulletText: {
-    color: "#94A3B8",
-    fontSize: 10,
-    flex: 1,
-  },
-  scoreCol: {
-    justifyContent: "center",
-    alignItems: "flex-start",
-    borderLeftWidth: 1,
-    borderLeftColor: "rgba(255, 255, 255, 0.07)",
-    paddingLeft: 6,
-    gap: 3,
-  },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  scoreCorrectText: {
-    color: "#10B981",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  scoreIncorrectText: {
-    color: "#EF4444",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  loadingContainer: {
-    paddingVertical: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-  },
-  loadingText: {
-    color: "#94A3B8",
-    fontSize: 14,
-  },
-  emptyContainer: {
-    paddingVertical: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-    gap: 8,
-  },
-  emptyIconWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "rgba(148, 163, 184, 0.08)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  emptyTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  emptySubtitle: {
-    color: "#94A3B8",
-    fontSize: 13,
-    textAlign: "center",
-    lineHeight: 18,
-  },
-  clearAllButton: {
-    marginTop: 12,
-    backgroundColor: "#3B82F6",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  clearAllButtonText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  loadingMoreContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 16,
-    gap: 8,
-  },
-  loadingMoreText: {
-    color: "#94A3B8",
-    fontSize: 12,
-  },
-  endOfResultsContainer: {
-    alignItems: "center",
-    paddingVertical: 16,
-  },
-  endOfResultsText: {
-    color: "#64748B",
-    fontSize: 12,
-  },
-});
+const createStyles = (colors: ThemeColors, isDark: boolean) =>
+  StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    headerContainer: {
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      paddingBottom: 4,
+    },
+    headerTitle: {
+      color: colors.text,
+      fontSize: 26,
+      fontWeight: "800",
+      letterSpacing: -0.3,
+    },
+    headerSubtitle: {
+      color: colors.textMuted,
+      fontSize: 13,
+      fontWeight: "400",
+      marginTop: 4,
+    },
+    searchHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingTop: 10,
+      paddingBottom: 8,
+      gap: 10,
+    },
+    searchBarWrapper: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.cardSecondary,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 12,
+      height: 46,
+    },
+    searchBarDisabled: {
+      opacity: 0.65,
+      borderColor: colors.border,
+    },
+    searchIcon: {
+      marginRight: 8,
+    },
+    searchInput: {
+      flex: 1,
+      color: colors.text,
+      fontSize: 15,
+      paddingVertical: 0,
+    },
+    searchInputDisabled: {
+      color: colors.textPlaceholder,
+    },
+    clearButton: {
+      padding: 4,
+    },
+    filterButton: {
+      width: 46,
+      height: 46,
+      borderRadius: 12,
+      backgroundColor: colors.cardSecondary,
+      borderWidth: 1,
+      borderColor: colors.border,
+      justifyContent: "center",
+      alignItems: "center",
+      position: "relative",
+    },
+    filterButtonOpen: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primaryLight,
+    },
+    filterButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    filterBadge: {
+      position: "absolute",
+      top: -4,
+      right: -4,
+      backgroundColor: colors.danger,
+      borderRadius: 9,
+      minWidth: 18,
+      height: 18,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 4,
+      borderWidth: 1.5,
+      borderColor: colors.bg,
+    },
+    filterBadgeText: {
+      color: "#FFFFFF",
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    quickActiveFiltersRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingBottom: 8,
+      gap: 8,
+      flexWrap: "wrap",
+    },
+    activePill: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.15)" : "rgba(37, 99, 235, 0.1)",
+      borderColor: isDark ? "rgba(59, 130, 246, 0.4)" : "rgba(37, 99, 235, 0.3)",
+      borderWidth: 1,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 14,
+      gap: 6,
+    },
+    activePillText: {
+      color: colors.primary,
+      fontSize: 12,
+      fontWeight: "500",
+    },
+    clearAllFiltersBtn: {
+      paddingVertical: 4,
+      paddingHorizontal: 6,
+    },
+    clearAllFiltersText: {
+      color: colors.textMuted,
+      fontSize: 12,
+      textDecorationLine: "underline",
+    },
+    noticeBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(37, 99, 235, 0.08)",
+      borderWidth: 1,
+      borderColor: isDark ? "rgba(59, 130, 246, 0.25)" : "rgba(37, 99, 235, 0.2)",
+      borderRadius: 10,
+      marginHorizontal: 16,
+      marginBottom: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      gap: 8,
+    },
+    noticeText: {
+      flex: 1,
+      color: colors.primary,
+      fontSize: 12,
+      lineHeight: 16,
+    },
+    filterPanel: {
+      backgroundColor: colors.card,
+      marginHorizontal: 16,
+      marginBottom: 10,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    filterPanelHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 12,
+    },
+    filterPanelTitleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    filterPanelTitle: {
+      color: colors.text,
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    resetFiltersText: {
+      color: colors.primary,
+      fontSize: 13,
+      fontWeight: "500",
+    },
+    filterChipRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 6,
+      marginVertical: 4,
+    },
+    selectedFilterChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.cardSecondary,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      gap: 4,
+    },
+    selectedFilterChipText: {
+      color: colors.text,
+      fontSize: 11,
+      maxWidth: 160,
+    },
+    applyFilterButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 10,
+      paddingVertical: 8,
+      alignItems: "center",
+      marginTop: 8,
+    },
+    applyFilterButtonText: {
+      color: "#FFFFFF",
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    resultsHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+    },
+    resultsCountText: {
+      color: colors.textMuted,
+      fontSize: 13,
+      fontWeight: "500",
+    },
+    listContent: {
+      paddingHorizontal: 16,
+      paddingBottom: 110,
+      gap: 8,
+    },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 6,
+    },
+    cardColumnsRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    imageCol: {
+      width: 52,
+      height: 52,
+    },
+    thumbnailWrapper: {
+      width: 52,
+      height: 52,
+      borderRadius: 6,
+      overflow: "hidden",
+      backgroundColor: colors.cardSecondary,
+      borderWidth: 1,
+      borderColor: colors.border,
+      position: "relative",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    thumbnailImage: {
+      width: "100%",
+      height: "100%",
+    },
+    imageTypeBadge: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: isDark ? "rgba(15, 23, 42, 0.88)" : "rgba(15, 23, 42, 0.75)",
+      paddingVertical: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 2,
+    },
+    imageTypeBadgeText: {
+      color: isDark ? "#38BDF8" : "#0284C7",
+      fontSize: 8.5,
+      fontWeight: "800",
+      letterSpacing: 0.4,
+    },
+    noImageInner: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 8,
+    },
+    zoomOverlay: {
+      position: "absolute",
+      bottom: 2,
+      right: 2,
+      backgroundColor: isDark ? "rgba(0,0,0,0.65)" : "rgba(0,0,0,0.45)",
+      borderRadius: 3,
+      padding: 1.5,
+      zIndex: 2,
+    },
+    answerCol: {
+      width: 88,
+      justifyContent: "center",
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+      paddingLeft: 6,
+    },
+    colSubjectText: {
+      fontSize: 11,
+      fontWeight: "700",
+      letterSpacing: 0.1,
+    },
+    colDividerLine: {
+      width: "100%",
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: 2.5,
+    },
+    answerValueRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+    },
+    answerColValue: {
+      color: colors.text,
+      fontSize: 11,
+      fontWeight: "700",
+      lineHeight: 14,
+      flex: 1,
+    },
+    taxonomyCol: {
+      flex: 1,
+      justifyContent: "center",
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+      paddingLeft: 6,
+      gap: 2,
+    },
+    bulletItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+    },
+    bulletDotTopic: {
+      color: isDark ? "#38BDF8" : "#0284C7",
+      fontSize: 11,
+      lineHeight: 13,
+    },
+    topicBulletText: {
+      color: colors.text,
+      fontSize: 10.5,
+      fontWeight: "600",
+      flex: 1,
+    },
+    bulletDotSubtopic: {
+      color: isDark ? "#14B8A6" : "#0D9488",
+      fontSize: 11,
+      lineHeight: 13,
+    },
+    subtopicBulletText: {
+      color: colors.textMuted,
+      fontSize: 10,
+      flex: 1,
+    },
+    scoreCol: {
+      justifyContent: "center",
+      alignItems: "flex-start",
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+      paddingLeft: 6,
+      gap: 3,
+    },
+    scoreRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+    },
+    scoreCorrectText: {
+      color: colors.success,
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    scoreIncorrectText: {
+      color: colors.danger,
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    loadingContainer: {
+      paddingVertical: 60,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 12,
+    },
+    loadingText: {
+      color: colors.textMuted,
+      fontSize: 14,
+    },
+    emptyContainer: {
+      paddingVertical: 60,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 32,
+      gap: 8,
+    },
+    emptyIconWrapper: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: isDark ? "rgba(148, 163, 184, 0.08)" : "rgba(148, 163, 184, 0.12)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 8,
+    },
+    emptyTitle: {
+      color: colors.text,
+      fontSize: 18,
+      fontWeight: "700",
+    },
+    emptySubtitle: {
+      color: colors.textMuted,
+      fontSize: 13,
+      textAlign: "center",
+      lineHeight: 18,
+    },
+    clearAllButton: {
+      marginTop: 12,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+    clearAllButtonText: {
+      color: "#FFFFFF",
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    loadingMoreContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 16,
+      gap: 8,
+    },
+    loadingMoreText: {
+      color: colors.textMuted,
+      fontSize: 12,
+    },
+    endOfResultsContainer: {
+      alignItems: "center",
+      paddingVertical: 16,
+    },
+    endOfResultsText: {
+      color: colors.textPlaceholder,
+      fontSize: 12,
+    },
+  });

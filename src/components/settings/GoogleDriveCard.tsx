@@ -10,10 +10,12 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { useTheme } from "@/context/ThemeContext";
 import { GoogleDriveLogo } from "@/components/icons/GoogleDriveLogo";
 import { LogoutConfirmationModal } from "@/components/settings/LogoutConfirmationModal";
 
 export const GoogleDriveCard: React.FC = () => {
+  const { colors } = useTheme();
   const {
     user,
     isAuthenticated,
@@ -51,25 +53,30 @@ export const GoogleDriveCard: React.FC = () => {
 
   if (isInitializing) {
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#3B82F6" />
-          <Text style={styles.loadingText}>Checking Google Drive status...</Text>
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.textMuted }]}>Checking Google Drive status...</Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
       {/* ─── Header with Top-Right Status ─────────────────────── */}
       <View style={styles.cardHeader}>
-        <View style={styles.driveIconWrap}>
+        <View
+          style={[
+            styles.driveIconWrap,
+            { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+          ]}
+        >
           <GoogleDriveLogo size={20} />
         </View>
         <View style={styles.headerTextGroup}>
-          <Text style={styles.cardTitle}>Google Drive Cloud Sync</Text>
-          <Text style={styles.cardSubtitle}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Google Drive Cloud Sync</Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textMuted }]}>
             Sync your data with your Google Drive
           </Text>
         </View>
@@ -81,8 +88,13 @@ export const GoogleDriveCard: React.FC = () => {
             <Text style={styles.connectedText}>Connected</Text>
           </View>
         ) : (
-          <View style={styles.unlinkedBadge}>
-            <Text style={styles.unlinkedText}>Not Linked</Text>
+          <View
+            style={[
+              styles.unlinkedBadge,
+              { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+            ]}
+          >
+            <Text style={[styles.unlinkedText, { color: colors.textMuted }]}>Not Linked</Text>
           </View>
         )}
       </View>
@@ -99,9 +111,9 @@ export const GoogleDriveCard: React.FC = () => {
             </View>
           )}
 
-          <View style={styles.privacyBadge}>
+          <View style={[styles.privacyBadge, { backgroundColor: colors.cardSecondary }]}>
             <Ionicons name="shield-checkmark-outline" size={14} color="#10B981" />
-            <Text style={styles.privacyText}>
+            <Text style={[styles.privacyText, { color: colors.textMuted }]}>
               Private app scope • Cannot view or modify your personal files
             </Text>
           </View>
@@ -126,7 +138,7 @@ export const GoogleDriveCard: React.FC = () => {
         /* ─── Authenticated State ───────────────────────────────── */
         <View style={styles.linkedContainer}>
           {/* User profile info */}
-          <View style={styles.userRow}>
+          <View style={[styles.userRow, { backgroundColor: colors.cardSecondary }]}>
             {user?.photo ? (
               <Image
                 source={{ uri: user.photo }}
@@ -135,40 +147,45 @@ export const GoogleDriveCard: React.FC = () => {
                 transition={200}
               />
             ) : (
-              <View style={styles.avatarFallback}>
+              <View style={[styles.avatarFallback, { backgroundColor: colors.primary }]}>
                 <Text style={styles.avatarFallbackText}>
                   {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
                 </Text>
               </View>
             )}
             <View style={styles.userInfo}>
-              <Text style={styles.userName} numberOfLines={1}>
+              <Text style={[styles.userName, { color: colors.text }]} numberOfLines={1}>
                 {user?.name || "Google User"}
               </Text>
-              <Text style={styles.userEmail} numberOfLines={1}>
+              <Text style={[styles.userEmail, { color: colors.textMuted }]} numberOfLines={1}>
                 {user?.email}
               </Text>
             </View>
           </View>
 
           {/* Sync status overview */}
-          <View style={styles.statsRow}>
+          <View style={[styles.statsRow, { backgroundColor: colors.cardSecondary }]}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>LAST SYNCED</Text>
-              <Text style={styles.statValue}>{formattedLastSync}</Text>
+              <Text style={[styles.statLabel, { color: colors.textMuted }]}>LAST SYNCED</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{formattedLastSync}</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={[styles.statDivider, { backgroundColor: colors.borderSubtle }]} />
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>BACKUP SIZE</Text>
-              <Text style={styles.statValue}>{lastBackupSize || "—"}</Text>
+              <Text style={[styles.statLabel, { color: colors.textMuted }]}>BACKUP SIZE</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{lastBackupSize || "—"}</Text>
             </View>
           </View>
 
           {/* Image Sync Status Badge */}
-          <View style={styles.syncStatusBadge}>
+          <View
+            style={[
+              styles.syncStatusBadge,
+              { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+            ]}
+          >
             {isSyncing ? (
               <>
-                <ActivityIndicator size="small" color="#3B82F6" />
+                <ActivityIndicator size="small" color={colors.primary} />
                 <Text style={styles.syncStatusText}>Backing up changes...</Text>
               </>
             ) : waitingReason && pendingCount > 0 ? (
@@ -194,36 +211,41 @@ export const GoogleDriveCard: React.FC = () => {
           </View>
 
           {/* Auto Backup & Wi-Fi Settings Toggles */}
-          <View style={styles.settingsSection}>
+          <View
+            style={[
+              styles.settingsSection,
+              { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+            ]}
+          >
             <View style={styles.settingRow}>
               <View style={styles.settingTextCol}>
-                <Text style={styles.settingTitle}>Auto Backup</Text>
-                <Text style={styles.settingSubtitle}>
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Auto Backup</Text>
+                <Text style={[styles.settingSubtitle, { color: colors.textMuted }]}>
                   Automatically upload images and data in background
                 </Text>
               </View>
               <Switch
                 value={backupEnabled}
                 onValueChange={toggleBackupEnabled}
-                trackColor={{ false: "#334155", true: "#2563EB" }}
-                thumbColor={backupEnabled ? "#FFFFFF" : "#94A3B8"}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={backupEnabled ? "#FFFFFF" : colors.textMuted}
                 style={styles.compactSwitch}
               />
             </View>
 
             {backupEnabled && (
-              <View style={[styles.settingRow, styles.settingRowBorder]}>
+              <View style={[styles.settingRow, styles.settingRowBorder, { borderTopColor: colors.borderSubtle }]}>
                 <View style={styles.settingTextCol}>
-                  <Text style={styles.settingTitle}>Wi-Fi Only</Text>
-                  <Text style={styles.settingSubtitle}>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>Wi-Fi Only</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.textMuted }]}>
                     Only upload when connected to Wi-Fi to save mobile data
                   </Text>
                 </View>
                 <Switch
                   value={wifiOnly}
                   onValueChange={toggleWifiOnly}
-                  trackColor={{ false: "#334155", true: "#2563EB" }}
-                  thumbColor={wifiOnly ? "#FFFFFF" : "#94A3B8"}
+                  trackColor={{ false: colors.border, true: colors.primary }}
+                  thumbColor={wifiOnly ? "#FFFFFF" : colors.textMuted}
                   style={styles.compactSwitch}
                 />
               </View>
@@ -233,7 +255,7 @@ export const GoogleDriveCard: React.FC = () => {
           {/* Progress message banner */}
           {isBusy && progressMessage && (
             <View style={styles.progressBanner}>
-              <ActivityIndicator size="small" color="#3B82F6" style={{ marginRight: 8 }} />
+              <ActivityIndicator size="small" color={colors.primary} style={{ marginRight: 8 }} />
               <Text style={styles.progressText}>{progressMessage}</Text>
             </View>
           )}
@@ -242,36 +264,43 @@ export const GoogleDriveCard: React.FC = () => {
           <View style={styles.actionsContainer}>
             {/* Full-width Restore Button */}
             <TouchableOpacity
-              style={[styles.restoreButtonFull, isBusy && styles.buttonDisabled]}
+              style={[
+                styles.restoreButtonFull,
+                { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                isBusy && styles.buttonDisabled,
+              ]}
               onPress={restore}
               disabled={isBusy}
               activeOpacity={0.8}
             >
               {isRestoring ? (
-                <ActivityIndicator size="small" color="#94A3B8" />
+                <>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.restoreButtonText, { color: colors.text }]}>Restoring Backup...</Text>
+                </>
               ) : (
                 <>
-                  <Ionicons name="cloud-download-outline" size={16} color="#CBD5E1" />
-                  <Text style={styles.restoreButtonText}>Restore from Drive</Text>
+                  <Ionicons name="download-outline" size={15} color={colors.primary} />
+                  <Text style={[styles.restoreButtonText, { color: colors.text }]}>Restore Cloud Backup</Text>
                 </>
               )}
             </TouchableOpacity>
 
-            {/* Unlink / Logout Button at bottom */}
+            {/* Subtle Compact Logout Link Button */}
             <TouchableOpacity
-              style={[styles.logoutButton, isBusy && styles.buttonDisabled]}
+              style={styles.logoutButton}
               onPress={() => setShowLogoutModal(true)}
               disabled={isBusy}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
-              <Ionicons name="log-out-outline" size={15} color="#EF4444" />
-              <Text style={styles.logoutButtonText}>Log out</Text>
+              <Ionicons name="log-out-outline" size={14} color="#EF4444" />
+              <Text style={styles.logoutButtonText}>Disconnect</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
 
-      {/* Stylized App Theme Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal */}
       <LogoutConfirmationModal
         visible={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}

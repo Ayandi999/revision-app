@@ -12,6 +12,7 @@ import {
 import type { Question } from "@/database/schema";
 import { getQuestionImages } from "@/functions/imageHelpers";
 import { ImageZoomModal } from "./ImageZoomModal";
+import { useTheme } from "@/context/ThemeContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,7 @@ export function QuestionCard({
   onNext,
   isLast,
 }: QuestionCardProps) {
+  const { colors } = useTheme();
   const [zoomImageUri, setZoomImageUri] = useState<string | null>(null);
   const [zoomTitle, setZoomTitle] = useState("");
 
@@ -72,20 +74,20 @@ export function QuestionCard({
     <View style={styles.container}>
       {/* Question counter */}
       <View style={styles.counterRow}>
-        <Text style={styles.counterText}>
+        <Text style={[styles.counterText, { color: colors.text }]}>
           Question {questionIndex + 1}{" "}
-          <Text style={styles.counterDim}>/ {totalQuestions}</Text>
+          <Text style={[styles.counterDim, { color: colors.textMuted }]}>/ {totalQuestions}</Text>
         </Text>
-        <View style={styles.typeBadge}>
-          <Text style={styles.typeBadgeText}>{question.questionType}</Text>
+        <View style={[styles.typeBadge, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}>
+          <Text style={[styles.typeBadgeText, { color: colors.primary }]}>{question.questionType}</Text>
         </View>
       </View>
 
       {/* Question Images rendered in sequence */}
       {questionImages.length === 0 ? (
-        <View style={styles.noImageBox}>
-          <Ionicons name="image-outline" size={40} color="#4B5563" />
-          <Text style={styles.noImageText}>No image available</Text>
+        <View style={[styles.noImageBox, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <Ionicons name="image-outline" size={40} color={colors.textMuted} />
+          <Text style={[styles.noImageText, { color: colors.textMuted }]}>No image available</Text>
         </View>
       ) : (
         <View style={styles.imageListContainer}>
@@ -101,7 +103,7 @@ export function QuestionCard({
                     : `Question ${questionIndex + 1}`
                 );
               }}
-              style={styles.imageWrapper}
+              style={[styles.imageWrapper, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
             >
               <Image
                 source={{ uri }}
@@ -140,7 +142,8 @@ export function QuestionCard({
                   key={label}
                   style={[
                     styles.optionButton,
-                    isSelected && styles.optionSelected,
+                    { backgroundColor: colors.card, borderColor: colors.cardBorder },
+                    isSelected && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
                   ]}
                   activeOpacity={0.7}
                   onPress={() => handleMCQSelect(label)}
@@ -148,15 +151,17 @@ export function QuestionCard({
                   <View
                     style={[
                       styles.radio,
-                      isSelected && styles.radioSelected,
+                      { borderColor: colors.border },
+                      isSelected && { borderColor: colors.primary },
                     ]}
                   >
-                    {isSelected && <View style={styles.radioDot} />}
+                    {isSelected && <View style={[styles.radioDot, { backgroundColor: colors.primary }]} />}
                   </View>
                   <Text
                     style={[
                       styles.optionLabel,
-                      isSelected && styles.optionLabelSelected,
+                      { color: colors.textSecondary },
+                      isSelected && [{ color: colors.text }, styles.optionLabelSelected],
                     ]}
                   >
                     Option {label}
@@ -177,7 +182,8 @@ export function QuestionCard({
                   key={label}
                   style={[
                     styles.optionButton,
-                    isSelected && styles.optionSelected,
+                    { backgroundColor: colors.card, borderColor: colors.cardBorder },
+                    isSelected && { backgroundColor: colors.primaryLight, borderColor: colors.primary },
                   ]}
                   activeOpacity={0.7}
                   onPress={() => handleMSQToggle(label)}
@@ -185,7 +191,8 @@ export function QuestionCard({
                   <View
                     style={[
                       styles.checkbox,
-                      isSelected && styles.checkboxSelected,
+                      { borderColor: colors.border },
+                      isSelected && { borderColor: colors.primary, backgroundColor: colors.primary },
                     ]}
                   >
                     {isSelected && (
@@ -195,7 +202,8 @@ export function QuestionCard({
                   <Text
                     style={[
                       styles.optionLabel,
-                      isSelected && styles.optionLabelSelected,
+                      { color: colors.textSecondary },
+                      isSelected && [{ color: colors.text }, styles.optionLabelSelected],
                     ]}
                   >
                     Option {label}
@@ -208,13 +216,16 @@ export function QuestionCard({
 
         {question.questionType === "NAT" && (
           <View style={styles.natContainer}>
-            <Text style={styles.natLabel}>Enter your answer</Text>
+            <Text style={[styles.natLabel, { color: colors.textMuted }]}>Enter your answer</Text>
             <TextInput
-              style={styles.natInput}
+              style={[
+                styles.natInput,
+                { backgroundColor: colors.card, borderColor: colors.cardBorder, color: colors.text },
+              ]}
               value={typeof answer === "string" ? answer : ""}
               onChangeText={handleNATChange}
               placeholder="Type numeric answer..."
-              placeholderTextColor="#6B7280"
+              placeholderTextColor={colors.textPlaceholder}
               keyboardType="numeric"
               returnKeyType="done"
             />
@@ -224,7 +235,7 @@ export function QuestionCard({
 
       {/* Next / Submit button */}
       <TouchableOpacity
-        style={styles.nextButton}
+        style={[styles.nextButton, { backgroundColor: colors.primary }]}
         activeOpacity={0.8}
         onPress={onNext}
       >

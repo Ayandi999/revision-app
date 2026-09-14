@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -55,13 +56,18 @@ export function SyllabusDropdown({
   hint,
   chips,
 }: SyllabusDropdownProps) {
-  const chevronColor = disabled ? "#4B5563" : isOpen ? "#3B82F6" : "#94A3B8";
+  const { colors } = useTheme();
+  const chevronColor = disabled
+    ? colors.textPlaceholder
+    : isOpen
+    ? colors.primary
+    : colors.textMuted;
 
   return (
     <View style={styles.dropdownSection}>
       {/* Label row */}
       <View style={styles.labelWithHint}>
-        <Text style={styles.sectionLabel}>{label}</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>{label}</Text>
         {hint}
       </View>
 
@@ -74,8 +80,12 @@ export function SyllabusDropdown({
         disabled={disabled}
         style={[
           styles.dropdownInput,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.cardBorder,
+          },
           disabled && styles.dropdownInputDisabled,
-          isOpen && styles.dropdownInputActive,
+          isOpen && { borderColor: colors.primary },
         ]}
         onPress={onToggleOpen}
       >
@@ -83,7 +93,9 @@ export function SyllabusDropdown({
           {selectedValues.length > 0 && selectedPreview ? (
             selectedPreview
           ) : (
-            <Text style={styles.dropdownPlaceholder}>{placeholder}</Text>
+            <Text style={[styles.dropdownPlaceholder, { color: colors.textPlaceholder }]}>
+              {placeholder}
+            </Text>
           )}
         </View>
 
@@ -96,7 +108,15 @@ export function SyllabusDropdown({
 
       {/* Menu */}
       {isOpen && !disabled && (
-        <View style={styles.dropdownMenu}>
+        <View
+          style={[
+            styles.dropdownMenu,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.cardBorder,
+            },
+          ]}
+        >
           <ScrollView
             nestedScrollEnabled
             style={styles.dropdownScrollContainer}
@@ -110,7 +130,8 @@ export function SyllabusDropdown({
                   activeOpacity={0.7}
                   style={[
                     styles.dropdownItem,
-                    isSelected && styles.dropdownItemSelected,
+                    { borderBottomColor: colors.borderSubtle },
+                    isSelected && { backgroundColor: colors.primaryLight },
                     index === items.length - 1 && styles.lastDropdownItem,
                   ]}
                   onPress={() => onSelectItem(item.value)}
@@ -121,20 +142,28 @@ export function SyllabusDropdown({
                       <Ionicons
                         name={isSelected ? "checkbox" : "square-outline"}
                         size={16}
-                        color={isSelected ? "#3B82F6" : "#6B7280"}
+                        color={isSelected ? colors.primary : colors.textMuted}
                       />
                     )}
                     {item.badge && (
                       <View
                         style={[
                           styles.typeBadge,
-                          isSelected && styles.typeBadgeSelected,
+                          {
+                            backgroundColor: colors.cardSecondary,
+                            borderColor: colors.cardSecondaryBorder,
+                          },
+                          isSelected && {
+                            borderColor: colors.primary,
+                            backgroundColor: colors.primaryLight,
+                          },
                         ]}
                       >
                         <Text
                           style={[
                             styles.typeBadgeText,
-                            isSelected && styles.typeBadgeTextSelected,
+                            { color: colors.text },
+                            isSelected && { color: colors.primary },
                           ]}
                         >
                           {item.badge}
@@ -144,7 +173,8 @@ export function SyllabusDropdown({
                     <Text
                       style={[
                         styles.itemBadgeLabel,
-                        isSelected && styles.itemBadgeLabelSelected,
+                        { color: colors.textMuted },
+                        isSelected && [styles.itemBadgeLabelSelected, { color: colors.text }],
                       ]}
                     >
                       {item.label}
@@ -153,7 +183,7 @@ export function SyllabusDropdown({
 
                   {/* Right: checkmark for badge-based single-select items */}
                   {item.badge && isSelected && (
-                    <Ionicons name="checkmark" size={16} color="#3B82F6" />
+                    <Ionicons name="checkmark" size={16} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               );
@@ -174,7 +204,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionLabel: {
-    color: "#94A3B8",
     fontSize: 12,
     fontWeight: "500",
     letterSpacing: 0.1,
@@ -187,15 +216,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#1E2028",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.1)",
     paddingHorizontal: 14,
     paddingVertical: 11,
-  },
-  dropdownInputActive: {
-    borderColor: "rgba(59, 130, 246, 0.35)",
   },
   dropdownInputDisabled: {
     opacity: 0.45,
@@ -205,14 +229,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   dropdownPlaceholder: {
-    color: "#6B7280",
     fontSize: 13,
   },
   dropdownMenu: {
-    backgroundColor: "#1E2028",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
   },
   dropdownScrollContainer: {
@@ -225,13 +246,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.06)",
   },
   lastDropdownItem: {
     borderBottomWidth: 0,
-  },
-  dropdownItemSelected: {
-    backgroundColor: "rgba(59, 130, 246, 0.08)",
   },
   dropdownItemLeft: {
     flexDirection: "row",
@@ -240,34 +257,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   typeBadge: {
-    backgroundColor: "#1c1b1b",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
-  },
-  typeBadgeSelected: {
-    borderColor: "rgba(59, 130, 246, 0.4)",
-    backgroundColor: "rgba(59, 130, 246, 0.15)",
   },
   typeBadgeText: {
-    color: "#E5E7EB",
     fontSize: 10.5,
     fontWeight: "700",
     letterSpacing: 0.4,
   },
-  typeBadgeTextSelected: {
-    color: "#3B82F6",
-  },
   itemBadgeLabel: {
-    color: "#94A3B8",
     fontSize: 12.5,
     fontWeight: "500",
     flex: 1,
   },
   itemBadgeLabelSelected: {
-    color: "#FFFFFF",
     fontWeight: "600",
   },
 });

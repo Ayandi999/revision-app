@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useTheme } from "@/context/ThemeContext";
+import type { ThemeColors } from "@/constants/theme";
 import { QuestionCard } from "@/components/revision/QuestionCard";
 import { ResultQuestionCard } from "@/components/revision/ResultQuestionCard";
 import { ResultsPieChart } from "@/components/revision/ResultsPieChart";
@@ -40,6 +42,9 @@ type Phase =
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function RevisionScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
+
   // ── State ─────────────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>("loading");
   const [errorMsg, setErrorMsg] = useState("");
@@ -314,7 +319,7 @@ export default function RevisionScreen() {
   if (phase === "loading") {
     return (
       <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading revision questions...</Text>
       </View>
     );
@@ -324,7 +329,7 @@ export default function RevisionScreen() {
   if (phase === "error") {
     return (
       <View style={styles.centeredContainer}>
-        <Ionicons name="alert-circle" size={48} color="#EF4444" />
+        <Ionicons name="alert-circle" size={48} color={colors.danger} />
         <Text style={styles.errorText}>Something went wrong</Text>
         <Text style={styles.errorSubtext}>{errorMsg}</Text>
         <TouchableOpacity
@@ -343,7 +348,7 @@ export default function RevisionScreen() {
   if (phase === "empty") {
     return (
       <View style={styles.centeredContainer}>
-        <Ionicons name="checkmark-done-circle" size={56} color="#22C55E" />
+        <Ionicons name="checkmark-done-circle" size={56} color={colors.success} />
         <Text style={styles.emptyTitle}>{"You're all caught up!"}</Text>
         <Text style={styles.emptySubtext}>
           No questions scheduled for revision today.{"\n"}Check back tomorrow.
@@ -357,14 +362,14 @@ export default function RevisionScreen() {
     return (
       <View style={styles.centeredContainer}>
         <Animated.View style={[styles.computingContent, { opacity: fadeAnim }]}>
-          <Ionicons name="trophy" size={64} color="#F59E0B" />
+          <Ionicons name="trophy" size={64} color={colors.warning} />
           <Text style={styles.congratsTitle}>Congratulations! 🎉</Text>
           <Text style={styles.congratsSubtext}>
             {"You've completed today's revision."}{"\n"}Computing your results...
           </Text>
           <ActivityIndicator
             size="small"
-            color="#3B82F6"
+            color={colors.primary}
             style={{ marginTop: 20 }}
           />
         </Animated.View>
@@ -389,7 +394,7 @@ export default function RevisionScreen() {
             <Ionicons
               name={isOngoing ? "play-circle" : "school"}
               size={52}
-              color="#3B82F6"
+              color={colors.primary}
             />
           </View>
 
@@ -405,7 +410,7 @@ export default function RevisionScreen() {
 
           <View style={styles.startMetaContainer}>
             <View style={styles.startMetaItem}>
-              <Ionicons name="help-circle-outline" size={18} color="#94A3B8" />
+              <Ionicons name="help-circle-outline" size={18} color={colors.textMuted} />
               <Text style={styles.startMetaLabel}>
                 {isOngoing
                   ? `Question ${currentIndex + 1} of ${questionList.length}`
@@ -416,7 +421,7 @@ export default function RevisionScreen() {
             <View style={styles.startMetaDivider} />
 
             <View style={styles.startMetaItem}>
-              <Ionicons name="time-outline" size={18} color="#94A3B8" />
+              <Ionicons name="time-outline" size={18} color={colors.textMuted} />
               <Text style={styles.startMetaLabel}>
                 {formatTimer(totalTimeLeft)}
               </Text>
@@ -454,7 +459,7 @@ export default function RevisionScreen() {
           <Ionicons
             name="timer-outline"
             size={18}
-            color={timerUrgent ? "#EF4444" : "#94A3B8"}
+            color={timerUrgent ? colors.danger : colors.textMuted}
           />
           <Text
             style={[styles.timerText, timerUrgent && styles.timerTextUrgent]}
@@ -467,7 +472,7 @@ export default function RevisionScreen() {
                 styles.timerProgressFill,
                 {
                   width: `${(totalTimeLeft / (questionList.length * 60)) * 100}%`,
-                  backgroundColor: timerUrgent ? "#EF4444" : "#3B82F6",
+                  backgroundColor: timerUrgent ? colors.danger : colors.primary,
                 },
               ]}
             />
@@ -550,293 +555,294 @@ export default function RevisionScreen() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-  // Shared
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#1c1b1b",
-  },
-  titleBlock: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 6,
-  },
-  title: {
-    color: "#FFFFFF",
-    fontSize: 26,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-  },
-  titleSubtext: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "400",
-    marginTop: 4,
-  },
-  readyContentContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 32,
-    paddingBottom: 110, // clears the floating bottom tab bar
-  },
-  screenContainer: {
-    flex: 1,
-    backgroundColor: "#1c1b1b",
-    paddingTop: 56,
-  },
-  centeredContainer: {
-    flex: 1,
-    backgroundColor: "#1c1b1b",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 32,
-  },
+const createStyles = (colors: ThemeColors, isDark: boolean) =>
+  StyleSheet.create({
+    // Shared
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.bg,
+    },
+    titleBlock: {
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      paddingBottom: 6,
+    },
+    title: {
+      color: colors.text,
+      fontSize: 26,
+      fontWeight: "800",
+      letterSpacing: -0.3,
+    },
+    titleSubtext: {
+      color: colors.textMuted,
+      fontSize: 13,
+      fontWeight: "400",
+      marginTop: 4,
+    },
+    readyContentContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 32,
+      paddingBottom: 110, // clears the floating bottom tab bar
+    },
+    screenContainer: {
+      flex: 1,
+      backgroundColor: colors.bg,
+      paddingTop: 56,
+    },
+    centeredContainer: {
+      flex: 1,
+      backgroundColor: colors.bg,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 32,
+    },
 
-  // Loading
-  loadingText: {
-    color: "#94A3B8",
-    fontSize: 14,
-    marginTop: 16,
-    fontWeight: "500",
-  },
+    // Loading
+    loadingText: {
+      color: colors.textMuted,
+      fontSize: 14,
+      marginTop: 16,
+      fontWeight: "500",
+    },
 
-  // Error
-  errorText: {
-    color: "#EF4444",
-    fontSize: 18,
-    fontWeight: "700",
-    marginTop: 12,
-  },
-  errorSubtext: {
-    color: "#94A3B8",
-    fontSize: 13,
-    marginTop: 6,
-    textAlign: "center",
-  },
+    // Error
+    errorText: {
+      color: colors.danger,
+      fontSize: 18,
+      fontWeight: "700",
+      marginTop: 12,
+    },
+    errorSubtext: {
+      color: colors.textMuted,
+      fontSize: 13,
+      marginTop: 6,
+      textAlign: "center",
+    },
 
-  // Empty
-  emptyTitle: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "800",
-    marginTop: 16,
-  },
-  emptySubtext: {
-    color: "#94A3B8",
-    fontSize: 14,
-    textAlign: "center",
-    marginTop: 8,
-    lineHeight: 22,
-  },
+    // Empty
+    emptyTitle: {
+      color: colors.text,
+      fontSize: 22,
+      fontWeight: "800",
+      marginTop: 16,
+    },
+    emptySubtext: {
+      color: colors.textMuted,
+      fontSize: 14,
+      textAlign: "center",
+      marginTop: 8,
+      lineHeight: 22,
+    },
 
-  // Computing
-  computingContent: {
-    alignItems: "center",
-  },
-  congratsTitle: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "800",
-    marginTop: 16,
-  },
-  congratsSubtext: {
-    color: "#94A3B8",
-    fontSize: 14,
-    textAlign: "center",
-    marginTop: 8,
-    lineHeight: 22,
-  },
+    // Computing
+    computingContent: {
+      alignItems: "center",
+    },
+    congratsTitle: {
+      color: colors.text,
+      fontSize: 24,
+      fontWeight: "800",
+      marginTop: 16,
+    },
+    congratsSubtext: {
+      color: colors.textMuted,
+      fontSize: 14,
+      textAlign: "center",
+      marginTop: 8,
+      lineHeight: 22,
+    },
 
-  // Timer bar
-  timerBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(59, 130, 246, 0.08)",
-  },
-  timerText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-    fontVariant: ["tabular-nums"],
-    minWidth: 56,
-  },
-  timerTextUrgent: {
-    color: "#EF4444",
-  },
-  timerProgress: {
-    flex: 1,
-    height: 4,
-    backgroundColor: "rgba(59, 130, 246, 0.08)",
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  timerProgressFill: {
-    height: "100%",
-    borderRadius: 2,
-  },
+    // Timer bar
+    timerBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      gap: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    timerText: {
+      color: colors.text,
+      fontSize: 18,
+      fontWeight: "700",
+      fontVariant: ["tabular-nums"],
+      minWidth: 56,
+    },
+    timerTextUrgent: {
+      color: colors.danger,
+    },
+    timerProgress: {
+      flex: 1,
+      height: 4,
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.08)" : "rgba(37, 99, 235, 0.08)",
+      borderRadius: 2,
+      overflow: "hidden",
+    },
+    timerProgressFill: {
+      height: "100%",
+      borderRadius: 2,
+    },
 
-  // Quiz scroll
-  quizScroll: {
-    padding: 20,
-    paddingBottom: 100,
-  },
+    // Quiz scroll
+    quizScroll: {
+      padding: 20,
+      paddingBottom: 100,
+    },
 
-  // Results
-  resultsScroll: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  resultsTitle: {
-    color: "#FFFFFF",
-    fontSize: 26,
-    fontWeight: "800",
-    marginBottom: 16,
-  },
+    // Results
+    resultsScroll: {
+      padding: 20,
+      paddingBottom: 40,
+    },
+    resultsTitle: {
+      color: colors.text,
+      fontSize: 26,
+      fontWeight: "800",
+      marginBottom: 16,
+    },
 
-  // Score summary card
-  scoreSummaryCard: {
-    backgroundColor: "#1E2028",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.1)",
-    padding: 20,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  scoreValue: {
-    color: "#FFFFFF",
-    fontSize: 36,
-    fontWeight: "800",
-  },
-  scoreMax: {
-    color: "#6B7280",
-    fontSize: 20,
-    fontWeight: "500",
-  },
-  scoreLabel: {
-    color: "#94A3B8",
-    fontSize: 13,
-    fontWeight: "500",
-    marginTop: 4,
-  },
+    // Score summary card
+    scoreSummaryCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 20,
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    scoreValue: {
+      color: colors.text,
+      fontSize: 36,
+      fontWeight: "800",
+    },
+    scoreMax: {
+      color: colors.textPlaceholder,
+      fontSize: 20,
+      fontWeight: "500",
+    },
+    scoreLabel: {
+      color: colors.textMuted,
+      fontSize: 13,
+      fontWeight: "500",
+      marginTop: 4,
+    },
 
-  // Chart card
-  chartCard: {
-    backgroundColor: "#1E2028",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.1)",
-    padding: 24,
-    marginBottom: 24,
-  },
+    // Chart card
+    chartCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 24,
+      marginBottom: 24,
+    },
 
-  // Section title
-  sectionTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
+    // Section title
+    sectionTitle: {
+      color: colors.text,
+      fontSize: 18,
+      fontWeight: "700",
+      marginBottom: 12,
+    },
 
-  // Ready / Start Screen
-  startCard: {
-    backgroundColor: "#1E2028",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.15)",
-    padding: 28,
-    alignItems: "center",
-    width: "100%",
-    maxWidth: 380,
-  },
-  startIconWrapper: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: "rgba(59, 130, 246, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(59, 130, 246, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  startTitle: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "800",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  startSubtitle: {
-    color: "#94A3B8",
-    fontSize: 14,
-    textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 24,
-  },
-  startMetaContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 24,
-    width: "100%",
-  },
-  startMetaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  startMetaDivider: {
-    width: 1,
-    height: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    marginHorizontal: 16,
-  },
-  startMetaLabel: {
-    color: "#E2E8F0",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  startButton: {
-    backgroundColor: "#3B82F6",
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    gap: 8,
-  },
-  startButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
+    // Ready / Start Screen
+    startCard: {
+      backgroundColor: colors.card,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 28,
+      alignItems: "center",
+      width: "100%",
+      maxWidth: 380,
+    },
+    startIconWrapper: {
+      width: 84,
+      height: 84,
+      borderRadius: 42,
+      backgroundColor: isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(37, 99, 235, 0.1)",
+      borderWidth: 1,
+      borderColor: isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(37, 99, 235, 0.2)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    startTitle: {
+      color: colors.text,
+      fontSize: 22,
+      fontWeight: "800",
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    startSubtitle: {
+      color: colors.textMuted,
+      fontSize: 14,
+      textAlign: "center",
+      lineHeight: 20,
+      marginBottom: 24,
+    },
+    startMetaContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.cardSecondary,
+      borderRadius: 12,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      marginBottom: 24,
+      width: "100%",
+    },
+    startMetaItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    startMetaDivider: {
+      width: 1,
+      height: 20,
+      backgroundColor: colors.border,
+      marginHorizontal: 16,
+    },
+    startMetaLabel: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    startButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 14,
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+      gap: 8,
+    },
+    startButtonText: {
+      color: "#FFFFFF",
+      fontSize: 16,
+      fontWeight: "700",
+    },
 
-  // Retry Button
-  retryButton: {
-    marginTop: 20,
-    backgroundColor: "#3B82F6",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  retryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-});
+    // Retry Button
+    retryButton: {
+      marginTop: 20,
+      backgroundColor: colors.primary,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 12,
+    },
+    retryButtonText: {
+      color: "#FFFFFF",
+      fontSize: 14,
+      fontWeight: "700",
+    },
+  });

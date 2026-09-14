@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 interface LogoutConfirmationModalProps {
   visible: boolean;
@@ -20,6 +21,8 @@ export const LogoutConfirmationModal: React.FC<LogoutConfirmationModalProps> = (
   onClose,
   onConfirm,
 }) => {
+  const { colors } = useTheme();
+
   return (
     <Modal
       visible={visible}
@@ -28,39 +31,68 @@ export const LogoutConfirmationModal: React.FC<LogoutConfirmationModalProps> = (
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
+      <Pressable
+        style={[styles.backdrop, { backgroundColor: colors.modalBackdrop }]}
+        onPress={onClose}
+      >
+        <Pressable
+          style={[
+            styles.card,
+            {
+              backgroundColor: colors.modalCard,
+              borderColor: colors.modalBorder,
+              shadowColor: colors.shadow,
+            },
+          ]}
+          onPress={(e) => e.stopPropagation()}
+        >
           {/* Mini Top Icon */}
-          <View style={styles.iconCircle}>
-            <Ionicons name="log-out-outline" size={16} color="#EF4444" />
+          <View style={[styles.iconCircle, { backgroundColor: colors.errorBg }]}>
+            <Ionicons name="log-out-outline" size={16} color={colors.error} />
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>Log Out of Drive</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Log Out of Drive</Text>
 
           {/* Refined Compact Message */}
-          <Text style={styles.message}>
+          <Text style={[styles.message, { color: colors.textMuted }]}>
             Existing cloud backups stay safe. New questions won&apos;t sync until you reconnect.
           </Text>
 
           {/* Micro Reassurance Pill */}
-          <View style={styles.safePill}>
-            <Ionicons name="shield-checkmark-outline" size={11} color="#10B981" />
-            <Text style={styles.safePillText}>Backups remain safe on Drive</Text>
+          <View
+            style={[
+              styles.safePill,
+              {
+                backgroundColor: colors.successBg,
+                borderColor: "rgba(16, 185, 129, 0.2)",
+              },
+            ]}
+          >
+            <Ionicons name="shield-checkmark-outline" size={11} color={colors.success} />
+            <Text style={[styles.safePillText, { color: colors.success }]}>
+              Backups remain safe on Drive
+            </Text>
           </View>
 
           {/* Compact Button Row */}
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={styles.cancelButton}
+              style={[
+                styles.cancelButton,
+                {
+                  backgroundColor: colors.cardSecondary,
+                  borderColor: colors.cardSecondaryBorder,
+                },
+              ]}
               activeOpacity={0.8}
               onPress={onClose}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.confirmButton}
+              style={[styles.confirmButton, { backgroundColor: colors.error }]}
               activeOpacity={0.8}
               onPress={() => {
                 onClose();
@@ -80,7 +112,6 @@ export const LogoutConfirmationModal: React.FC<LogoutConfirmationModalProps> = (
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -88,17 +119,14 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 280,
-    backgroundColor: "#1C1D24",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
     paddingHorizontal: 14,
     paddingTop: 14,
     paddingBottom: 12,
     alignItems: "center",
-    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
+    shadowOpacity: 0.35,
     shadowRadius: 14,
     elevation: 8,
   },
@@ -106,7 +134,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(239, 68, 68, 0.12)",
     borderWidth: 1,
     borderColor: "rgba(239, 68, 68, 0.25)",
     alignItems: "center",
@@ -116,14 +143,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14.5,
     fontWeight: "700",
-    color: "#F8FAFC",
     textAlign: "center",
     marginBottom: 4,
     letterSpacing: -0.2,
   },
   message: {
     fontSize: 11,
-    color: "#94A3B8",
     textAlign: "center",
     lineHeight: 15,
     marginBottom: 8,
@@ -133,16 +158,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "rgba(16, 185, 129, 0.08)",
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.2)",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
     marginBottom: 10,
   },
   safePillText: {
-    color: "#34D399",
     fontSize: 10,
     fontWeight: "600",
   },
@@ -155,14 +177,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 32,
     borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
     justifyContent: "center",
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "#CBD5E1",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -170,7 +189,6 @@ const styles = StyleSheet.create({
     flex: 1.1,
     height: 32,
     borderRadius: 8,
-    backgroundColor: "#EF4444",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

@@ -10,10 +10,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/ThemeContext";
 
 const AUTO_DISMISS_DELAY_MS = 10000; // Auto-dismiss after 10 seconds
 
 export function OtaUpdateNotification() {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { isUpdatePending } = Updates.useUpdates();
   const [visible, setVisible] = useState(false);
@@ -131,23 +133,32 @@ export function OtaUpdateNotification() {
         },
       ]}
     >
-      <View style={styles.content}>
+      <View
+        style={[
+          styles.content,
+          {
+            backgroundColor: colors.modalCard,
+            borderColor: colors.primary,
+            shadowColor: colors.shadow,
+          },
+        ]}
+      >
         {/* Left update icon */}
-        <View style={styles.iconCircle}>
-          <Ionicons name="sparkles" size={16} color="#38BDF8" />
+        <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
+          <Ionicons name="sparkles" size={16} color={colors.primary} />
         </View>
 
         {/* Text details */}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>Update Available</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Update Available</Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
             A fresh update was downloaded. Restart to apply.
           </Text>
         </View>
 
         {/* Restart action button */}
         <TouchableOpacity
-          style={styles.restartButton}
+          style={[styles.restartButton, { backgroundColor: colors.primary }]}
           activeOpacity={0.8}
           onPress={handleRestart}
           disabled={isRestarting}
@@ -170,7 +181,7 @@ export function OtaUpdateNotification() {
           onPress={hidePopup}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="close" size={18} color="#94A3B8" />
+          <Ionicons name="close" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
     </Animated.View>
