@@ -135,35 +135,25 @@ export function OnboardingModal() {
             >
               <View
                 style={[
-                  styles.iconWrap,
-                  { backgroundColor: `${selectedExam.color}15` },
+                  styles.shortBadgeLeft,
+                  {
+                    backgroundColor: `${selectedExam.color}18`,
+                    borderColor: `${selectedExam.color}40`,
+                  },
                 ]}
               >
-                <Ionicons
-                  name={(selectedExam.icon as any) || "school-outline"}
-                  size={20}
-                  color={selectedExam.color}
-                />
+                <Text
+                  style={[styles.shortBadgeLeftText, { color: selectedExam.color }]}
+                  numberOfLines={1}
+                >
+                  {selectedExam.shortName}
+                </Text>
               </View>
 
               <View style={styles.dropdownTextGroup}>
-                <View style={styles.dropdownTitleRow}>
-                  <Text style={[styles.dropdownTitle, { color: colors.text }]}>
-                    {selectedExam.name}
-                  </Text>
-                  <View
-                    style={[
-                      styles.shortBadge,
-                      { backgroundColor: `${selectedExam.color}20` },
-                    ]}
-                  >
-                    <Text
-                      style={[styles.shortBadgeText, { color: selectedExam.color }]}
-                    >
-                      {selectedExam.shortName}
-                    </Text>
-                  </View>
-                </View>
+                <Text style={[styles.dropdownTitle, { color: colors.text }]} numberOfLines={1}>
+                  {selectedExam.name}
+                </Text>
                 <Text
                   style={[styles.dropdownSubtitle, { color: colors.textMuted }]}
                   numberOfLines={1}
@@ -174,9 +164,9 @@ export function OnboardingModal() {
 
               <Ionicons
                 name="chevron-down"
-                size={18}
+                size={16}
                 color={colors.textMuted}
-                style={{ marginLeft: 8 }}
+                style={{ marginLeft: 6 }}
               />
             </TouchableOpacity>
           </View>
@@ -199,50 +189,38 @@ export function OnboardingModal() {
             >
               <View
                 style={[
-                  styles.iconWrap,
-                  { backgroundColor: `${selectedExam.color}15` },
+                  styles.shortBadgeLeft,
+                  {
+                    backgroundColor: `${selectedExam.color}18`,
+                    borderColor: `${selectedExam.color}40`,
+                  },
                 ]}
               >
-                <Ionicons
-                  name="book-outline"
-                  size={19}
-                  color={selectedExam.color}
-                />
+                <Text
+                  style={[styles.shortBadgeLeftText, { color: selectedExam.color }]}
+                  numberOfLines={1}
+                >
+                  {selectedStream.code || "ALL"}
+                </Text>
               </View>
 
               <View style={styles.dropdownTextGroup}>
-                <View style={styles.dropdownTitleRow}>
-                  <Text style={[styles.dropdownTitle, { color: colors.text }]}>
-                    {selectedStream.name}
-                  </Text>
-                  {selectedStream.code && (
-                    <View
-                      style={[
-                        styles.shortBadge,
-                        { backgroundColor: `${selectedExam.color}15` },
-                      ]}
-                    >
-                      <Text
-                        style={[styles.shortBadgeText, { color: selectedExam.color }]}
-                      >
-                        {selectedStream.code}
-                      </Text>
-                    </View>
-                  )}
-                </View>
+                <Text style={[styles.dropdownTitle, { color: colors.text }]} numberOfLines={1}>
+                  {selectedStream.name}
+                </Text>
                 <Text
                   style={[styles.dropdownSubtitle, { color: colors.textMuted }]}
                   numberOfLines={1}
                 >
-                  {selectedStream.description}
+                  {selectedStream.description || selectedStream.name}
                 </Text>
               </View>
 
               <Ionicons
                 name="chevron-down"
-                size={18}
+                size={16}
                 color={colors.textMuted}
-                style={{ marginLeft: 8 }}
+                style={{ marginLeft: 6 }}
               />
             </TouchableOpacity>
           </View>
@@ -257,7 +235,7 @@ export function OnboardingModal() {
               },
             ]}
           >
-            <Ionicons name="sparkles" size={14} color={selectedExam.color} />
+            <Ionicons name="sparkles" size={13} color={selectedExam.color} />
             <Text style={[styles.infoPillText, { color: colors.textMuted }]}>
               Syllabus topics will automatically calibrate for{" "}
               <Text style={{ color: colors.text, fontWeight: "700" }}>
@@ -279,7 +257,7 @@ export function OnboardingModal() {
             </Text>
             <Ionicons
               name={isOnboardingCompleted ? "checkmark" : "arrow-forward"}
-              size={16}
+              size={15}
               color="#FFFFFF"
             />
           </TouchableOpacity>
@@ -337,18 +315,22 @@ export function OnboardingModal() {
                     >
                       <View
                         style={[
-                          styles.iconWrapSmall,
-                          { backgroundColor: `${exam.color}20` },
+                          styles.pickerBadgeLeft,
+                          {
+                            backgroundColor: `${exam.color}18`,
+                            borderColor: isSelected ? exam.color : `${exam.color}35`,
+                          },
                         ]}
                       >
-                        <Ionicons
-                          name={(exam.icon as any) || "school-outline"}
-                          size={16}
-                          color={exam.color}
-                        />
+                        <Text
+                          style={[styles.pickerBadgeLeftText, { color: exam.color }]}
+                          numberOfLines={1}
+                        >
+                          {exam.shortName}
+                        </Text>
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={[styles.pickerItemTitle, { color: colors.text }]}>
+                        <Text style={[styles.pickerItemTitle, { color: colors.text }]} numberOfLines={1}>
                           {exam.name}
                         </Text>
                         <Text
@@ -361,8 +343,9 @@ export function OnboardingModal() {
                       {isSelected && (
                         <Ionicons
                           name="checkmark-circle"
-                          size={20}
+                          size={18}
                           color={exam.color}
+                          style={{ marginLeft: 6 }}
                         />
                       )}
                     </TouchableOpacity>
@@ -423,40 +406,41 @@ export function OnboardingModal() {
                       onPress={() => handleSelectStream(stream)}
                       activeOpacity={0.7}
                     >
-                      <View style={{ flex: 1 }}>
-                        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                          <Text style={[styles.pickerItemTitle, { color: colors.text }]}>
-                            {stream.name}
-                          </Text>
-                          {stream.code && (
-                            <View
-                              style={[
-                                styles.shortBadge,
-                                { backgroundColor: `${selectedExam.color}15` },
-                              ]}
-                            >
-                              <Text
-                                style={[
-                                  styles.shortBadgeText,
-                                  { color: selectedExam.color },
-                                ]}
-                              >
-                                {stream.code}
-                              </Text>
-                            </View>
-                          )}
-                        </View>
+                      <View
+                        style={[
+                          styles.pickerBadgeLeft,
+                          {
+                            backgroundColor: `${selectedExam.color}18`,
+                            borderColor: isSelected ? selectedExam.color : `${selectedExam.color}35`,
+                          },
+                        ]}
+                      >
                         <Text
-                          style={[styles.pickerItemSubtitle, { color: colors.textMuted }]}
+                          style={[styles.pickerBadgeLeftText, { color: selectedExam.color }]}
+                          numberOfLines={1}
                         >
-                          {stream.description}
+                          {stream.code || "ALL"}
                         </Text>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.pickerItemTitle, { color: colors.text }]} numberOfLines={1}>
+                          {stream.name}
+                        </Text>
+                        {stream.description ? (
+                          <Text
+                            style={[styles.pickerItemSubtitle, { color: colors.textMuted }]}
+                            numberOfLines={1}
+                          >
+                            {stream.description}
+                          </Text>
+                        ) : null}
                       </View>
                       {isSelected && (
                         <Ionicons
                           name="checkmark-circle"
-                          size={20}
+                          size={18}
                           color={selectedExam.color}
+                          style={{ marginLeft: 6 }}
                         />
                       )}
                     </TouchableOpacity>
@@ -479,173 +463,174 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 14,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
     borderBottomWidth: 1,
   },
   titleTextCol: {
     flex: 1,
   },
   headerEyebrow: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.8,
     textTransform: "uppercase",
     marginBottom: 2,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
   closeButton: {
-    padding: 6,
-    marginLeft: 12,
+    padding: 4,
+    marginLeft: 8,
   },
   contentScroll: {
     flex: 1,
   },
   contentContainer: {
-    padding: 20,
-    gap: 18,
+    padding: 16,
+    gap: 14,
   },
   subtitle: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 17,
   },
   dropdownSection: {
-    gap: 7,
+    gap: 6,
   },
   dropdownLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
     marginLeft: 2,
   },
   dropdownCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 14,
-    borderWidth: 1.2,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
   },
-  iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  iconWrapSmall: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+  shortBadgeLeft: {
+    minWidth: 50,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    borderRadius: 7,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
   },
+  shortBadgeLeftText: {
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
   dropdownTextGroup: {
     flex: 1,
   },
-  dropdownTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
   dropdownTitle: {
-    fontSize: 14.5,
-    fontWeight: "700",
+    fontSize: 13.5,
+    fontWeight: "600",
   },
   dropdownSubtitle: {
-    fontSize: 11.5,
-    marginTop: 1.5,
-  },
-  shortBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  shortBadgeText: {
-    fontSize: 10,
-    fontWeight: "700",
-    textTransform: "uppercase",
+    fontSize: 11,
+    marginTop: 1,
   },
   infoPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
     borderWidth: 1,
-    marginTop: 4,
+    marginTop: 2,
   },
   infoPillText: {
-    fontSize: 11.5,
+    fontSize: 11,
     flex: 1,
-    lineHeight: 16,
+    lineHeight: 15,
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 12,
     borderTopWidth: 1,
   },
   continueButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    paddingVertical: 13,
-    borderRadius: 12,
+    gap: 6,
+    paddingVertical: 11,
+    borderRadius: 10,
   },
   continueButtonText: {
     color: "#FFFFFF",
-    fontSize: 14.5,
+    fontSize: 14,
     fontWeight: "700",
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.65)",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   sheetContent: {
-    borderRadius: 18,
+    borderRadius: 14,
     borderWidth: 1,
-    padding: 16,
+    padding: 14,
     maxHeight: "80%",
   },
   sheetHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
-    paddingBottom: 8,
+    marginBottom: 10,
+    paddingBottom: 6,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.08)",
   },
   sheetTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
   },
   pickerItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
     borderWidth: 1,
-    marginBottom: 8,
+    marginBottom: 6,
+  },
+  pickerBadgeLeft: {
+    minWidth: 46,
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 9,
+  },
+  pickerBadgeLeftText: {
+    fontSize: 10.5,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
   },
   pickerItemTitle: {
-    fontSize: 13.5,
+    fontSize: 12.5,
     fontWeight: "600",
   },
   pickerItemSubtitle: {
-    fontSize: 11,
+    fontSize: 10.5,
     marginTop: 1,
   },
 });

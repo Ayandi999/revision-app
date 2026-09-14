@@ -125,7 +125,7 @@ export const EXAM_OPTIONS: ExamOption[] = [
   {
     id: "self_study",
     name: "Self Study",
-    shortName: "Self Study",
+    shortName: "SELF",
     description: "Personalized revision & custom subjects",
     icon: "school-outline",
     color: "#8B5CF6",
