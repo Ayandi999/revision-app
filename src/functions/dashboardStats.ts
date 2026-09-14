@@ -1,5 +1,5 @@
 import { getSyllabusForStream, DEFAULT_STREAM_ID } from "@/config/exams";
-import { getSubtopics, type SyllabusSchema } from "@/types/syllabus";
+import { getSubjects, getSubtopics, type SyllabusSchema } from "@/types/syllabus";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
@@ -114,6 +114,21 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
     };
   }
 
+  // Active stream syllabus subjects
+  const streamSubjects = getSubjects(activeSyllabus);
+  const streamSubjectMap = new Map<string, string>();
+  for (const s of streamSubjects) {
+    streamSubjectMap.set(s.trim().toLowerCase(), s.trim());
+  }
+
+  // If the active stream has defined syllabus subjects, isolate statistics
+  // strictly to questions belonging to this stream's syllabus.
+  if (streamSubjects.length > 0) {
+    allQuestions = allQuestions.filter((q) =>
+      streamSubjectMap.has((q.subject || "").trim().toLowerCase()),
+    );
+  }
+
   if (allQuestions.length === 0) {
     return {
       totalQuestions: 0,
@@ -199,7 +214,8 @@ export async function fetchDashboardStats(customSyllabus?: SyllabusSchema): Prom
     }
 
     // Process taxonomy
-    const subjName = (q.subject || "General").trim();
+    const rawSubj = (q.subject || "General").trim();
+    const subjName = streamSubjectMap.get(rawSubj.toLowerCase()) || rawSubj;
     if (!subjectMap.has(subjName)) {
       subjectMap.set(subjName, {
         questionCount: 0,

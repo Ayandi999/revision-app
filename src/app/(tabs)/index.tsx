@@ -7,7 +7,7 @@ import { useTheme } from "@/context/ThemeContext";
 import type { ThemeColors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Image } from "expo-image";
 import { useCloudSync } from "@/hooks/useCloudSync";
 import {
@@ -138,6 +138,10 @@ export default function DashboardScreen() {
       setRefreshing(false);
     }
   }, [syllabus]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   useFocusEffect(
     useCallback(() => {
@@ -473,26 +477,17 @@ export default function DashboardScreen() {
                             </Text>
                           ) : (
                             subj.topics.map((topic) => {
-                              const topicKey = `${subj.name}:${topic.name}`;
-                              const isTopicOpen = !!expandedTopics[topicKey];
                               const topicAcc = getAccuracyColor(topic.accuracy, isDark);
                               const tAttempts =
                                 topic.correct + topic.incorrect;
-                              const hasSubtopics = topic.subtopics.length > 0;
 
                               return (
                                 <View
                                   key={topic.name}
                                   style={styles.topicCard}
                                 >
-                                  {/* Topic Header Row (Clickable Dropdown if has subtopics) */}
-                                  <TouchableOpacity
-                                    style={styles.topicHeaderTouchable}
-                                    activeOpacity={hasSubtopics ? 0.7 : 1}
-                                    onPress={() =>
-                                      hasSubtopics && toggleTopic(topicKey)
-                                    }
-                                  >
+                                  {/* Topic Header Row */}
+                                  <View style={styles.topicHeaderTouchable}>
                                     <View style={styles.topicHeaderLeft}>
                                       <Text style={styles.topicNameText}>
                                         {topic.name}
@@ -522,19 +517,8 @@ export default function DashboardScreen() {
                                           {topic.accuracy}%
                                         </Text>
                                       </View>
-                                      {hasSubtopics ? (
-                                        <Ionicons
-                                          name={
-                                            isTopicOpen
-                                              ? "chevron-up"
-                                              : "chevron-down"
-                                          }
-                                          size={16}
-                                          color={colors.textTertiary}
-                                        />
-                                      ) : null}
                                     </View>
-                                  </TouchableOpacity>
+                                  </View>
 
                                   {/* Topic Mini Accuracy Bar */}
                                   <View style={styles.topicBarTrack}>
@@ -551,67 +535,6 @@ export default function DashboardScreen() {
                                       ]}
                                     />
                                   </View>
-
-                                  {/* Expanded Subtopics (Least to Most accurate) */}
-                                  {isTopicOpen && hasSubtopics && (
-                                    <View style={styles.subtopicsContainer}>
-                                      <Text style={styles.subtopicsLabel}>
-                                        {sortOrder === "weakest"
-                                          ? "SUBTOPICS (WEAKEST FIRST):"
-                                          : "SUBTOPICS (STRONGEST FIRST):"}
-                                      </Text>
-                                      {topic.subtopics.map((st) => {
-                                        const stAcc = getAccuracyColor(
-                                          st.accuracy,
-                                          isDark,
-                                        );
-                                        const stAttempts =
-                                          st.correct + st.incorrect;
-
-                                        return (
-                                          <View
-                                            key={st.name}
-                                            style={styles.subtopicRow}
-                                          >
-                                            <View style={styles.subtopicLeft}>
-                                              <View
-                                                style={styles.subtopicBullet}
-                                              />
-                                              <Text
-                                                style={styles.subtopicNameText}
-                                              >
-                                                {st.name}
-                                              </Text>
-                                              <Text
-                                                style={styles.subtopicStatsText}
-                                              >
-                                                {st.questionCount} Qs
-                                                {stAttempts > 0
-                                                  ? ` • ${st.correct}/${stAttempts}`
-                                                  : ""}
-                                              </Text>
-                                            </View>
-
-                                            <View
-                                              style={[
-                                                styles.subtopicAccPill,
-                                                { backgroundColor: stAcc.bg },
-                                              ]}
-                                            >
-                                              <Text
-                                                style={[
-                                                  styles.subtopicAccText,
-                                                  { color: stAcc.text },
-                                                ]}
-                                              >
-                                                {st.accuracy}%
-                                              </Text>
-                                            </View>
-                                          </View>
-                                        );
-                                      })}
-                                    </View>
-                                  )}
                                 </View>
                               );
                             })

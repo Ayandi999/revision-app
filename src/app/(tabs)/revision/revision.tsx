@@ -1,8 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Animated,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,21 +20,20 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useTheme } from "@/context/ThemeContext";
-import type { ThemeColors } from "@/constants/theme";
 import { QuestionCard } from "@/components/revision/QuestionCard";
 import { ResultQuestionCard } from "@/components/revision/ResultQuestionCard";
-import { ResultsPieChart } from "@/components/revision/ResultsPieChart";
+import { OverallAccuracyBar } from "@/components/revision/OverallAccuracyBar";
+import { QuestionAccuracyBarChart } from "@/components/revision/QuestionAccuracyBarChart";
+import { TimePerQuestionChart } from "@/components/revision/TimePerQuestionChart";
+import type { ThemeColors } from "@/constants/theme";
+import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
-import {
-  calculateScores,
-  type ScoreResult,
-} from "@/functions/scoreCalculator";
 import {
   getRevisionQuestions,
   writeCache,
   type RevisionCache,
 } from "@/functions/revisionQuestionFetch";
+import { calculateScores, type ScoreResult } from "@/functions/scoreCalculator";
 import { syncQuestionsToDB } from "@/functions/syncQuestion";
 
 // ─── Phase type ───────────────────────────────────────────────────────────────
@@ -48,12 +56,14 @@ export default function RevisionScreen() {
   // ── State ─────────────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>("loading");
   const [errorMsg, setErrorMsg] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
   const [questionList, setQuestionList] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<(string | string[] | null)[]>([]);
   const [timeTaken, setTimeTaken] = useState<number[]>([]);
   const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
   const [cache, setCache] = useState<RevisionCache | null>(null);
+  const [hasDismissedResults, setHasDismissedResults] = useState(false);
 
   // Timer state
   const [totalTimeLeft, setTotalTimeLeft] = useState(0);
@@ -62,6 +72,16 @@ export default function RevisionScreen() {
 
   // Computing phase animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // ── Dismiss results handler ───────────────────────────────────────────────
+  const handleDone = useCallback(async () => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    try {
+      await AsyncStorage.setItem("@revision_results_dismissed_today", todayStr);
+    } catch {}
+    setHasDismissedResults(true);
+    setPhase("empty");
+  }, []);
 
   // ── Scoring + transition ──────────────────────────────────────────────────
   const runScoring = useCallback(
@@ -101,6 +121,10 @@ export default function RevisionScreen() {
           await syncQuestionsToDB(finalCache);
         }
 
+        try {
+          await AsyncStorage.removeItem("@revision_results_dismissed_today");
+        } catch {}
+        setHasDismissedResults(false);
         setPhase("results");
       }, 2500);
     },
@@ -108,98 +132,131 @@ export default function RevisionScreen() {
   );
 
   // ── Fetch questions ───────────────────────────────────────────────────────
-  const loadQuestions = useCallback(async () => {
-    setPhase("loading");
-    setErrorMsg("");
-
-    try {
-      const result = await getRevisionQuestions();
-
-      if (!result.success) {
-        setErrorMsg(result.error);
-        setPhase("error");
-        return;
+  const loadQuestions = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setPhase("loading");
       }
+      setErrorMsg("");
 
-      if (result.questions.length === 0) {
-        setPhase("empty");
-        return;
-      }
+      try {
+        const result = await getRevisionQuestions();
 
-      // Read the full cache to get persisted state
-      const AsyncStorage =
-        require("@react-native-async-storage/async-storage").default;
-      const raw = await AsyncStorage.getItem("revision-data");
-      const cachedData: RevisionCache | null = raw ? JSON.parse(raw) : null;
+        if (!result.success) {
+          setErrorMsg(result.error);
+          setPhase("error");
+          return;
+        }
 
-      if (!cachedData) {
-        setErrorMsg("Cache not found after fetch.");
-        setPhase("error");
-        return;
-      }
+        if (result.questions.length === 0) {
+          setPhase("empty");
+          return;
+        }
 
-      // If already completed, go straight to results
-      if (cachedData.status === "completed") {
+        // Read the full cache to get persisted state
+        const raw = await AsyncStorage.getItem("revision-data");
+        const cachedData: RevisionCache | null = raw ? JSON.parse(raw) : null;
+
+        if (!cachedData) {
+          setErrorMsg("Cache not found after fetch.");
+          setPhase("error");
+          return;
+        }
+
+        // If already completed, check if user dismissed results
+        if (cachedData.status === "completed") {
+          setQuestionList(cachedData.questions);
+          setAnswers(cachedData.answers);
+          setTimeTaken(cachedData.timeTaken);
+          setCache(cachedData);
+          // Recompute scores from cached answers
+          const scores = calculateScores(
+            [...cachedData.questions],
+            cachedData.answers,
+          );
+          setScoreResult(scores);
+
+          const todayStr = new Date().toISOString().split("T")[0];
+          let isDismissed = hasDismissedResults;
+          try {
+            const dismissedDate = await AsyncStorage.getItem(
+              "@revision_results_dismissed_today",
+            );
+            if (dismissedDate === todayStr) {
+              isDismissed = true;
+            }
+          } catch {}
+
+          if (isDismissed) {
+            setPhase("empty");
+          } else {
+            setPhase("results");
+          }
+          return;
+        }
+
+        // Determine start index: if lastQuestionVisited >= 0, resume from next
+        const startIndex =
+          cachedData.lastQuestionVisited >= 0
+            ? Math.min(
+                cachedData.lastQuestionVisited + 1,
+                cachedData.questions.length,
+              )
+            : 0;
+
+        // If all questions were already visited, go to computing
+        if (startIndex >= cachedData.questions.length) {
+          setQuestionList(cachedData.questions);
+          setAnswers(cachedData.answers);
+          setTimeTaken(cachedData.timeTaken);
+          setCache(cachedData);
+          runScoring(
+            cachedData.questions,
+            cachedData.answers,
+            cachedData.timeTaken,
+            cachedData,
+          );
+          return;
+        }
+
         setQuestionList(cachedData.questions);
+        setCurrentIndex(startIndex);
         setAnswers(cachedData.answers);
         setTimeTaken(cachedData.timeTaken);
         setCache(cachedData);
-        // Recompute scores from cached answers
-        const scores = calculateScores(
-          [...cachedData.questions],
-          cachedData.answers,
+
+        // Calculate total time: 1 min per remaining question
+        const remainingQuestions = cachedData.questions.length - startIndex;
+        setTotalTimeLeft(remainingQuestions * 60);
+
+        setPhase("ready");
+      } catch (err) {
+        setErrorMsg(
+          err instanceof Error ? err.message : "Failed to load questions.",
         );
-        setScoreResult(scores);
-        setPhase("results");
-        return;
+        setPhase("error");
+      } finally {
+        if (isRefresh) {
+          setRefreshing(false);
+        }
       }
-
-      // Determine start index: if lastQuestionVisited >= 0, resume from next
-      const startIndex =
-        cachedData.lastQuestionVisited >= 0
-          ? Math.min(
-              cachedData.lastQuestionVisited + 1,
-              cachedData.questions.length,
-            )
-          : 0;
-
-      // If all questions were already visited, go to computing
-      if (startIndex >= cachedData.questions.length) {
-        setQuestionList(cachedData.questions);
-        setAnswers(cachedData.answers);
-        setTimeTaken(cachedData.timeTaken);
-        setCache(cachedData);
-        runScoring(
-          cachedData.questions,
-          cachedData.answers,
-          cachedData.timeTaken,
-          cachedData,
-        );
-        return;
-      }
-
-      setQuestionList(cachedData.questions);
-      setCurrentIndex(startIndex);
-      setAnswers(cachedData.answers);
-      setTimeTaken(cachedData.timeTaken);
-      setCache(cachedData);
-
-      // Calculate total time: 1 min per remaining question
-      const remainingQuestions = cachedData.questions.length - startIndex;
-      setTotalTimeLeft(remainingQuestions * 60);
-
-      setPhase("ready");
-    } catch (err) {
-      setErrorMsg(
-        err instanceof Error ? err.message : "Failed to load questions.",
-      );
-      setPhase("error");
-    }
-  }, [runScoring]);
+    },
+    [runScoring],
+  );
 
   useEffect(() => {
     loadQuestions();
   }, [loadQuestions]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (phase !== "quiz" && phase !== "computing") {
+        loadQuestions(false);
+      }
+    }, [loadQuestions, phase]),
+  );
 
   // ── Start / Resume Quiz handler ───────────────────────────────────────────
   const handleStartQuiz = useCallback(async () => {
@@ -315,48 +372,6 @@ export default function RevisionScreen() {
     questionStartRef.current = Date.now();
   }, [currentIndex, answers, timeTaken, questionList, cache]);
 
-  // ── Render: Loading ───────────────────────────────────────────────────────
-  if (phase === "loading") {
-    return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading revision questions...</Text>
-      </View>
-    );
-  }
-
-  // ── Render: Error ─────────────────────────────────────────────────────────
-  if (phase === "error") {
-    return (
-      <View style={styles.centeredContainer}>
-        <Ionicons name="alert-circle" size={48} color={colors.danger} />
-        <Text style={styles.errorText}>Something went wrong</Text>
-        <Text style={styles.errorSubtext}>{errorMsg}</Text>
-        <TouchableOpacity
-          style={styles.retryButton}
-          onPress={loadQuestions}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="refresh" size={18} color="#FFFFFF" />
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  // ── Render: Empty (no questions due) ──────────────────────────────────────
-  if (phase === "empty") {
-    return (
-      <View style={styles.centeredContainer}>
-        <Ionicons name="checkmark-done-circle" size={56} color={colors.success} />
-        <Text style={styles.emptyTitle}>{"You're all caught up!"}</Text>
-        <Text style={styles.emptySubtext}>
-          No questions scheduled for revision today.{"\n"}Check back tomorrow.
-        </Text>
-      </View>
-    );
-  }
-
   // ── Render: Computing (congrats animation) ────────────────────────────────
   if (phase === "computing") {
     return (
@@ -365,7 +380,8 @@ export default function RevisionScreen() {
           <Ionicons name="trophy" size={64} color={colors.warning} />
           <Text style={styles.congratsTitle}>Congratulations! 🎉</Text>
           <Text style={styles.congratsSubtext}>
-            {"You've completed today's revision."}{"\n"}Computing your results...
+            {"You've completed today's revision."}
+            {"\n"}Computing your results...
           </Text>
           <ActivityIndicator
             size="small"
@@ -377,83 +393,12 @@ export default function RevisionScreen() {
     );
   }
 
-  // ── Render: Ready (Start / Resume Quiz) ───────────────────────────────────
-  if (phase === "ready") {
-    const isOngoing = currentIndex > 0 || cache?.status === "in-progress";
-
-    return (
-      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-        <View style={styles.titleBlock}>
-          <Text style={styles.title}>Revision</Text>
-          <Text style={styles.titleSubtext}>Daily practice & scheduled recall</Text>
-        </View>
-
-        <View style={styles.readyContentContainer}>
-          <View style={styles.startCard}>
-            <View style={styles.startIconWrapper}>
-            <Ionicons
-              name={isOngoing ? "play-circle" : "school"}
-              size={52}
-              color={colors.primary}
-            />
-          </View>
-
-          <Text style={styles.startTitle}>
-            {isOngoing ? "Revision in Progress" : "Daily Revision"}
-          </Text>
-
-          <Text style={styles.startSubtitle}>
-            {isOngoing
-              ? "You have an ongoing revision in progress. Pick up right where you left off."
-              : "Test your knowledge with today's scheduled revision questions."}
-          </Text>
-
-          <View style={styles.startMetaContainer}>
-            <View style={styles.startMetaItem}>
-              <Ionicons name="help-circle-outline" size={18} color={colors.textMuted} />
-              <Text style={styles.startMetaLabel}>
-                {isOngoing
-                  ? `Question ${currentIndex + 1} of ${questionList.length}`
-                  : `${questionList.length} Questions`}
-              </Text>
-            </View>
-
-            <View style={styles.startMetaDivider} />
-
-            <View style={styles.startMetaItem}>
-              <Ionicons name="time-outline" size={18} color={colors.textMuted} />
-              <Text style={styles.startMetaLabel}>
-                {formatTimer(totalTimeLeft)}
-              </Text>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.startButton}
-            onPress={handleStartQuiz}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.startButtonText}>
-              {isOngoing ? "Pick up from where you left" : "Start Quiz"}
-            </Text>
-            <Ionicons
-              name={isOngoing ? "arrow-forward" : "play"}
-              size={18}
-              color="#FFFFFF"
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
-  }
-
   // ── Render: Quiz ──────────────────────────────────────────────────────────
   if (phase === "quiz") {
     const timerUrgent = totalTimeLeft < 60;
 
     return (
-      <View style={styles.screenContainer}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         {/* Timer bar */}
         <View style={styles.timerBar}>
           <Ionicons
@@ -494,44 +439,64 @@ export default function RevisionScreen() {
             isLast={currentIndex === questionList.length - 1}
           />
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
   // ── Render: Results ───────────────────────────────────────────────────────
   if (phase === "results" && scoreResult) {
+    const totalTimeSecs = timeTaken.reduce(
+      (acc, curr) => acc + (curr || 0),
+      0,
+    );
+
     return (
-      <View style={styles.screenContainer}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        {/* ── Fixed Top Header Bar (remains fixed on scroll) ── */}
+        <View style={styles.headerContainer}>
+          <View style={styles.resultsHeaderRow}>
+            <View>
+              <Text style={styles.headerTitle}>Your Results</Text>
+              <Text style={styles.headerSubtitle}>
+                Performance analysis & question review
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.doneBtn}
+              onPress={handleDone}
+              activeOpacity={0.75}
+            >
+              <Text style={styles.doneBtnText}>Done</Text>
+              <Ionicons name="checkmark" size={13} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <ScrollView
           contentContainerStyle={styles.resultsScroll}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <Text style={styles.resultsTitle}>Your Results</Text>
+          {/* 1. Overall Accuracy Multi-Segment Bar */}
+          <OverallAccuracyBar
+            score={scoreResult.totalScore}
+            maxScore={scoreResult.maxPossibleScore}
+            correctCount={scoreResult.correctCount}
+            incorrectCount={scoreResult.incorrectCount}
+            unansweredCount={scoreResult.unansweredCount}
+            totalQuestions={questionList.length}
+            totalTimeSeconds={totalTimeSecs}
+          />
 
-          {/* Score summary */}
-          <View style={styles.scoreSummaryCard}>
-            <Text style={styles.scoreValue}>
-              {scoreResult.totalScore}
-              <Text style={styles.scoreMax}>
-                {" "}
-                / {scoreResult.maxPossibleScore}
-              </Text>
-            </Text>
-            <Text style={styles.scoreLabel}>Total Score</Text>
-          </View>
+          {/* 2. Time Taken per Question (Line Graph) */}
+          <TimePerQuestionChart timeTaken={timeTaken} />
 
-          {/* Pie Chart */}
-          <View style={styles.chartCard}>
-            <ResultsPieChart
-              correct={scoreResult.correctCount}
-              incorrect={scoreResult.incorrectCount}
-              unanswered={scoreResult.unansweredCount}
-              total={questionList.length}
-            />
-          </View>
+          {/* 3. Question-wise Historical Accuracy (Scrollable Bar Graph) */}
+          <QuestionAccuracyBarChart
+            questions={questionList}
+            questionResults={scoreResult.questionResults}
+          />
 
-          {/* Question cards */}
+          {/* 4. Question Breakdown List */}
           <Text style={styles.sectionTitle}>Question Breakdown</Text>
           {scoreResult.questionResults.map((result, i) => (
             <ResultQuestionCard
@@ -544,13 +509,196 @@ export default function RevisionScreen() {
           ))}
 
           {/* Bottom spacer for tab bar */}
-          <View style={{ height: 100 }} />
+          <View style={{ height: 110 }} />
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
-  return null;
+  // ── Render: Revision Tab Landing (ready, empty, loading, error) ───────────
+  const isOngoing = currentIndex > 0 || cache?.status === "in-progress";
+
+  return (
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {/* ── Top Bar Header (stays fixed on top while scrolling) ── */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Revision</Text>
+        <Text style={styles.headerSubtitle}>
+          Daily practice & scheduled recall
+        </Text>
+      </View>
+
+      {/* ── Scrollable Body ── */}
+      <ScrollView
+        contentContainerStyle={styles.mainScroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => loadQuestions(true)}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
+      >
+        {phase === "loading" && !refreshing && (
+          <View style={styles.statusBox}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>
+              Loading revision questions...
+            </Text>
+          </View>
+        )}
+
+        {phase === "error" && (
+          <View style={styles.statusBox}>
+            <Ionicons
+              name="alert-circle-outline"
+              size={48}
+              color={colors.danger}
+            />
+            <Text style={styles.errorText}>Something went wrong</Text>
+            <Text style={styles.errorSubtext}>{errorMsg}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => loadQuestions()}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="refresh" size={16} color="#FFFFFF" />
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {phase === "empty" && (
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIconCircle}>
+              <Ionicons
+                name="checkmark-done"
+                size={28}
+                color={colors.success}
+              />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {cache?.status === "completed"
+                ? "Today's Revision Complete!"
+                : "You're all caught up!"}
+            </Text>
+            <Text style={styles.emptySubtext}>
+              {cache?.status === "completed"
+                ? "Great work! You have finished all scheduled questions for today."
+                : "No questions scheduled for revision today.\nCheck back tomorrow."}
+            </Text>
+            {cache?.status === "completed" && scoreResult && (
+              <TouchableOpacity
+                style={styles.reviewResultsBtn}
+                onPress={() => setPhase("results")}
+                activeOpacity={0.8}
+              >
+                <Ionicons
+                  name="stats-chart-outline"
+                  size={15}
+                  color="#FFFFFF"
+                />
+                <Text style={styles.reviewResultsBtnText}>
+                  Review Today's Results
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {phase === "ready" && (
+          <View style={styles.availableSection}>
+            <Text style={styles.sectionLabel}>AVAILABLE REVISION</Text>
+
+            {/* Compact Rectangular Tab */}
+            <TouchableOpacity
+              style={styles.revisionTab}
+              onPress={handleStartQuiz}
+              activeOpacity={0.75}
+            >
+              {/* Left Icon Badge */}
+              <View
+                style={[
+                  styles.tabIconBadge,
+                  isOngoing
+                    ? styles.tabIconBadgeProgress
+                    : styles.tabIconBadgeDue,
+                ]}
+              >
+                <Ionicons
+                  name={isOngoing ? "play" : "book-outline"}
+                  size={18}
+                  color={isOngoing ? "#F59E0B" : colors.primary}
+                />
+              </View>
+
+              {/* Middle Details */}
+              <View style={styles.tabContent}>
+                <View style={styles.tabHeaderRow}>
+                  <Text style={styles.tabTitle} numberOfLines={1}>
+                    {isOngoing ? "Revision in Progress" : "Daily Revision"}
+                  </Text>
+                  <View
+                    style={[
+                      styles.tabStatusBadge,
+                      isOngoing
+                        ? styles.statusBadgeProgress
+                        : styles.statusBadgeDue,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tabStatusBadgeText,
+                        isOngoing
+                          ? styles.statusTextProgress
+                          : styles.statusTextDue,
+                      ]}
+                    >
+                      {isOngoing ? "In Progress" : "Due Today"}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text style={styles.tabSubtitle} numberOfLines={1}>
+                  {isOngoing
+                    ? `Q${currentIndex + 1} of ${questionList.length} • ${formatTimer(totalTimeLeft)} left`
+                    : `${questionList.length} Questions • ~${Math.max(1, Math.round(questionList.length * 1.5))} mins`}
+                </Text>
+
+                {isOngoing && (
+                  <View style={styles.tabProgressBarBg}>
+                    <View
+                      style={[
+                        styles.tabProgressBarFill,
+                        {
+                          width: `${Math.round(
+                            (currentIndex / Math.max(1, questionList.length)) *
+                              100,
+                          )}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                )}
+              </View>
+
+              {/* Right Action Button */}
+              <View style={styles.tabActionWrapper}>
+                <View style={styles.tabActionBtn}>
+                  <Text style={styles.tabActionBtnText}>
+                    {isOngoing ? "Resume" : "Start"}
+                  </Text>
+                  <Ionicons name="arrow-forward" size={11} color="#FFFFFF" />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -562,29 +710,29 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       flex: 1,
       backgroundColor: colors.bg,
     },
-    titleBlock: {
+    headerContainer: {
       paddingHorizontal: 20,
       paddingTop: 12,
-      paddingBottom: 6,
+      paddingBottom: 8,
+      backgroundColor: colors.bg,
     },
-    title: {
+    headerTitle: {
       color: colors.text,
       fontSize: 26,
       fontWeight: "800",
-      letterSpacing: -0.3,
+      letterSpacing: -0.5,
     },
-    titleSubtext: {
+    headerSubtitle: {
       color: colors.textMuted,
       fontSize: 13,
-      fontWeight: "400",
-      marginTop: 4,
+      fontWeight: "500",
+      marginTop: 2,
     },
-    readyContentContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 32,
+    mainScroll: {
+      paddingHorizontal: 20,
+      paddingTop: 8,
       paddingBottom: 110, // clears the floating bottom tab bar
+      flexGrow: 1,
     },
     screenContainer: {
       flex: 1,
@@ -599,7 +747,12 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       padding: 32,
     },
 
-    // Loading
+    // Status / Loading
+    statusBox: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 60,
+    },
     loadingText: {
       color: colors.textMuted,
       fontSize: 14,
@@ -622,18 +775,190 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
 
     // Empty
+    emptyContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 24,
+      marginTop: 8,
+    },
+    emptyIconCircle: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: isDark
+        ? "rgba(16, 185, 129, 0.12)"
+        : "rgba(16, 185, 129, 0.1)",
+      borderWidth: 1,
+      borderColor: isDark
+        ? "rgba(16, 185, 129, 0.25)"
+        : "rgba(16, 185, 129, 0.2)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 12,
+    },
     emptyTitle: {
       color: colors.text,
-      fontSize: 22,
-      fontWeight: "800",
-      marginTop: 16,
+      fontSize: 17,
+      fontWeight: "700",
+      textAlign: "center",
     },
     emptySubtext: {
       color: colors.textMuted,
-      fontSize: 14,
+      fontSize: 12.5,
+      lineHeight: 19,
       textAlign: "center",
-      marginTop: 8,
-      lineHeight: 22,
+      marginTop: 4,
+    },
+    reviewResultsBtn: {
+      marginTop: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 9,
+      borderRadius: 10,
+    },
+    reviewResultsBtnText: {
+      color: "#FFFFFF",
+      fontSize: 13,
+      fontWeight: "700",
+    },
+
+    // Available Section & Rectangular Tab
+    availableSection: {
+      marginTop: 2,
+    },
+    sectionLabel: {
+      color: colors.textTertiary,
+      fontSize: 10.5,
+      fontWeight: "700",
+      letterSpacing: 0.8,
+      marginBottom: 8,
+      textTransform: "uppercase",
+    },
+    revisionTab: {
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.cardBorder,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.25 : 0.06,
+      shadowRadius: 5,
+      elevation: 2,
+    },
+    tabIconBadge: {
+      width: 36,
+      height: 36,
+      borderRadius: 9,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    tabIconBadgeDue: {
+      backgroundColor: isDark
+        ? "rgba(59, 130, 246, 0.15)"
+        : "rgba(37, 99, 235, 0.1)",
+      borderWidth: 1,
+      borderColor: isDark
+        ? "rgba(59, 130, 246, 0.25)"
+        : "rgba(37, 99, 235, 0.2)",
+    },
+    tabIconBadgeProgress: {
+      backgroundColor: isDark
+        ? "rgba(245, 158, 11, 0.15)"
+        : "rgba(217, 119, 6, 0.1)",
+      borderWidth: 1,
+      borderColor: isDark
+        ? "rgba(245, 158, 11, 0.25)"
+        : "rgba(217, 119, 6, 0.2)",
+    },
+    tabContent: {
+      flex: 1,
+    },
+    tabHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 6,
+    },
+    tabTitle: {
+      color: colors.text,
+      fontSize: 14,
+      fontWeight: "700",
+      flexShrink: 1,
+    },
+    tabStatusBadge: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 5,
+    },
+    statusBadgeDue: {
+      backgroundColor: isDark
+        ? "rgba(59, 130, 246, 0.15)"
+        : "rgba(37, 99, 235, 0.12)",
+    },
+    statusTextDue: {
+      color: isDark ? "#60A5FA" : "#2563EB",
+    },
+    statusBadgeProgress: {
+      backgroundColor: isDark
+        ? "rgba(245, 158, 11, 0.15)"
+        : "rgba(245, 158, 11, 0.12)",
+    },
+    statusTextProgress: {
+      color: isDark ? "#FBBF24" : "#D97706",
+    },
+    tabStatusBadgeText: {
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    tabSubtitle: {
+      color: colors.textMuted,
+      fontSize: 12,
+      fontWeight: "500",
+      marginTop: 2,
+    },
+    tabProgressBarBg: {
+      height: 3,
+      backgroundColor: isDark
+        ? "rgba(255, 255, 255, 0.08)"
+        : "rgba(0, 0, 0, 0.06)",
+      borderRadius: 1.5,
+      marginTop: 6,
+      overflow: "hidden",
+    },
+    tabProgressBarFill: {
+      height: "100%",
+      backgroundColor: "#F59E0B",
+      borderRadius: 1.5,
+    },
+    tabActionWrapper: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    tabActionBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 5.5,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3.5,
+    },
+    tabActionBtnText: {
+      color: "#FFFFFF",
+      fontSize: 11.5,
+      fontWeight: "700",
     },
 
     // Computing
@@ -677,7 +1002,9 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     timerProgress: {
       flex: 1,
       height: 4,
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.08)" : "rgba(37, 99, 235, 0.08)",
+      backgroundColor: isDark
+        ? "rgba(59, 130, 246, 0.08)"
+        : "rgba(37, 99, 235, 0.08)",
       borderRadius: 2,
       overflow: "hidden",
     },
@@ -694,139 +1021,35 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
 
     // Results
     resultsScroll: {
-      padding: 20,
+      paddingHorizontal: 20,
+      paddingTop: 10,
       paddingBottom: 40,
     },
-    resultsTitle: {
-      color: colors.text,
-      fontSize: 26,
-      fontWeight: "800",
-      marginBottom: 16,
-    },
-
-    // Score summary card
-    scoreSummaryCard: {
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      padding: 20,
+    resultsHeaderRow: {
+      flexDirection: "row",
       alignItems: "center",
-      marginBottom: 20,
+      justifyContent: "space-between",
     },
-    scoreValue: {
-      color: colors.text,
-      fontSize: 36,
-      fontWeight: "800",
+    doneBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 8,
     },
-    scoreMax: {
-      color: colors.textPlaceholder,
-      fontSize: 20,
-      fontWeight: "500",
+    doneBtnText: {
+      color: "#FFFFFF",
+      fontSize: 12.5,
+      fontWeight: "700",
     },
-    scoreLabel: {
-      color: colors.textMuted,
-      fontSize: 13,
-      fontWeight: "500",
-      marginTop: 4,
-    },
-
-    // Chart card
-    chartCard: {
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      padding: 24,
-      marginBottom: 24,
-    },
-
-    // Section title
     sectionTitle: {
       color: colors.text,
-      fontSize: 18,
-      fontWeight: "700",
-      marginBottom: 12,
-    },
-
-    // Ready / Start Screen
-    startCard: {
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      padding: 28,
-      alignItems: "center",
-      width: "100%",
-      maxWidth: 380,
-    },
-    startIconWrapper: {
-      width: 84,
-      height: 84,
-      borderRadius: 42,
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(37, 99, 235, 0.1)",
-      borderWidth: 1,
-      borderColor: isDark ? "rgba(59, 130, 246, 0.2)" : "rgba(37, 99, 235, 0.2)",
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: 20,
-    },
-    startTitle: {
-      color: colors.text,
-      fontSize: 22,
-      fontWeight: "800",
-      textAlign: "center",
-      marginBottom: 8,
-    },
-    startSubtitle: {
-      color: colors.textMuted,
-      fontSize: 14,
-      textAlign: "center",
-      lineHeight: 20,
-      marginBottom: 24,
-    },
-    startMetaContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: colors.cardSecondary,
-      borderRadius: 12,
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      marginBottom: 24,
-      width: "100%",
-    },
-    startMetaItem: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
-    },
-    startMetaDivider: {
-      width: 1,
-      height: 20,
-      backgroundColor: colors.border,
-      marginHorizontal: 16,
-    },
-    startMetaLabel: {
-      color: colors.textSecondary,
-      fontSize: 13,
-      fontWeight: "600",
-    },
-    startButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 14,
-      paddingVertical: 16,
-      paddingHorizontal: 24,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-      gap: 8,
-    },
-    startButtonText: {
-      color: "#FFFFFF",
       fontSize: 16,
       fontWeight: "700",
+      marginTop: 4,
+      marginBottom: 12,
     },
 
     // Retry Button

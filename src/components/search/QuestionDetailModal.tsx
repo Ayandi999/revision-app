@@ -137,29 +137,29 @@ export function QuestionDetailModal({
 
               {/* Segmented Horizontal SVG Bar */}
               <View style={styles.barContainer}>
-                <Svg width="100%" height={12} viewBox="0 0 100 12">
+                <Svg width="100%" height={8} viewBox="0 0 100 8">
                   <Defs>
                     <ClipPath id="barClip">
-                      <Rect x="0" y="0" width="100" height="12" rx="6" ry="6" />
+                      <Rect x="0" y="0" width="100" height="8" rx="4" ry="4" />
                     </ClipPath>
                   </Defs>
                   <G clipPath="url(#barClip)">
                     {/* Base Background Track */}
-                    <Rect x="0" y="0" width="100" height="12" fill={colors.border} />
+                    <Rect x="0" y="0" width="100" height="8" fill={colors.border} />
                     {totalAttempts > 0 && (
                       <>
                         <Rect
                           x="0"
                           y="0"
                           width={correctPercent}
-                          height="12"
+                          height="8"
                           fill="#10B981"
                         />
                         <Rect
                           x={correctPercent}
                           y="0"
                           width={incorrectPercent}
-                          height="12"
+                          height="8"
                           fill="#EF4444"
                         />
                       </>
@@ -212,7 +212,7 @@ export function QuestionDetailModal({
             {/* ── Section 2: Question Media & Taxonomy (Top) ──────────────── */}
             <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <View style={styles.sectionHeaderRow}>
-                <Ionicons name="help-circle" size={18} color={colors.primary} />
+                <Ionicons name="help-circle" size={16} color={colors.primary} />
                 <Text style={[styles.sectionHeading, { color: colors.text }]}>
                   Question {questionImages.length > 1 ? `(${questionImages.length} pages)` : ""}
                 </Text>
@@ -302,7 +302,7 @@ export function QuestionDetailModal({
             {/* ── Section 3: Solution & Answer (Below Question) ───────────── */}
             <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
               <View style={styles.sectionHeaderRow}>
-                <Ionicons name="bulb" size={18} color="#10B981" />
+                <Ionicons name="bulb" size={16} color="#10B981" />
                 <Text style={[styles.sectionHeading, { color: colors.text }]}>
                   Solution & Answer {solutionImages.length > 1 ? `(${solutionImages.length} pages)` : ""}
                 </Text>
@@ -318,7 +318,7 @@ export function QuestionDetailModal({
                 <Text style={[styles.answerHeaderLabel, { color: colors.textMuted }]}>Correct Answer</Text>
                 {question.questionType === "MCQ" && (
                   <View style={styles.optionPill}>
-                    <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+                    <Ionicons name="checkmark-circle" size={16} color="#10B981" />
                     <Text style={styles.optionPillText}>
                       Option {question.mcqAnswer ?? "—"}
                     </Text>
@@ -333,7 +333,7 @@ export function QuestionDetailModal({
                         <View key={opt} style={styles.optionPill}>
                           <Ionicons
                             name="checkmark-circle"
-                            size={16}
+                            size={14}
                             color="#10B981"
                           />
                           <Text style={styles.optionPillText}>Option {opt}</Text>
@@ -416,7 +416,7 @@ export function QuestionDetailModal({
             {question.personalNote ? (
               <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                 <View style={styles.sectionHeaderRow}>
-                  <Ionicons name="document-text" size={18} color={colors.warning} />
+                  <Ionicons name="document-text" size={16} color={colors.warning} />
                   <Text style={[styles.sectionHeading, { color: colors.text }]}>Personal Notes</Text>
                 </View>
                 <View
@@ -462,8 +462,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#27272A",
     backgroundColor: "#1C1B1B",
@@ -471,59 +471,59 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   subjectPill: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
     borderWidth: 1,
-    gap: 6,
+    gap: 5,
   },
   subjectDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
   },
   subjectText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
   },
   typeBadge: {
     backgroundColor: "#27272A",
     borderWidth: 1,
     borderColor: "#3F3F46",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 6,
   },
   typeBadgeText: {
     color: "#E2E8F0",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
   closeBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: "#27272A",
     alignItems: "center",
     justifyContent: "center",
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    gap: 16,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    gap: 10,
   },
   statsCard: {
     backgroundColor: "#202024",
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#2E2E34",
-    padding: 14,
-    gap: 12,
+    padding: 10,
+    gap: 8,
   },
   statsCardHeader: {
     flexDirection: "row",
@@ -537,26 +537,26 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     color: "#F8FAFC",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
   },
   stagePill: {
     backgroundColor: "rgba(59, 130, 246, 0.15)",
     borderColor: "rgba(59, 130, 246, 0.3)",
     borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
   stagePillText: {
     color: "#93C5FD",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "600",
   },
   barContainer: {
     width: "100%",
-    height: 12,
-    marginVertical: 2,
+    height: 8,
+    marginVertical: 1,
   },
   statsLegendRow: {
     flexDirection: "row",
@@ -566,11 +566,11 @@ const styles = StyleSheet.create({
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
   legendText: {
     color: "#94A3B8",
-    fontSize: 12,
+    fontSize: 11,
   },
   boldWhite: {
     color: "#FFFFFF",
@@ -578,44 +578,44 @@ const styles = StyleSheet.create({
   },
   noAttemptsText: {
     color: "#64748B",
-    fontSize: 12,
+    fontSize: 11,
     fontStyle: "italic",
     textAlign: "center",
   },
   revisionDateRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
     borderTopWidth: 1,
     borderTopColor: "#2A2A30",
-    paddingTop: 8,
+    paddingTop: 6,
   },
   revisionDateText: {
     color: "#94A3B8",
-    fontSize: 12,
+    fontSize: 11,
   },
   sectionContainer: {
     backgroundColor: "#202024",
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#2E2E34",
-    padding: 14,
-    gap: 10,
+    padding: 10,
+    gap: 8,
   },
   sectionHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
   sectionHeading: {
     color: "#F8FAFC",
-    fontSize: 15,
+    fontSize: 13.5,
     fontWeight: "700",
   },
   taxonomyChipsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 6,
+    gap: 4,
   },
   topicChip: {
     flexDirection: "row",
@@ -623,14 +623,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(56, 189, 248, 0.12)",
     borderColor: "rgba(56, 189, 248, 0.25)",
     borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    gap: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+    gap: 3,
   },
   topicChipText: {
     color: "#BAE6FD",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
   },
   subtopicChip: {
@@ -639,21 +639,21 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(20, 184, 166, 0.12)",
     borderColor: "rgba(20, 184, 166, 0.25)",
     borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    gap: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+    gap: 3,
   },
   subtopicChipText: {
     color: "#99F6E4",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
   },
   imageCardWrapper: {
     width: "100%",
-    height: 220,
+    height: 160,
     backgroundColor: "#161618",
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#333338",
     overflow: "hidden",
@@ -662,13 +662,13 @@ const styles = StyleSheet.create({
   multiImageStrip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingVertical: 4,
+    gap: 8,
+    paddingVertical: 2,
   },
   stripCard: {
-    width: 150,
-    height: 150,
-    borderRadius: 12,
+    width: 110,
+    height: 110,
+    borderRadius: 10,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1,
@@ -681,16 +681,16 @@ const styles = StyleSheet.create({
   },
   stripBadge: {
     position: "absolute",
-    bottom: 6,
-    left: 6,
+    bottom: 4,
+    left: 4,
     backgroundColor: "rgba(0, 0, 0, 0.75)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
   },
   stripBadgeText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
   },
   previewImage: {
@@ -699,42 +699,42 @@ const styles = StyleSheet.create({
   },
   tapToZoomBadge: {
     position: "absolute",
-    bottom: 8,
-    right: 8,
+    bottom: 6,
+    right: 6,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.72)",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    gap: 5,
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    gap: 4,
   },
   tapToZoomText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "500",
   },
   noImageNotice: {
-    paddingVertical: 24,
+    paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 4,
   },
   noImageText: {
     color: "#64748B",
-    fontSize: 13,
+    fontSize: 12,
   },
   answerCard: {
     backgroundColor: "#161618",
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 8,
     borderWidth: 1,
     borderColor: "#2E2E34",
-    gap: 8,
+    gap: 6,
   },
   answerHeaderLabel: {
     color: "#94A3B8",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -745,56 +745,56 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(16, 185, 129, 0.12)",
     borderColor: "rgba(16, 185, 129, 0.3)",
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    gap: 6,
     alignSelf: "flex-start",
   },
   optionPillText: {
     color: "#34D399",
-    fontSize: 14,
+    fontSize: 12.5,
     fontWeight: "700",
   },
   msqRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 6,
   },
   natBox: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#202024",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    gap: 6,
   },
   natLabel: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 11.5,
   },
   natValueText: {
     color: "#38BDF8",
-    fontSize: 15,
+    fontSize: 13.5,
     fontWeight: "700",
   },
   plainAnswerText: {
     color: "#64748B",
-    fontSize: 14,
+    fontSize: 13,
   },
   noteCard: {
     backgroundColor: "rgba(245, 158, 11, 0.08)",
     borderColor: "rgba(245, 158, 11, 0.2)",
     borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 8,
     borderLeftWidth: 3,
     borderLeftColor: "#F59E0B",
   },
   noteCardText: {
     color: "#FEF3C7",
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
   },
 });
