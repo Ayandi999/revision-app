@@ -1,11 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
 import {
-  FlatList,
   Modal,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -25,53 +23,54 @@ export function OnboardingModal() {
     setExamAndStream,
   } = useActiveExam();
 
-  const [step, setStep] = useState<1 | 2>(1);
+  const { colors, isDark } = useTheme();
+
   const [selectedExamId, setSelectedExamId] = useState<string>(currentExamId);
   const [selectedStreamId, setSelectedStreamId] = useState<string>(currentStreamId);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // Picker modal sheet states
+  const [isExamPickerOpen, setIsExamPickerOpen] = useState<boolean>(false);
+  const [isStreamPickerOpen, setIsStreamPickerOpen] = useState<boolean>(false);
 
   // Sync state whenever modal opens
   useEffect(() => {
     if (isModalOpen) {
-      setSelectedExamId(currentExamId);
-      setSelectedStreamId(currentStreamId);
-      setStep(1);
-      setSearchQuery("");
+      setSelectedExamId(currentExamId || EXAM_OPTIONS[0].id);
+      setSelectedStreamId(currentStreamId || EXAM_OPTIONS[0].streams[0].id);
+      setIsExamPickerOpen(false);
+      setIsStreamPickerOpen(false);
     }
   }, [isModalOpen, currentExamId, currentStreamId]);
 
-  const selectedExam = useMemo(
+  const selectedExam: ExamOption = useMemo(
     () => EXAM_OPTIONS.find((e) => e.id === selectedExamId) || EXAM_OPTIONS[0],
-    [selectedExamId]
+    [selectedExamId],
   );
 
-  const filteredStreams = useMemo(() => {
-    if (!selectedExam) return [];
-    if (!searchQuery.trim()) return selectedExam.streams;
-    const q = searchQuery.toLowerCase().trim();
-    return selectedExam.streams.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        (s.code && s.code.toLowerCase().includes(q))
-    );
-  }, [selectedExam, searchQuery]);
+  const selectedStream: StreamOption = useMemo(
+    () =>
+      selectedExam.streams.find((s) => s.id === selectedStreamId) ||
+      selectedExam.streams[0],
+    [selectedExam, selectedStreamId],
+  );
 
   const handleSelectExam = (exam: ExamOption) => {
     setSelectedExamId(exam.id);
-    // Pre-select first stream of that exam
     if (exam.streams.length > 0) {
       setSelectedStreamId(exam.streams[0].id);
     }
-    // If self study, can directly confirm or go to step 2
-    setStep(2);
+    setIsExamPickerOpen(false);
   };
 
-  const handleConfirm = async () => {
+  const handleSelectStream = (stream: StreamOption) => {
+    setSelectedStreamId(stream.id);
+    setIsStreamPickerOpen(false);
+  };
+
+  const handleContinue = async () => {
     if (!selectedExamId || !selectedStreamId) return;
     await setExamAndStream(selectedExamId, selectedStreamId);
   };
-
-  const { colors } = useTheme();
 
   if (!isModalOpen) return null;
 
@@ -82,29 +81,19 @@ export function OnboardingModal() {
       presentationStyle="fullScreen"
       onRequestClose={closeExamSwitcher}
     >
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={["top", "bottom", "left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.bg }]}
+        edges={["top", "bottom", "left", "right"]}
+      >
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <View style={styles.headerLeft}>
-            {step === 2 ? (
-              <TouchableOpacity
-                onPress={() => setStep(1)}
-                style={styles.backButton}
-                activeOpacity={0.7}
-              >
-                <Ionicons name="arrow-back" size={18} color={colors.text} />
-              </TouchableOpacity>
-            ) : null}
-            <View style={styles.titleTextCol}>
-              <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
-                {isOnboardingCompleted ? "PREFERENCES" : "WELCOME"}
-              </Text>
-              <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-                {step === 1
-                  ? "Which exam are you preparing for?"
-                  : `Select ${selectedExam.shortName} Stream`}
-              </Text>
-            </View>
+          <View style={styles.titleTextCol}>
+            <Text style={[styles.headerEyebrow, { color: colors.primary }]}>
+              {isOnboardingCompleted ? "PREFERENCES" : "WELCOME TO REVLOG"}
+            </Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              {isOnboardingCompleted ? "Change Target Exam" : "Choose Your Study Stream"}
+            </Text>
           </View>
 
           {isOnboardingCompleted && (
@@ -118,219 +107,365 @@ export function OnboardingModal() {
           )}
         </View>
 
-        {/* Content */}
-        <View style={styles.content}>
-          {step === 1 ? (
-            /* ── Step 1: Exam Selection (Scrollable) ─────────────────── */
-            <ScrollView
-              style={styles.stepOneScrollView}
-              contentContainerStyle={styles.stepOneScrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-                Choose your target examination to customize your syllabus, topics, and revision workflow.
-              </Text>
+        {/* Content Body */}
+        <ScrollView
+          style={styles.contentScroll}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+            Select your target exam and specific stream so we can tailor your syllabus, question bank, and spaced repetition schedules.
+          </Text>
 
-              <View style={styles.examGrid}>
+          {/* ─── DROPDOWN 1: Target Exam ─── */}
+          <View style={styles.dropdownSection}>
+            <Text style={[styles.dropdownLabel, { color: colors.text }]}>
+              1. Target Exam or Goal
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.dropdownCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: isExamPickerOpen ? colors.primary : colors.cardBorder,
+                },
+              ]}
+              activeOpacity={0.8}
+              onPress={() => setIsExamPickerOpen(true)}
+            >
+              <View
+                style={[
+                  styles.iconWrap,
+                  { backgroundColor: `${selectedExam.color}15` },
+                ]}
+              >
+                <Ionicons
+                  name={(selectedExam.icon as any) || "school-outline"}
+                  size={20}
+                  color={selectedExam.color}
+                />
+              </View>
+
+              <View style={styles.dropdownTextGroup}>
+                <View style={styles.dropdownTitleRow}>
+                  <Text style={[styles.dropdownTitle, { color: colors.text }]}>
+                    {selectedExam.name}
+                  </Text>
+                  <View
+                    style={[
+                      styles.shortBadge,
+                      { backgroundColor: `${selectedExam.color}20` },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.shortBadgeText, { color: selectedExam.color }]}
+                    >
+                      {selectedExam.shortName}
+                    </Text>
+                  </View>
+                </View>
+                <Text
+                  style={[styles.dropdownSubtitle, { color: colors.textMuted }]}
+                  numberOfLines={1}
+                >
+                  {selectedExam.description}
+                </Text>
+              </View>
+
+              <Ionicons
+                name="chevron-down"
+                size={18}
+                color={colors.textMuted}
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* ─── DROPDOWN 2: Stream / Subject Group ─── */}
+          <View style={styles.dropdownSection}>
+            <Text style={[styles.dropdownLabel, { color: colors.text }]}>
+              2. Specific Stream or Subjects
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.dropdownCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: isStreamPickerOpen ? colors.primary : colors.cardBorder,
+                },
+              ]}
+              activeOpacity={0.8}
+              onPress={() => setIsStreamPickerOpen(true)}
+            >
+              <View
+                style={[
+                  styles.iconWrap,
+                  { backgroundColor: `${selectedExam.color}15` },
+                ]}
+              >
+                <Ionicons
+                  name="book-outline"
+                  size={19}
+                  color={selectedExam.color}
+                />
+              </View>
+
+              <View style={styles.dropdownTextGroup}>
+                <View style={styles.dropdownTitleRow}>
+                  <Text style={[styles.dropdownTitle, { color: colors.text }]}>
+                    {selectedStream.name}
+                  </Text>
+                  {selectedStream.code && (
+                    <View
+                      style={[
+                        styles.shortBadge,
+                        { backgroundColor: `${selectedExam.color}15` },
+                      ]}
+                    >
+                      <Text
+                        style={[styles.shortBadgeText, { color: selectedExam.color }]}
+                      >
+                        {selectedStream.code}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <Text
+                  style={[styles.dropdownSubtitle, { color: colors.textMuted }]}
+                  numberOfLines={1}
+                >
+                  {selectedStream.description}
+                </Text>
+              </View>
+
+              <Ionicons
+                name="chevron-down"
+                size={18}
+                color={colors.textMuted}
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Stream summary info pill */}
+          <View
+            style={[
+              styles.infoPill,
+              {
+                backgroundColor: isDark ? "#161820" : "#F1F5F9",
+                borderColor: colors.borderSubtle,
+              },
+            ]}
+          >
+            <Ionicons name="sparkles" size={14} color={selectedExam.color} />
+            <Text style={[styles.infoPillText, { color: colors.textMuted }]}>
+              Syllabus topics will automatically calibrate for{" "}
+              <Text style={{ color: colors.text, fontWeight: "700" }}>
+                {selectedExam.shortName} • {selectedStream.name}
+              </Text>
+            </Text>
+          </View>
+        </ScrollView>
+
+        {/* Bottom CTA Button */}
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
+          <TouchableOpacity
+            style={[styles.continueButton, { backgroundColor: colors.primary }]}
+            activeOpacity={0.8}
+            onPress={handleContinue}
+          >
+            <Text style={styles.continueButtonText}>
+              {isOnboardingCompleted ? "Save Preferences" : "Get Started"}
+            </Text>
+            <Ionicons
+              name={isOnboardingCompleted ? "checkmark" : "arrow-forward"}
+              size={16}
+              color="#FFFFFF"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* ─── MODAL PICKER: Exam Selection ─── */}
+        <Modal
+          visible={isExamPickerOpen}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setIsExamPickerOpen(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setIsExamPickerOpen(false)}
+          >
+            <View
+              style={[
+                styles.sheetContent,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
+              onStartShouldSetResponder={() => true}
+            >
+              <View style={styles.sheetHeader}>
+                <Text style={[styles.sheetTitle, { color: colors.text }]}>
+                  Select Target Exam
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setIsExamPickerOpen(false)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="close" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
                 {EXAM_OPTIONS.map((exam) => {
-                  const isSelected = selectedExamId === exam.id;
+                  const isSelected = exam.id === selectedExamId;
                   return (
                     <TouchableOpacity
                       key={exam.id}
                       style={[
-                        styles.examCard,
-                        { backgroundColor: colors.card, borderColor: colors.cardBorder },
-                        isSelected && {
-                          borderColor: exam.color,
-                          backgroundColor: `${exam.color}15`,
+                        styles.pickerItem,
+                        {
+                          borderColor: isSelected ? exam.color : colors.borderSubtle,
+                          backgroundColor: isSelected ? `${exam.color}15` : "transparent",
                         },
                       ]}
                       onPress={() => handleSelectExam(exam)}
-                      activeOpacity={0.75}
+                      activeOpacity={0.7}
                     >
                       <View
                         style={[
-                          styles.iconWrapper,
-                          {
-                            backgroundColor: `${exam.color}18`,
-                            borderColor: `${exam.color}40`,
-                          },
+                          styles.iconWrapSmall,
+                          { backgroundColor: `${exam.color}20` },
                         ]}
                       >
                         <Ionicons
-                          name={exam.icon as any}
-                          size={20}
+                          name={(exam.icon as any) || "school-outline"}
+                          size={16}
                           color={exam.color}
                         />
                       </View>
-
-                      <View style={styles.examTextContainer}>
-                        <View style={styles.examTitleLine}>
-                          <Text style={[styles.examName, { color: colors.text }]} numberOfLines={1}>
-                            {exam.name}
-                          </Text>
-                          <View
-                            style={[
-                              styles.streamCountBadge,
-                              { backgroundColor: `${exam.color}18` },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.streamCountText,
-                                { color: exam.color },
-                              ]}
-                            >
-                              {exam.streams.length === 1
-                                ? "1 Category"
-                                : `${exam.streams.length} Streams`}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={[styles.examDesc, { color: colors.textMuted }]} numberOfLines={1}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.pickerItemTitle, { color: colors.text }]}>
+                          {exam.name}
+                        </Text>
+                        <Text
+                          style={[styles.pickerItemSubtitle, { color: colors.textMuted }]}
+                          numberOfLines={1}
+                        >
                           {exam.description}
                         </Text>
                       </View>
-
-                      <Ionicons
-                        name="chevron-forward"
-                        size={16}
-                        color={colors.textMuted}
-                      />
+                      {isSelected && (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color={exam.color}
+                        />
+                      )}
                     </TouchableOpacity>
                   );
                 })}
-              </View>
-            </ScrollView>
-          ) : (
-            /* ── Step 2: Stream / Category Selection ───────────────── */
-            <View style={styles.stepTwoWrapper}>
-              <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-                Select your specific discipline or category for{" "}
-                <Text style={{ color: selectedExam.color, fontWeight: "700" }}>
-                  {selectedExam.name}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
+        {/* ─── MODAL PICKER: Stream Selection ─── */}
+        <Modal
+          visible={isStreamPickerOpen}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setIsStreamPickerOpen(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setIsStreamPickerOpen(false)}
+          >
+            <View
+              style={[
+                styles.sheetContent,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
+              onStartShouldSetResponder={() => true}
+            >
+              <View style={styles.sheetHeader}>
+                <Text style={[styles.sheetTitle, { color: colors.text }]}>
+                  Select Stream for {selectedExam.shortName}
                 </Text>
-                .
-              </Text>
+                <TouchableOpacity
+                  onPress={() => setIsStreamPickerOpen(false)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="close" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
+              </View>
 
-              {/* Search bar for GATE (or large lists) */}
-              {selectedExam.streams.length > 4 && (
-                <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
-                  <Ionicons name="search-outline" size={18} color={colors.textMuted} />
-                  <TextInput
-                    style={[styles.searchInput, { color: colors.text }]}
-                    placeholder={`Search ${selectedExam.shortName} disciplines (e.g. CS, DA, Mechanical)...`}
-                    placeholderTextColor={colors.textPlaceholder}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    autoCapitalize="none"
-                    clearButtonMode="while-editing"
-                  />
-                  {searchQuery.length > 0 && (
-                    <TouchableOpacity onPress={() => setSearchQuery("")}>
-                      <Ionicons name="close-circle" size={18} color={colors.textMuted} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
-
-              <FlatList
-                data={filteredStreams}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.streamList}
-                showsVerticalScrollIndicator={false}
-                renderItem={({ item }) => {
-                  const isSelected = selectedStreamId === item.id;
+              <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
+                {selectedExam.streams.map((stream) => {
+                  const isSelected = stream.id === selectedStreamId;
                   return (
                     <TouchableOpacity
+                      key={stream.id}
                       style={[
-                        styles.streamItem,
-                        { backgroundColor: colors.card, borderColor: colors.cardBorder },
-                        isSelected && {
-                          borderColor: selectedExam.color,
-                          backgroundColor: `${selectedExam.color}18`,
+                        styles.pickerItem,
+                        {
+                          borderColor: isSelected ? selectedExam.color : colors.borderSubtle,
+                          backgroundColor: isSelected ? `${selectedExam.color}15` : "transparent",
                         },
                       ]}
-                      onPress={() => setSelectedStreamId(item.id)}
+                      onPress={() => handleSelectStream(stream)}
                       activeOpacity={0.7}
                     >
-                      <View style={styles.streamTextContainer}>
-                        {item.code ? (
-                          <View
-                            style={[
-                              styles.codeBadge,
-                              isSelected
-                                ? { backgroundColor: selectedExam.color }
-                                : { backgroundColor: colors.cardSecondary },
-                            ]}
-                          >
-                            <Text
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                          <Text style={[styles.pickerItemTitle, { color: colors.text }]}>
+                            {stream.name}
+                          </Text>
+                          {stream.code && (
+                            <View
                               style={[
-                                styles.codeBadgeText,
-                                isSelected ? { color: "#FFFFFF" } : { color: colors.text },
+                                styles.shortBadge,
+                                { backgroundColor: `${selectedExam.color}15` },
                               ]}
                             >
-                              {item.code}
-                            </Text>
-                          </View>
-                        ) : null}
+                              <Text
+                                style={[
+                                  styles.shortBadgeText,
+                                  { color: selectedExam.color },
+                                ]}
+                              >
+                                {stream.code}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
                         <Text
-                          style={[
-                            styles.streamName,
-                            { color: colors.textSecondary },
-                            isSelected && { color: colors.text, fontWeight: "700" },
-                          ]}
-                          numberOfLines={2}
+                          style={[styles.pickerItemSubtitle, { color: colors.textMuted }]}
                         >
-                          {item.name}
+                          {stream.description}
                         </Text>
                       </View>
-
-                      <View
-                        style={[
-                          styles.radioCircle,
-                          { borderColor: colors.border },
-                          isSelected && {
-                            borderColor: selectedExam.color,
-                            backgroundColor: selectedExam.color,
-                          },
-                        ]}
-                      >
-                        {isSelected && (
-                          <Ionicons name="checkmark" size={14} color="#FFFFFF" />
-                        )}
-                      </View>
+                      {isSelected && (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color={selectedExam.color}
+                        />
+                      )}
                     </TouchableOpacity>
                   );
-                }}
-                ListEmptyComponent={
-                  <View style={styles.emptyContainer}>
-                    <Text style={[styles.emptyText, { color: colors.textMuted }]}>No disciplines found</Text>
-                  </View>
-                }
-              />
+                })}
+              </ScrollView>
             </View>
-          )}
-        </View>
-
-        {/* Footer CTA */}
-        {step === 2 && (
-          <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
-            <TouchableOpacity
-              style={[
-                styles.confirmButton,
-                { backgroundColor: selectedExam.color },
-              ]}
-              onPress={handleConfirm}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.confirmButtonText}>
-                {isOnboardingCompleted ? "Save & Apply Syllabus" : "Confirm & Start Revising"}
-              </Text>
-              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        )}
+          </TouchableOpacity>
+        </Modal>
       </SafeAreaView>
     </Modal>
   );
@@ -339,7 +474,6 @@ export function OnboardingModal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121216",
   },
   header: {
     flexDirection: "row",
@@ -349,220 +483,169 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.06)",
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
   },
   titleTextCol: {
     flex: 1,
   },
-  backButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 12,
-  },
   headerEyebrow: {
-    color: "#64748B",
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
+    marginBottom: 2,
   },
   headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-    marginTop: 2,
+    fontSize: 20,
+    fontWeight: "700",
+    letterSpacing: -0.4,
   },
-  content: {
+  closeButton: {
+    padding: 6,
+    marginLeft: 12,
+  },
+  contentScroll: {
     flex: 1,
   },
-  stepOneScrollView: {
-    flex: 1,
-  },
-  stepOneScrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 36,
+  contentContainer: {
+    padding: 20,
+    gap: 18,
   },
   subtitle: {
-    color: "#94A3B8",
-    fontSize: 12.5,
+    fontSize: 13,
     lineHeight: 18,
-    marginBottom: 14,
   },
-  examGrid: {
-    gap: 10,
+  dropdownSection: {
+    gap: 7,
   },
-  examCard: {
+  dropdownLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginLeft: 2,
+  },
+  dropdownCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1A1A22",
     borderRadius: 14,
-    paddingHorizontal: 12,
+    borderWidth: 1.2,
     paddingVertical: 12,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.08)",
-    gap: 12,
+    paddingHorizontal: 14,
   },
-  iconWrapper: {
+  iconWrap: {
     width: 38,
     height: 38,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    marginRight: 12,
   },
-  examTextContainer: {
+  iconWrapSmall: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  dropdownTextGroup: {
     flex: 1,
-    gap: 3,
   },
-  examTitleLine: {
+  dropdownTitleRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
+    gap: 6,
   },
-  examName: {
-    color: "#FFFFFF",
+  dropdownTitle: {
     fontSize: 14.5,
     fontWeight: "700",
-    letterSpacing: -0.2,
-    flexShrink: 1,
   },
-  examDesc: {
-    color: "#94A3B8",
+  dropdownSubtitle: {
     fontSize: 11.5,
-    lineHeight: 15,
+    marginTop: 1.5,
   },
-  streamCountBadge: {
+  shortBadge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 6,
-    alignSelf: "flex-start",
+    borderRadius: 4,
   },
-  streamCountText: {
-    fontSize: 9.5,
+  shortBadgeText: {
+    fontSize: 10,
     fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 0.3,
   },
-  stepTwoWrapper: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  searchContainer: {
+  infoPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1A1A22",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 42,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.08)",
     gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 13,
-    height: "100%",
-  },
-  streamList: {
-    gap: 6,
-    paddingBottom: 24,
-  },
-  streamItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#1A1A22",
-    borderRadius: 10,
-    paddingVertical: 10,
     paddingHorizontal: 12,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.06)",
-  },
-  streamTextContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    flex: 1,
-    paddingRight: 10,
-  },
-  codeBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2.5,
-    borderRadius: 5,
-    minWidth: 32,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  codeBadgeText: {
-    fontSize: 10.5,
-    fontWeight: "800",
-  },
-  streamName: {
-    color: "#E2E8F0",
-    fontSize: 12.5,
-    fontWeight: "500",
-    flex: 1,
-    lineHeight: 17,
-  },
-  radioCircle: {
-    width: 20,
-    height: 20,
+    paddingVertical: 10,
     borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
+    borderWidth: 1,
+    marginTop: 4,
   },
-  emptyContainer: {
-    paddingVertical: 40,
-    alignItems: "center",
-  },
-  emptyText: {
-    color: "#64748B",
-    fontSize: 14,
+  infoPillText: {
+    fontSize: 11.5,
+    flex: 1,
+    lineHeight: 16,
   },
   footer: {
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingTop: 12,
+    paddingBottom: 16,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.06)",
-    backgroundColor: "#121216",
   },
-  confirmButton: {
+  continueButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    borderRadius: 14,
-    height: 50,
+    paddingVertical: 13,
+    borderRadius: 12,
   },
-  confirmButtonText: {
+  continueButtonText: {
     color: "#FFFFFF",
+    fontSize: 14.5,
+    fontWeight: "700",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  sheetContent: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 16,
+    maxHeight: "80%",
+  },
+  sheetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.08)",
+  },
+  sheetTitle: {
     fontSize: 15,
     fontWeight: "700",
+  },
+  pickerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
+  pickerItemTitle: {
+    fontSize: 13.5,
+    fontWeight: "600",
+  },
+  pickerItemSubtitle: {
+    fontSize: 11,
+    marginTop: 1,
   },
 });
