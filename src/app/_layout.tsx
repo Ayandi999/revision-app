@@ -15,6 +15,10 @@ import { ExamProvider } from "@/context/ExamContext";
 import { CloudSyncProvider } from "@/context/CloudSyncContext";
 import { OnboardingModal } from "@/components/OnboardingModal";
 
+import { initNotifications } from "@/services/notificationService";
+import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
+
 // Keep the splash screen visible until fonts are ready
 SplashScreen.preventAutoHideAsync();
 
@@ -29,8 +33,27 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
       // Run one-time migration to convert absolute image URIs to relative paths
       migrateToRelativePaths().catch(() => {});
+      // Initialize daily revision notifications
+      initNotifications().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    // Handle tap on initial notification when app is launched cold
+    const lastResponse = Notifications.getLastNotificationResponse();
+    if (lastResponse?.notification) {
+      router.push("/(tabs)/revision/revision");
+    }
+
+    // Handle notification interaction while app is running
+    const subscription = Notifications.addNotificationResponseReceivedListener(() => {
+      router.push("/(tabs)/revision/revision");
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   // Render centered logo on black background until fonts are loaded
   if (!fontsLoaded && !fontError) {

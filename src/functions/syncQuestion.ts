@@ -25,6 +25,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
 import { writeCache, type RevisionCache } from "./revisionQuestionFetch";
+import { onRevisionTestCompleted } from "@/services/notificationService";
 
 // ─── Revision Pattern ────────────────────────────────────────────────────────
 
@@ -227,6 +228,9 @@ export async function syncQuestionsToDB(
     syncedWithDb: true,
   };
   await writeCache(syncedCache);
+
+  // Clear pending evening reminder since test is now finished today
+  await onRevisionTestCompleted().catch(() => {});
 
   console.log(
     `[syncQuestionsToDB] Synced ${cachedQuestions.length} questions to DB.`,

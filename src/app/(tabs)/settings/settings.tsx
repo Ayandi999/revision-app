@@ -6,6 +6,7 @@ import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
 import { EXAM_OPTIONS } from "@/config/exams";
 import { GoogleDriveCard } from "@/components/settings/GoogleDriveCard";
+import { NotificationCard } from "@/components/settings/NotificationCard";
 import type { ThemeMode } from "@/constants/theme";
 
 const Settings = () => {
@@ -116,6 +117,12 @@ const Settings = () => {
         <View style={styles.section}>
           <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Cloud Backup</Text>
           <GoogleDriveCard />
+        </View>
+
+        {/* ─── Notifications Section ───────────────────────────── */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Notifications</Text>
+          <NotificationCard />
         </View>
 
         {/* ─── Target Exam Section ─────────────────────────────── */}
