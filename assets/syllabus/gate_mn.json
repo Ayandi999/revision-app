@@ -1,3 +1,158 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrices and Determinants",
+        "Inverse and Rank of matrix",
+        "Systems of linear equations",
+        "Eigen values and Eigen vectors"
+      ],
+      "Calculus": [
+        "Limit, continuity and differentiability",
+        "Partial Derivatives",
+        "Mean value theorems",
+        "Indeterminate forms and L' Hospital's rule",
+        "Maxima and minima",
+        "Taylor's theorem",
+        "Sequences and series",
+        "Fourier series"
+      ],
+      "Vector Calculus": [
+        "Gradient",
+        "Divergence and Curl",
+        "Line, surface and volume integrals",
+        "Stokes, Gauss and Green's theorems"
+      ],
+      "Differential Equations": [
+        "Linear and non-linear first order ODEs",
+        "Higher order linear ODEs with constant coefficients",
+        "Cauchy's and Euler's equations"
+      ],
+      "Probability and Statistics": [
+        "Probability: Joint, Conditional, Bayes' Theory",
+        "Descriptive Statistics",
+        "Sampling theory and hypothesis testing",
+        "Binomial, Poisson, exponential and normal distributions",
+        "Pearson Correlation and linear regression"
+      ],
+      "Numerical Methods": [
+        "Solutions of linear algebraic equations",
+        "Interpolation",
+        "Integration of trapezoidal and Simpson's rule",
+        "Single and multi-step methods for differential equations"
+      ]
+    },
+    "Mining Geology, Mine Development and Surveying": {
+      "Mining Geology": [
+        "Minerals, Rocks and their Origin, Classification, Ore Genesis",
+        "Structural Geology"
+      ],
+      "Mine Development": [
+        "Methods of access to deposits",
+        "Underground drivages",
+        "Drilling methods and machines",
+        "Explosives and initiation system, blasting tools, blast design practices",
+        "ground vibration"
+      ],
+      "Mine Surveying": [
+        "Levels and levelling, tacheometry, triangulation",
+        "Errors and adjustments",
+        "Correlation",
+        "Underground surveying",
+        "Curves and contouring",
+        "Photogrammetry",
+        "Theodolite, EDM, Total Station, GPS, Remote sensing and Astronomical survey"
+      ]
+    },
+    "Geomechanics and Ground Control": {
+      "Engineering Mechanics": [
+        "Equivalent force systems",
+        "Equations of equilibrium",
+        "Two dimensional frames and trusses",
+        "Friction forces",
+        "Particle kinematics and dynamics",
+        "Beam analysis"
+      ],
+      "Geomechanics": [
+        "Geo-technical properties of rocks",
+        "Rock mass classification",
+        "Instrumentations and in-situ stress measurement techniques",
+        "Theories of rock failure",
+        "Stress distribution around mine openings",
+        "Subsidence",
+        "Slope and Dump stability"
+      ],
+      "Ground Control": [
+        "Design of pillars and supporting systems",
+        "Mine filling",
+        "Strata Control"
+      ]
+    },
+    "Mining Methods and Machinery": {
+      "Mining Methods": [
+        "Surface mining: layout and haul road development, loading, transportation and mechanization, continuous mining systems",
+        "highwall mining",
+        "Underground coal mining: bord and pillar systems, longwall mining, thick seam mining methods",
+        "Underground metal mining: open, supported and caving stoping methods, stope mechanization, ore handling systems"
+      ],
+      "Mining Machinery": [
+        "Generation and transmission of mechanical, hydraulic and pneumatic power",
+        "Materials handling: wire ropes, haulages, conveyors, face and development machineries, hoisting systems, pumps",
+        "comminution methods and machinery, Rock-tool interaction and mechanical cutting"
+      ]
+    },
+    "Surface Environment, Mine Ventilation and Underground Hazards": {
+      "Surface Environment": [
+        "Air, water and soil pollution: Standards of quality, causes and dispersion of contamination and control",
+        "Noise pollution and control",
+        "Land reclamation",
+        "EIA"
+      ],
+      "Mine Ventilation": [
+        "Underground atmosphere",
+        "Heat load sources and thermal environment, air cooling",
+        "Mechanics of airflow, distribution, natural and mechanical ventilation",
+        "Mine fans and usage",
+        "Auxiliary ventilation",
+        "Ventilation survey and planning",
+        "Ventilation networks"
+      ],
+      "Underground Hazards": [
+        "Mine Gases, Methane drainage",
+        "Underground hazards from fires, explosions, dust and inundation",
+        "Rescue apparatus and practices",
+        "Safety management plan",
+        "Safety data analytics",
+        "Mine illumination",
+        "Mine legislation",
+        "Occupational health and safety"
+      ]
+    },
+    "Mineral Economics, Mine Planning, Systems Engineering": {
+      "Mineral Economics": [
+        "Mineral resource classification",
+        "Discounted cash flow analysis",
+        "Mine valuation",
+        "Mineral taxation"
+      ],
+      "Mine Planning": [
+        "Sampling methods, practices and interpretation",
+        "Reserve estimation techniques: Basics of geostatistics and quality control",
+        "Optimization of facility location",
+        "Mine planning and its components, Determination of mine size and mine life",
+        "Ultimate pit design",
+        "Grade-tonnage relationship, ore dilution, recovery and cut-off grade",
+        "Equipment Selection"
+      ],
+      "Systems Engineering": [
+        "Concepts of reliability",
+        "Reliability of simple systems",
+        "Maintainability and availability",
+        "Linear programming, transportation and assignment problems",
+        "Network analysis",
+        "Inventory models",
+        "Queuing theory"
+      ]
+    }
+  }
 }

@@ -1,3 +1,541 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Reasoning and Comprehension": {
+      "Reading Comprehension": [
+        "Comprehension of complex language material in short paragraphs",
+        "Answering passage-based questions"
+      ],
+      "Expression": [
+        "Stylistic aspects of short passages",
+        "Rhetorical aspects of short passages",
+        "Sentence corrections and modifications"
+      ],
+      "Analytical Reasoning": [
+        "Understanding relationships in statements or short passages",
+        "Drawing reasonable conclusions and inferences"
+      ],
+      "Logical Reasoning": [
+        "Critical evaluation of arguments",
+        "Predicting argument trajectories",
+        "Identifying main and supporting arguments",
+        "Predicting outcomes from premises"
+      ]
+    },
+    "Economics": {
+      "Microeconomics": [
+        "Theory of Consumer Behaviour: Cardinal and Ordinal Approach",
+        "Consumer Preferences and nature of utility functions",
+        "Marshallian and Hicksian demand functions",
+        "Duality Theorem",
+        "Slutsky equation and Comparative Statics",
+        "Homogeneous and Homothetic Utility Functions",
+        "Euler's Theorem",
+        "Theory of Revealed Preference: WARP and SARP",
+        "Theory of Production and Costs: Short-run and Long-run Analysis",
+        "Market Equilibrium: Walrasian and Marshallian Stability Analysis",
+        "The Cobweb Model",
+        "Decision making under uncertainty and risk",
+        "Asymmetric Information: Adverse Selection and Moral Hazard",
+        "Theory of Agency costs",
+        "The Theory of Search",
+        "Non-Cooperative Games: Constant sum game, Mixed & Pure Strategy",
+        "Bayesian Nash Equilibrium, SPNE, and Perfect Bayesian Equilibria",
+        "Theory of Firm: Competitive and Non-competitive equilibria and efficiency properties",
+        "Structure-Conduct-Performance Paradigm",
+        "Factor Pricing: Marginal productivity Theory of Distribution",
+        "Theory of Employment in Imperfectly Competitive Markets (Monopolistic Exploitation)",
+        "General Equilibrium Analysis",
+        "Welfare Economics: Fundamental Theorems, Social Welfare Function, Pareto-Optimality"
+      ],
+      "Macroeconomics": [
+        "National Income Accounting: Closed and Open Economy Issues",
+        "Determination of output and employment: Classical and Keynesian Framework",
+        "Theories of Consumption: Absolute, Relative, Life Cycle, and Permanent Income Hypotheses",
+        "Robert Hall's Random Walk Model",
+        "Investment Function: Jorgenson's Neoclassical Theory of Capital Accumulation and Tobin's q",
+        "Keynesian Stabilization Policies, Autonomous Multipliers, and Investment Accelerator",
+        "Demand and Supply of Money, Components of Money Supply, Liquidity Preference, Liquidity Trap",
+        "Money Multiplier and Interest Rate determination",
+        "Central Banking: Objectives, Direct and Indirect Instruments of Monetary Policy",
+        "Prudential Regulation and Quantitative Easing",
+        "Commercial Banking and Non-Banking Financial Institutions",
+        "Capital Market and its Regulation",
+        "Theories of Inflation and Expectations Augmented Phillips Curve",
+        "Real Business Cycles",
+        "Adaptive Expectations Hypothesis and Rational Expectation Hypothesis",
+        "Closed Economy IS-LM Model",
+        "Mundell-Fleming Model: Monetary and Fiscal Policy Efficacy",
+        "The Impossible Trinity"
+      ],
+      "Statistics, Econometrics and Mathematical Economics": [
+        "Basic Probability Theory and Discrete/Continuous Distributions",
+        "Central Limit Theorem",
+        "Index Numbers and Construction of Price Indices",
+        "Sampling Methods and Sampling Distributions",
+        "Estimation and Hypothesis Testing",
+        "Simple Linear Regression Models and the Gauss-Markov Theorem",
+        "Multiple Regression Analysis",
+        "Heteroscedasticity, Multicollinearity, and Autocorrelation",
+        "Dummy Variable Regression",
+        "Simultaneous Equation Models (Recursive and Non-recursive) and Identification Problem",
+        "Time Series Dynamic Models and Models of Non-Stationarity",
+        "Spurious Regression",
+        "Univariate Time Series Analysis: AR, MA, ARMA",
+        "Multivariate Time Series Analysis: Cointegration, Error-correction, Causality, VAR",
+        "Differential Calculus and Static Optimization Problems",
+        "Linear Algebra: Matrices and Applications of Cramer's Rule",
+        "Input-Output Model",
+        "Linear Programming",
+        "Difference and Differential Equations with Economic Applications"
+      ],
+      "International Economics": [
+        "Theories of International Trade",
+        "International Trade under Imperfect Competition",
+        "Gains from Trade and Terms of Trade",
+        "Trade Multiplier",
+        "Tariff and Non-Tariff Barriers to Trade",
+        "Dumping and Anti-Dumping Policies",
+        "GATT, WTO, and Regional Trade Blocks",
+        "Balance of Payments: Composition, Equilibrium/Disequilibrium, and Adjustment Mechanisms",
+        "Foreign Exchange Market and Arbitrage",
+        "Exchange Rate Determination",
+        "International Monetary Fund (IMF) and World Bank"
+      ],
+      "Public Economics": [
+        "Market Failure: Asymmetric Information, Public Goods, Externalities",
+        "Regulation of Markets: Collusion and Consumers' Welfare",
+        "Public Revenue: Tax & Non-Tax Revenue, Direct & Indirect Taxes",
+        "Progressive and Non-Progressive Taxation, Incidence and Effects of Taxation",
+        "Public Expenditure",
+        "Public Debt and its Management",
+        "Public Budget and Budget Multiplier",
+        "Fiscal Policy and its Implications",
+        "Environment as a Public Good, Coase Theorem, and Cost-Benefit Analysis"
+      ],
+      "Development Economics": [
+        "Theories of Development: Smith, Ricardo, Marx, Schumpeter, Rostow",
+        "Balanced and Unbalanced Growth, Big Push Approach",
+        "Indicators of Economic Development: HDI, SDGs, MDGs",
+        "Poverty and Inequalities: Concepts and Measurement Issues",
+        "Social Sector Development: Health, Education, Gender, Fertility, Morbidity, Mortality, Migration, Child Labor",
+        "Age Structure and Demographic Dividend",
+        "Models of Economic Growth: Harrod-Domar, Solow, Ramsey",
+        "Technical Progress: Disembodied and Embodied",
+        "Endogenous Growth Models"
+      ],
+      "Indian Economy": [
+        "Pattern and Structure of Economic Growth in India",
+        "Sectoral Growth (Agriculture, Industry, Services): Challenges and Policies",
+        "Rural and Urban Development Issues",
+        "Flow of Foreign Capital and Trade Policies",
+        "Infrastructure Development (Physical and Social) and PPPs",
+        "Reforms in Land, Labour, and Capital Markets",
+        "Poverty, Inequality, and Unemployment in India",
+        "Functioning of Monetary Policy in India",
+        "Fiscal Policy, Receipts, Expenditure, and GST",
+        "Fiscal Federalism, Centre-State Financial Relations, Finance Commissions",
+        "Sustainability of Deficits, Public Debt, and FRBM Act 2003",
+        "Demonetization and Aftermath",
+        "India's Balance of Payments, Trade Composition, Export Competitiveness, and Exchange Rate Policy"
+      ]
+    },
+    "English": {
+      "Literary Forms, Genres, and Modes of Expression": [
+        "Poetry, drama, fiction (novels, short stories, graphic narratives) from Medieval to present",
+        "Creative non-fiction and nonfiction prose",
+        "History and evolution of literary genres and subgenres",
+        "Narrative and poetic techniques",
+        "Aesthetic and rhetorical strategies, figures of speech"
+      ],
+      "History of English Literature and Literary Studies": [
+        "English Literary Traditions: Chaucer to Contemporary English Literature",
+        "Anglophone literatures (British, American, Canadian, and Postcolonial)",
+        "Intersections of literature with political, social, and intellectual movements",
+        "Interdisciplinary literary studies (Sociology, Psychology, Philosophy, Environment)"
+      ],
+      "Comparative and World Literatures in English Translation": [
+        "Literatures in English translation (India and Global South)",
+        "Cross-cultural exchanges and impacts on literary traditions",
+        "Theoretical frameworks: Intertextuality, adaptation, interconnectedness, cosmopolitanism",
+        "Multilingualism, Translation Studies, and politics of language in literary production"
+      ],
+      "Critical Theories and Intellectual Traditions": [
+        "Structuralism, Marxism, Feminism, Existentialism, Poststructuralism",
+        "Modernism, Postmodernism, New Historicism, Postcolonialism, Posthumanism",
+        "Cultural Studies, Film and Media Studies, Memory and Trauma Studies",
+        "Dalit and Subaltern Studies, Environmental, Medical, and Digital Humanities",
+        "Classical Indian Poetics: Rasa, Dhvani, Vakrokti, Alamkara, Riti, Aucitya",
+        "Indigenous frameworks for literary interpretation"
+      ],
+      "Contemporary Literary Cultures and Research Methodologies": [
+        "Major literary awards, prizes, festivals, associations, and networks",
+        "Archival research and ethnographic methods in literary studies",
+        "Textual analysis and discourse analysis",
+        "AI-assisted and multimodal research approaches",
+        "Structuring research arguments, academic integrity, plagiarism checking, and citation ethics"
+      ]
+    },
+    "Linguistics": {
+      "Fundamental Concepts": [
+        "Nature of language: Spoken, written, and signed forms",
+        "Descriptive vs. Prescriptive linguistics",
+        "Language and culture: Cultural heritage, personal/social identities",
+        "Linguistic determinism and relativity (Sapir-Whorf)",
+        "Science of Language: Design features, levels of adequacy of grammars",
+        "Creativity and productivity in language",
+        "Competence vs. Performance (Knowledge vs. Use)",
+        "History of Linguistics: European, American, and Indian Grammatical Traditions"
+      ],
+      "Phonetics and Phonology": [
+        "Speech production: Vocal tract, articulation, and phonation",
+        "Speech acoustics, perceptual cues, and auditory system",
+        "Sound systems and the International Phonetic Alphabet (IPA)",
+        "Phonemes, allophones, complementary vs. contrastive distribution",
+        "Tonal, segmental, and suprasegmental processes and representations",
+        "Distinctive features",
+        "Theories: Autosegmental, Generative, and Lexical Phonology",
+        "Prosodic morphology and Optimality Theory"
+      ],
+      "Morphology": [
+        "Morphemes, allomorphs, and morpheme types",
+        "Inflection vs. Derivation (Lexeme building processes)",
+        "Constraints on word formation",
+        "Lexical and structural ambiguity in words",
+        "Morphology-phonology interface",
+        "Mental lexicon",
+        "Theories: Distributed Morphology, Lexicalist vs. Paradigm-based approaches, Construction Morphology"
+      ],
+      "Syntax": [
+        "Basic syntactic units: Words, phrases, and clauses",
+        "Phrase Structure Rules and X-bar Theory",
+        "Diagnostics of structure and syntactic representations",
+        "Sub-modules: Theta theory, Case theory, Binding theory, Argument structure, Valency alternations",
+        "Syntax-morphology and Syntax-phonology interfaces",
+        "Structural and semantic ambiguity in sentences",
+        "Major syntactic theories: Generative Grammar (Minimalist Programme), LFG, HPSG",
+        "Universal Grammar, language acquisition problem, tacit vs. explicit knowledge",
+        "Core grammar vs. peripheral grammar",
+        "Cross-linguistic syntactic analysis"
+      ],
+      "Semantics and Pragmatics": [
+        "Compositionality and truth conditions",
+        "Basic propositional logic and quantifiers",
+        "Lexical semantics: Synonymy, antonymy, hyponymy",
+        "Propositional semantics: Paraphrase, entailment, contradiction",
+        "Syntax-semantics and Semantics-pragmatics interfaces",
+        "Speech act theory",
+        "Gricean Maxims and conversational implicatures",
+        "Presuppositions, deixis, and indexicals",
+        "Discourse analysis"
+      ],
+      "Historical Linguistics": [
+        "Sound change over time and sound laws (Grimm's Law, Verner's Law)",
+        "Grammaticalization and semantic shift",
+        "Comparative method and reconstruction of ancestral languages",
+        "Language contact and lexical/structural borrowing"
+      ],
+      "Sociolinguistics": [
+        "Language variation: Dialects, sociolects, and dialect geography",
+        "Pidgins, creoles, and creolization",
+        "Linguistic variables and co-variation along social dimensions",
+        "Communicative competence",
+        "Bilingualism and Multilingualism: Code-switching and code-mixing",
+        "Mother tongue and other tongues",
+        "Language policy and planning (especially in India)",
+        "Language endangerment (EGIDS), language loss, revitalization, and documentation",
+        "Minority and majority languages"
+      ],
+      "Typology and Universals": [
+        "Morphological typology: Agglutinative, isolating, fusional languages",
+        "Genetic classification and language family trees",
+        "Language universals and Greenberg's word order universals",
+        "Areal features of South Asian language families (Indo-Aryan, Dravidian, Austro-Asiatic, Tibeto-Burman)",
+        "Constitutional provisions for languages in India"
+      ],
+      "Methods of Analysis": [
+        "Linguistic data collection: Fieldwork, elicitation techniques, sampling, experiments",
+        "Quantitative (statistical) and qualitative analysis methods",
+        "Linguistic research ethics",
+        "Corpus linguistics: Development, annotation, types, and analysis"
+      ],
+      "Applied Linguistics": [
+        "Psycholinguistics: Speech acquisition, production, comprehension, language and brain",
+        "Computational Linguistics: Parsing, LLMs, NLP applications (speech recognition, sentiment analysis)",
+        "Second Language Acquisition (SLA): Principles, teaching methods, learning vs. acquisition",
+        "Clinical Linguistics: Language assessment, therapies, developmental and acquired language disorders"
+      ]
+    },
+    "Philosophy": {
+      "Classical Indian Philosophy": [
+        "Sankhya: Purusa, Prakrti, Gunas, Satkaryavada, Moksa (Kaivalya), Pramanas, Theory of Error",
+        "Yoga: Pramanas, Theory of Error, Isvara, Citta, Klesa, Astanga-yoga, Kaivalya",
+        "Nyaya: Pramanas, Hetvabhasa, Isvara, Asatkaryavada, Theory of Error, Navya-Nyaya",
+        "Vaisesika: Paratahpramanya, Padarthas (categories), Paramānuvada (Atomism)",
+        "Mimamsa: Dharma, Apurva, Moksa, Pramanas (Kumarila and Prabhakara), Anyathakhyati",
+        "Advaita Vedanta: Adhyasa, Brahman, Isvara, Atman, Jiva, Moksa, Pramanas",
+        "Visistadvaita: Tattva-traya, Moksa, Refutation of Mayavada, Pramanas",
+        "Dvaita, Dvaitadvaita, and Suddhadvaita systems",
+        "Carvaka: Pramana, Indian materialism, and Hedonism",
+        "Jainism: Pramanas, Syadvada, Anekantavada, Padartha, Jiva/Ajiva, Moksa, Mahavrata, Anuvrata",
+        "Buddhism: Ti-pitaka, Sarvastivada, Sautrantika, Madhyamika, Yogacara-Vijnanavada",
+        "Buddhist concepts: Panca-skandha, Anityavada, Anatman, Momentariness, Dependent Origination",
+        "Buddhist ethics/ideals: Two Truths, Tri-kaya, Sad-paramitas, Brahmaviharas, Pancasila, Bodhisattva, Upayakausalya",
+        "Upanisads: Pure Monism, Brahman and Atman, Panca-kosa, Para and Apara-vidya",
+        "Bhagavadgita & Dharmasastras: Dharma, Rta, Purusartha, Sreyas and Preyas, Varnasramadharma, Svadharma, Sadharana Dharma",
+        "Ethics of Gita: Rna, Yajna, Karma-yoga, Sthitaprajna, Lokasamgraha, Law of Karma",
+        "Kasmira Saivism: Pratyabhijna school, Siva and Sakti, Conception of Kriya",
+        "Saivasiddhanta: Pati, Sakti, Proofs for God's existence, Bondage and Liberation",
+        "Philosophical foundations of Vira Saivism, Saktism, and Vaisnavism"
+      ],
+      "Contemporary Indian Philosophy": [
+        "Swami Vivekananda: Practical Vedanta, Nature of Religion, Realisation of Immortality",
+        "Sri Aurobindo: Evolution, Mind and Supermind, Integral Yoga",
+        "Muhammad Iqbal: Self, God, Man and Superman, Intellect and Intuition",
+        "Rabindranath Tagore: Religion of Man, Ideas on Education, Concept of Nationalism",
+        "K. C. Bhattacharyya: Swaraj in Ideas, Concept of Philosophy, Subject as Freedom, Doctrine of Maya",
+        "S. Radhakrishnan: Intellect and Intuition, Idealist view of life, Universal Religion, Hindu view of life",
+        "J. Krishnamurti: Conception of thought, Freedom from the known, Analysis of self, Choiceless awareness",
+        "Mahatma Gandhi: Truth, Non-violence, Satyagraha, Swaraj, Critique of Modern Civilization (Hind Swaraj)",
+        "B. R. Ambedkar: Basic Features of Indian Constitution, Untouchability, Democracy",
+        "Daya Krishna: Three Myths about Indian Philosophy"
+      ],
+      "Classical and Modern Western Philosophy": [
+        "Pre-Socratic Philosophy: Thales, Anaxagoras, Anaximenes, Ionians, Pythagoras, Parmenides, Heraclitus, Democritus",
+        "Plato: Question of Being (Ousia), Forms/Ideas in Phaedo, Republic, Sophist",
+        "Aristotle: Matter (Hyle) and Form (Morphe), Metaphysics and Physics",
+        "Medieval Philosophy: Problem of evil and proofs of God (St. Augustine, St. Anselm, St. Thomas Aquinas)",
+        "Modern Metaphysics: Substance, Mind-Body Dualism, Parallelism, Pre-established Harmony",
+        "Modern Metaphysical Problems: Solipsism, Self, Personal Identity, Phenomena vs. Noumena, Absolute Idealism",
+        "Epistemology (Plato & Aristotle): Doxa, Episteme, Sophia, Dialectics, Causation",
+        "Rationalism: Descartes' Method of Doubt, Cogito Ergo Sum, Innate Ideas, Principle of Sufficient Reason",
+        "Empiricism: Locke's Grades of Knowledge, Berkeley's Immaterialism, Hume's Impressions/Ideas and Causality",
+        "Kant: Copernican Revolution, Forms of Sensibility, Synthetic a priori judgments",
+        "Hegel: Dialectics, Spirit, and Absolute Idealism",
+        "Epistemological Problems: The Gettier Problem and major responses",
+        "Normative & Meta-Ethics: Egoism, Altruism, Universalism, Subjectivism, Cultural Relativism, Intuitionism, Cognitivism",
+        "Moral Theories: Kantian Ethics (Categorical Imperative, Duty, Good Will), Utilitarianism (Bentham, Mill)",
+        "Applied & Professional Ethics: Care Ethics, Theories of Punishment, Corporate Governance, Bioethics (Euthanasia)",
+        "Environmental Ethics: Land Ethic (Leopold), Deep Ecology (Naess), Animal Rights (Singer)",
+        "Social and Political Philosophy: State & Justice in Plato/Aristotle, Social Contract (Hobbes, Locke, Rousseau)",
+        "Marxism: Dialectical Materialism, Alienation, Critique of Capitalism",
+        "Contemporary Political Theories: Rawls' Justice, Nozick's Libertarianism, Feminist Political Theory, Multiculturalism, Capability Approach",
+        "Classical Logic: Propositions, Categorical Syllogisms, Square of Opposition, Laws of Thought",
+        "Symbolic & Inductive Logic: Truth Tables, Propositional and Predicate Logic, Mill's Methods of Induction"
+      ],
+      "Contemporary Western Philosophy": [
+        "Frege: Sense and Reference",
+        "Logical Positivism: Verification Theory of Meaning, Elimination of Metaphysics",
+        "G. E. Moore: Defense of Common Sense, Proof of an External World",
+        "Bertrand Russell: Logical Atomism, Theory of Definite Descriptions, Refutation of Idealism",
+        "Wittgenstein: Picture Theory of Meaning, Language Games, Critique of Private Language, Forms of Life",
+        "Gilbert Ryle: Systematically Misleading Expressions, Critique of Cartesian Dualism",
+        "W. V. O. Quine: Two Dogmas of Empiricism",
+        "P. F. Strawson: Concept of Person",
+        "Edmund Husserl: Phenomenological Method, Intentionality, Phenomenological Reduction, Intersubjectivity",
+        "Martin Heidegger: Concept of Being (Dasein), Being-in-the-world",
+        "Jean-Paul Sartre: Types of Being, Freedom, Bad Faith",
+        "Maurice Merleau-Ponty: Perception and Embodied Consciousness",
+        "Pragmatism: William James (Meaning, Truth, Religious Experience) and John Dewey (Inquiry, Fallibilism)",
+        "Friedrich Nietzsche: Will to Power, Genealogy of Morals, Critique of Enlightenment, Overman",
+        "Richard Rorty: Critique of Representationalism",
+        "Jürgen Habermas: Communicative Rationality"
+      ]
+    },
+    "Psychology": {
+      "Research Methods and Statistics": [
+        "Philosophical worldviews and approaches to psychological research",
+        "Research designs: Quantitative, Qualitative, and Mixed Methods",
+        "Formulating research problems, variables, operational definitions, hypotheses, and sampling",
+        "Qualitative & Field methods: Interviews, Surveys, Observations, Focus groups, Case studies, Ethnography",
+        "Experimental methods: Lab experiments, Quasi-experiments, Field studies",
+        "Ethics in conducting and reporting psychological research",
+        "Descriptive statistics: Measures of Central Tendency and Dispersion",
+        "Normal Probability Curve and properties",
+        "Parametric vs. Non-parametric tests, Effect Size, and Power Analysis",
+        "Bivariate and Multivariate Correlation: Pearson r, Spearman rho, Partial and Multiple Correlation",
+        "Special Correlations: Biserial, Point-biserial, Tetrachoric, Phi coefficient",
+        "Simple and Multiple Linear Regression",
+        "Factor Analysis: Assumptions, extraction methods, rotation, and interpretation",
+        "Experimental designs: Factorial, Randomized Block, Repeated Measures, Single-subject, Cohort designs",
+        "Inferential statistics: ANOVA, MANOVA, ANCOVA"
+      ],
+      "Psychometrics": [
+        "Foundations of psychological measurement",
+        "Scale and item construction: Intelligence, performance, aptitude, and personality items",
+        "Item analysis procedures",
+        "Test standardization: Reliability, Validity, and Norms",
+        "Applications of testing in educational, counselling, clinical, and organizational settings"
+      ],
+      "Biological and Evolutionary Basis of Behaviour": [
+        "Heredity, evolution, natural selection, and genetics in behavior",
+        "Chromosomal anomalies and Nature-Nurture controversy (twin and adoption studies)",
+        "Nervous System: Brain structures and their functions",
+        "Neurons: Structure, types, neural impulse, and synaptic transmission",
+        "Neurotransmitters and their behavioral correlates",
+        "Hemispheric lateralization",
+        "Endocrine system: Glands, hormones, and behavioral regulation",
+        "Biological basis of motivation: Hunger, thirst, sleep, sex",
+        "Biological basis of emotion: Limbic system",
+        "Biological basis of memory",
+        "Invasive physiological methods: Lesion, degeneration, chemical, and microelectrode techniques",
+        "Non-invasive methods: EEG and neuroimaging scans"
+      ],
+      "Perception, Learning, Memory and Forgetting": [
+        "Sensation, sensory thresholds, and sensory adaptation",
+        "Sensory modalities: Vision, hearing, touch, pain, smell, taste, kinesthetic, vestibular",
+        "Attention and organizing principles of perception (Gestalt principles)",
+        "Depth perception and optical illusions",
+        "Learning theories: Classical conditioning, Operant conditioning, Social learning, Cognitive learning",
+        "Memory processes: Encoding, storage, and retrieval",
+        "Information processing models of memory",
+        "Retrieval from long-term memory and reconstructive memory",
+        "Theories of forgetting: Encoding failure, Interference theory, Trace decay theory"
+      ],
+      "Cognition": [
+        "Basic elements of thought: Concepts, Propositions, Imagery",
+        "Paradigms: Information processing approach and Ecological approach",
+        "Problem solving methods, strategies, obstacles, and metacognition",
+        "Decision-making heuristics and biases",
+        "Theories of Intelligence: Spearman, Thurstone, Jensen, Cattell, Gardner, Sternberg",
+        "Emotional Intelligence",
+        "Intelligence assessment and individual differences (heredity vs. environment)",
+        "Distinctions between intelligence, aptitude, and creativity"
+      ],
+      "Personality": [
+        "Psychoanalytic and Neo-Freudian theories of personality",
+        "Behaviourist and Social learning theories of personality",
+        "Cognitive and Humanistic theories of personality",
+        "Trait and Type theories of personality",
+        "Biological basis of personality",
+        "Methods of personality assessment"
+      ],
+      "Motivation, Emotion and Stress and Coping": [
+        "Motivation approaches: Instinct, Drive-reduction, Arousal, Incentive, Humanistic",
+        "Achievement motivation, Intrinsic motivation, Aggression, Curiosity and Exploration",
+        "Theories and physiology of emotion",
+        "Stress, stressors, and cognitive appraisal",
+        "Stress reactions: General Adaptation Syndrome (GAS) and physiological effects",
+        "Coping strategies: Problem-focused and Emotion-focused coping"
+      ],
+      "Social Psychology": [
+        "Social perception: Attribution, impression formation, social categorization, implicit theories",
+        "Social influence: Conformity, compliance, and obedience",
+        "Attitude formation, structure, and measurement",
+        "Attitude change, persuasion, and Cognitive Dissonance theory",
+        "Prejudice, stereotyping, and discrimination",
+        "Aggression, power, and prosocial behaviour",
+        "Belief systems, values, and group dynamics",
+        "Theories of intergroup relations and conflict resolution"
+      ],
+      "Development Across the Life Span": [
+        "Prenatal development: Genetics, chromosomes, DNA, teratogens",
+        "Physical, cognitive, and psychosocial development in infancy and childhood",
+        "Developmental milestones in adolescence and adulthood",
+        "Theories of moral development",
+        "Biological and psychological theories of aging"
+      ],
+      "Clinical Psychology and Organizational Behavior": [
+        "Conceptions of psychological disorders and psychopathology",
+        "Assessment and diagnosis: DSM classification and diagnostic tools",
+        "Psychotherapies: Psychodynamic, Humanistic/Experiential, Behavioural therapies",
+        "Cognitive Therapy and Rational Emotive Behavior Therapy (REBT)",
+        "Meditation-based therapies and Biological interventions",
+        "Organizational demographic and cultural diversity",
+        "Organizational culture, climate, and decision-making",
+        "Power, politics, and leadership theories/styles in organizations",
+        "Positive organizational behavior and performance management systems"
+      ],
+      "Applications of Psychology": [
+        "Applications of motivation and learning theories in school education",
+        "Counselling and educational guidance in schools",
+        "Applications in group dynamics and organizational settings",
+        "Environmental psychology: Personal space, crowding, and territoriality",
+        "Psychological interventions for mental health and wellbeing"
+      ]
+    },
+    "Sociology": {
+      "Sociological Theory": [
+        "Emile Durkheim: Social solidarity, social facts, religion, suicide, anomie, division of labour",
+        "Max Weber: Authority types, social action, Protestant ethic, bureaucracy, ideal types, methodology",
+        "Karl Marx: Class conflict, historical/dialectical materialism, capitalism, surplus value, alienation",
+        "Structural-Functionalism: Malinowski, Radcliffe-Brown, Talcott Parsons (AGIL), Robert Merton",
+        "Structuralism: Claude Lévi-Strauss (myths, structures)",
+        "Hermeneutic and Interpretative Traditions: G. H. Mead, Alfred Schutz (Phenomenology)",
+        "Harold Garfinkel (Ethnomethodology), Erving Goffman (Dramaturgy), Clifford Geertz (Thick Description)",
+        "Post-Modernism and Post-Structuralism: Bourdieu, Foucault, Habermas, Giddens, Frankfurt School",
+        "Conflict Theory: Ralf Dahrendorf, Lewis Coser, Louis Althusser",
+        "Indian Thinkers: Gandhi, Ambedkar, Radha Kamal Mukherjee, Ghurye, Srinivas, Karve, Desai, Beteille"
+      ],
+      "Research Methodology and Methods": [
+        "Philosophy of Science (Karl Popper and Thomas Kuhn)",
+        "Scientific method and epistemology in social sciences",
+        "Hermeneutic traditions, Etic vs. Emic approaches, Inductive vs. Deductive methods",
+        "Objectivity, reflexivity, ethics, and politics of social research",
+        "Research design: Data, documents, facts, concepts, theories, hypotheses, and objectives",
+        "Methodologies: Ethnography, Survey, Historical, Comparative, and Statistical methods",
+        "Data collection techniques: Sampling, Questionnaires, Schedules, Observation, Interviews, Case studies",
+        "Data interpretation, statistical analysis, and report writing"
+      ],
+      "Sociological Concepts": [
+        "Social structure, culture, networks, status, role, identity, community, and socialization",
+        "Diaspora, values, norms, rules, personhood, habitus, and agency",
+        "Power, authority, bureaucracy, self, and society",
+        "Social institutions: Marriage, family, kinship, economy, polity, religion, education, law",
+        "Social stratification: Caste, class, status, power, hierarchy, and inequality",
+        "Marginalization dimensions: Gender, sexuality, disability, race, tribe, and ethnicity",
+        "Social change: Evolution, diffusion, modernization, development, globalization",
+        "Social mobility: Sanskritization, Westernization, occupational and educational change"
+      ],
+      "Agrarian Sociology and Rural Transformation": [
+        "Rural and peasant society, caste-tribe distinction and continuum",
+        "Agrarian social structure and emergent class relations",
+        "Land ownership and agrarian relations",
+        "Decline of agrarian economy, de-peasantization, and agrarian change",
+        "Agrarian unrest and peasant movements",
+        "Feudalism and mode of production debates",
+        "Land reforms, Panchayati Raj, community development programmes",
+        "Green Revolution and agricultural change",
+        "Peasants and farmers movements in India"
+      ],
+      "Family, Marriage and Kinship": [
+        "Theoretical approaches: Structural-Functionalist, Alliance, and Cultural",
+        "Gender relations and power dynamics within households",
+        "Inheritance, succession, and authority patterns",
+        "Gender, sexuality, reproduction, and emotional life of families",
+        "Children, youth, and elderly in family systems",
+        "Emergent forms of family and changing marriage practices",
+        "Changing care and support systems",
+        "Family laws, domestic violence, crimes against women, and honour killings"
+      ],
+      "Indian Society and Sociology of India": [
+        "Colonial, Nationalist, and Indological perspectives (G. S. Ghurye)",
+        "Structural-Functional approach (M. N. Srinivas)",
+        "Dialectical approach (A. R. Desai)",
+        "Subaltern studies (Ranajit Guha)",
+        "Non-Brahmin perspectives (Jyotirao Phule, B. R. Ambedkar)",
+        "Feminist perspectives (Leela Dube, Sharmila Rege)",
+        "Institutions: Village, urban settings, household, kinship, and family",
+        "Tradition and Modernity debates (Srinivas, Yogendra Singh, Dipankar Gupta)",
+        "Agrarian studies in India (Andre Beteille, A. R. Desai, D. N. Dhanagare)",
+        "Social movements (T. K. Oommen), village studies, communalism, and secularism"
+      ],
+      "Social Movements": [
+        "Nature, definitions, characteristics, and relation to social change",
+        "Types: Reform, rebellion, revival, revolution, insurrection, counter-movements",
+        "Theories: Structural-Functional, Marxist, Resource Mobilization, New Social Movements",
+        "Indian movements: Peasant, labour, Dalit, women's, and environmental movements",
+        "Leadership, ideology, and social basis of collective action",
+        "Social movements, state relations, civil society, globalization debates, and citizenship"
+      ],
+      "Sociology of Development": [
+        "Definitions and development indices",
+        "Theories: Modernization (Liberal), Marxist, Dependency, and World Systems",
+        "Micro-politics of development: Maps, models, knowledge, and power",
+        "Subaltern movements, post-colonial development, decentralization, participatory approaches",
+        "Post-development perspectives (Arturo Escobar)",
+        "Alternative development paradigms and feminist critiques",
+        "Human development and development-induced displacement/dispossession"
+      ]
+    }
+  }
 }

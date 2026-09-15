@@ -88,9 +88,6 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
 
   const areaPath = `${linePath} L ${lastPoint.x} ${bottomY} L ${firstPoint.x} ${bottomY} Z`;
 
-  // Average line Y coordinate
-  const avgY = getY(avgSecs);
-
   // Y-axis grid marks
   const yMarks = [0, Math.round(yCeil / 2), yCeil];
 
@@ -193,28 +190,6 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
               </React.Fragment>
             );
           })}
-
-          {/* Average reference dashed line */}
-          <Line
-            x1={PADDING_LEFT}
-            y1={avgY}
-            x2={SVG_WIDTH - PADDING_RIGHT}
-            y2={avgY}
-            stroke={colors.primaryLight}
-            strokeWidth="1.2"
-            strokeDasharray="4, 4"
-            opacity={0.6}
-          />
-          <SvgText
-            x={SVG_WIDTH - PADDING_RIGHT}
-            y={avgY - 4}
-            fontSize="9.5"
-            fontWeight="700"
-            fill={colors.primary}
-            textAnchor="end"
-          >
-            avg ({avgSecs}s)
-          </SvgText>
 
           {/* Gradient area fill */}
           <Path d={areaPath} fill="url(#timeAreaGrad)" />

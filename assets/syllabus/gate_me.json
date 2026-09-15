@@ -1,3 +1,210 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "systems of linear equations",
+        "eigen values and eigen vectors"
+      ],
+      "Calculus": [
+        "Functions of single variable",
+        "limit, continuity and differentiability",
+        "mean value theorems",
+        "indeterminate forms",
+        "evaluation of definite and improper integrals",
+        "double and triple integrals",
+        "partial derivatives",
+        "total derivative",
+        "Taylor series (in one and two variables)",
+        "maxima and minima",
+        "Fourier series",
+        "gradient, divergence and curl",
+        "vector identities",
+        "directional derivatives",
+        "line, surface and volume integrals",
+        "applications of Gauss, Stokes and Green's theorems"
+      ],
+      "Differential Equations": [
+        "First order equations (linear and nonlinear)",
+        "higher order linear differential equations with constant coefficients",
+        "Euler-Cauchy equation",
+        "initial and boundary value problems",
+        "Laplace transforms",
+        "solutions of heat, wave and Laplace's equations"
+      ],
+      "Complex Variables": [
+        "Analytic functions",
+        "Cauchy-Riemann equations",
+        "Cauchy's integral theorem and contour integral formula",
+        "Taylor and Laurent series"
+      ],
+      "Probability and Statistics": [
+        "Definitions of probability",
+        "sampling theorems",
+        "conditional probability",
+        "mean, median, mode and standard deviation",
+        "random variables",
+        "binomial, Poisson and normal distributions"
+      ],
+      "Numerical Methods": [
+        "Numerical solutions of linear and non-linear algebraic equations",
+        "integration by trapezoidal and Simpson's rules",
+        "single and multi-step methods for ordinary differential equations"
+      ]
+    },
+    "Applied Mechanics and Design": {
+      "Engineering Mechanics": [
+        "Free-body diagrams and equilibrium",
+        "friction and its applications including rolling resistance, belt-pulley, brakes, clutches, screw jack, wedge, vehicles, etc.",
+        "plane trusses and frames",
+        "virtual work",
+        "kinematics and dynamics of rigid bodies in plane motion",
+        "impulse and momentum (linear and angular) and energy formulations"
+      ],
+      "Mechanics of Materials": [
+        "Stress and strain",
+        "elastic constants and their relationships",
+        "stress and strain components transformations in 2D",
+        "Mohr's circle for plane stress and plane strain",
+        "thin-walled pressure vessels",
+        "shear force and bending moment diagrams",
+        "bending and shear stresses",
+        "concept of shear centre",
+        "deflection of beams",
+        "torsion of circular shafts",
+        "Euler's theory of columns",
+        "energy methods",
+        "thermal stresses",
+        "strain gauges and rosettes",
+        "Mechanical properties of materials, toughness, hardness, impact strength"
+      ],
+      "Theory of Machines": [
+        "Displacement, velocity and acceleration analysis of plane mechanisms",
+        "dynamic analysis of linkages",
+        "cams",
+        "gears and gear trains",
+        "flywheels and governors",
+        "balancing of reciprocating and rotating masses",
+        "gyroscope"
+      ],
+      "Vibrations": [
+        "Free and forced vibration of linear systems with single and two degrees of freedom",
+        "damping estimation and effects",
+        "vibration isolation, transmissibility ratio",
+        "resonance",
+        "critical speeds of shafts",
+        "Control system, PID controller, transfer function"
+      ],
+      "Machine Design": [
+        "Design for static and dynamic loading",
+        "failure theories",
+        "fatigue strength and the S-N diagram",
+        "principles and design of machine elements such as bolted, riveted and welded joints",
+        "shafts, gears, belt drives, rolling and sliding contact bearings, brakes and clutches, springs"
+      ]
+    },
+    "Fluid Mechanics and Thermal Sciences": {
+      "Fluid Mechanics": [
+        "Fluid properties",
+        "fluid statics, forces on submerged bodies, stability of floating bodies",
+        "control-volume analysis of mass, momentum and energy",
+        "fluid acceleration",
+        "differential equations of continuity and momentum",
+        "concept of velocity potential",
+        "Bernoulli's equation",
+        "dimensional analysis",
+        "viscous flow of incompressible fluids, boundary layer, elementary turbulent flow, flow through pipes, head losses in pipes, bends and fittings",
+        "One dimensional high speed compressible fluid flow",
+        "flow through converging and converging-diverging nozzles"
+      ],
+      "Heat Transfer": [
+        "Modes of heat transfer",
+        "one dimensional heat conduction, resistance concept and electrical analogy, heat transfer through fins",
+        "unsteady heat conduction, lumped parameter system, thermal boundary layer, dimensionless parameters in free and forced convective heat transfer, heat transfer correlations for flow over flat plates and through pipes",
+        "boiling and condensation",
+        "effect of turbulence",
+        "heat exchanger performance, LMTD and NTU methods",
+        "radiative heat transfer, Stefan-Boltzmann law, Wien's displacement law, black and grey surfaces, view factors, radiation network analysis"
+      ],
+      "Thermodynamics": [
+        "Thermodynamic systems and processes",
+        "properties of pure substances, behaviour of ideal and real gases",
+        "zeroth, first and second laws of thermodynamics, calculation of work, heat, energy changes and entropy changes in various processes",
+        "application of first and second laws for analysis of closed and open systems",
+        "thermodynamic property charts and tables, availability and irreversibility",
+        "thermodynamic relations"
+      ],
+      "Applications": [
+        "Power Engineering: vapour and gas power cycles, concepts of regeneration and reheat",
+        "I.C. Engines: Air-standard Otto, Diesel and dual cycles",
+        "Basics of Combustion: Air- Fuel Ratio, Equivalence Ratio",
+        "Refrigeration and air-conditioning: Vapour and gas refrigeration and heat pump cycles, properties of moist air, psychrometric chart, basic psychrometric processes",
+        "Turbomachinery: Impulse and reaction principles, velocity diagrams, Pelton-wheel, Francis and Kaplan turbines, steam and gas turbines, Air and gas compressors, pumps and pump characteristics"
+      ]
+    },
+    "Materials, Manufacturing and Industrial Engineering": {
+      "Engineering Materials": [
+        "Crystal structure of common metals, phase diagrams, heat treatment",
+        "Properties and applications of engineering materials - metals and alloys, polymers, composites and ceramics",
+        "Engineering and true stress-strain diagrams"
+      ],
+      "Casting, Forming and Joining Processes": [
+        "Different types of casting processes",
+        "Patterns, moulds and core",
+        "Solidification and cooling, riser and gating design, casting defects",
+        "Plastic deformation and yield criteria",
+        "Hot working and cold working",
+        "Principles of bulk forming and sheet forming processes and estimation of load in these processes",
+        "Fundamentals of powder metallurgy and its applications",
+        "Principles of welding, brazing, soldering",
+        "Solid-state welding processes, adhesive bonding",
+        "Non-destructive testing methods"
+      ],
+      "Machining and Machine Tool Operations": [
+        "Basic machining operations and machine tools",
+        "Single-point and multipoint cutting tools",
+        "Geometry of single-point turning tools ASA and ORS systems",
+        "Mechanics of machining",
+        "Cutting tool materials, tool life and tool wear",
+        "Economics of machining",
+        "Abrasive machining processes",
+        "Principles and applications of non-traditional machining processes",
+        "Principles of work holding, jigs and fixtures"
+      ],
+      "Additive Manufacturing": [
+        "Principles of different types of additive manufacturing processes for engineering materials",
+        "Additively manufactured products - advantages, limitations, and applications"
+      ],
+      "Metrology and Inspection": [
+        "Limits, fits and tolerances",
+        "Linear and angular measurements",
+        "Comparators",
+        "Interferometry",
+        "Form and finish measurement",
+        "Alignment and testing methods",
+        "Tolerance analysis in manufacturing and assembly",
+        "Principle of coordinate- measuring machine (CMM)"
+      ],
+      "Computer Aided Manufacturing and Automation": [
+        "Basic concepts of CAD/CAM and their integration tools",
+        "NC/CNC machines and CNC programming",
+        "Pneumatic, electro-pneumatic, and hydraulic actuators for automation",
+        "Programmable logic controllers"
+      ],
+      "Production Planning and Control": [
+        "Work study, Productivity, Forecasting models, Aggregate production planning, Scheduling, Materials requirement planning, Six sigma, Lean manufacturing",
+        "Inventory Control - deterministic models, safety stock, inventory control systems",
+        "Quality and reliability concepts for product lifecycle analysis"
+      ],
+      "Operations Research": [
+        "Linear programming",
+        "Simplex method",
+        "Transportation",
+        "Assignment",
+        "Network flow models",
+        "Simple queuing models",
+        "PERT and CPM"
+      ]
+    }
+  }
 }

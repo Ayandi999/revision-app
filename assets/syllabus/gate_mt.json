@@ -1,3 +1,238 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrices and determinants",
+        "systems of linear equations",
+        "eigenvalues and eigenvectors"
+      ],
+      "Calculus": [
+        "Limit, continuity and differentiability",
+        "partial derivatives",
+        "maxima and minima",
+        "sequences and series",
+        "test for convergence",
+        "Fourier series"
+      ],
+      "Vector Calculus": [
+        "Gradient, divergence and curl",
+        "line, surface and volume integrals",
+        "Gauss theorem"
+      ],
+      "Differential Equations": [
+        "Linear and non-linear first order ODEs",
+        "higher order linear ODEs with constant coefficients",
+        "Cauchy's and Euler's equations",
+        "PDEs - one dimensional heat and wave equations"
+      ],
+      "Probability and Statistics": [
+        "Definitions of probability",
+        "conditional probability",
+        "mean, median, mode and standard deviation",
+        "random variables",
+        "Poisson, normal and binomial distributions",
+        "analysis of experimental data",
+        "linear least squares method"
+      ],
+      "Numerical Methods": [
+        "Roots of linear and non-linear algebraic equations of single variable (bisection, secant, Newton- Raphson methods)",
+        "numerical integration (trapezoidal rule) and differentiation (Taylor series expansion)"
+      ]
+    },
+    "Metallurgical Thermodynamics": {
+      "Laws of Thermodynamics": [
+        "First law - energy conservation, Second law - entropy",
+        "enthalpy, Gibbs and Helmholtz free energy",
+        "Maxwell's relations",
+        "chemical potential",
+        "applications to metallurgical systems",
+        "solutions, ideal and regular solutions",
+        "Gibbs phase rule, phase equilibria, binary phase diagram and lever rule",
+        "free-energy vs. composition diagrams",
+        "equilibrium constant, activity, Ellingham and phase stability diagrams"
+      ],
+      "Electrochemistry": [
+        "Single electrode potential",
+        "electrochemical cells",
+        "Nernst equation",
+        "potential-pH diagrams"
+      ]
+    },
+    "Transport Phenomena and Rate Processes": {
+      "Momentum Transfer": [
+        "Concept of viscosity",
+        "shell balances",
+        "Bernoulli's equation",
+        "mechanical energy balance equation",
+        "flow past plane surfaces and through pipes"
+      ],
+      "Heat transfer": [
+        "Conduction - Fourier's Law, 1-D steady state conduction",
+        "convection",
+        "heat transfer coefficient and correlations",
+        "radiation",
+        "Stefan-Boltzmann Law",
+        "Kirchhoff's Law"
+      ],
+      "Mass Transfer": [
+        "Diffusion and Fick's laws, mass transfer coefficients and correlations"
+      ],
+      "Dimensional Analysis": [
+        "Significance of dimensionless numbers and their applications"
+      ],
+      "Basic Laws of Chemical Kinetics": [
+        "First order reactions",
+        "reaction rate constant",
+        "Arrhenius relation",
+        "heterogeneous reactions",
+        "oxidation kinetics"
+      ],
+      "Electrochemical Kinetics": ["Polarization"]
+    },
+    "Mineral Processing and Extractive Metallurgy": {
+      "Mineral Beneficiation and Extraction Principles": [
+        "Comminution",
+        "Size classification",
+        "Flotation, Gravity, magnetic and electrostatic separation methods of mineral beneficiation",
+        "Principles of pyro, hydro and electro metallurgy",
+        "unit processes for extraction of non-ferrous metals - aluminium, copper, titanium, zinc, and associated heat and material balance"
+      ],
+      "Ironmaking": [
+        "Thermodynamics of blast furnace ironmaking",
+        "heat and material balance in blast furnace",
+        "production of sinter, pellets, metallurgical coke and testing, alternative routes of iron making (rotary kiln, MIDREX, COREX)"
+      ],
+      "Primary Steel Making": [
+        "Structure and properties of slags",
+        "thermodynamics and kinetics of steelmaking",
+        "basic oxygen furnace and electric arc furnace steel making"
+      ],
+      "Secondary Steel Making": [
+        "Ladle process - deoxidation, degassing, argon stirring, desulphurization, inclusion shape control",
+        "basics of stainless steel manufacturing"
+      ],
+      "Continuous Casting": [
+        "Basics of continuous casting, casting defects, thin slab casting"
+      ]
+    },
+    "Physical Metallurgy": {
+      "Materials Characterisation": [
+        "X-ray Diffraction-Bragg's law",
+        "optical microscopy",
+        "imaging and spectroscopy in SEM"
+      ],
+      "Crystal Imperfections": [
+        "Point, line and surface defects",
+        "coherent, semi-coherent and incoherent interfaces"
+      ],
+      "Diffusion in Solids": [
+        "Atomic models for interstitial and substitutional diffusion",
+        "volume, surface and grain boundary diffusion, Kirkendall effect",
+        "uphill diffusion"
+      ],
+      "Phase Transformation": [
+        "Driving force",
+        "homogeneous and heterogeneous nucleation",
+        "growth kinetics",
+        "solidification in isomorphous, eutectic and peritectic systems",
+        "cast structures and macrosegregation",
+        "dendritic solidification and constitutional supercooling",
+        "coring and microsegregation"
+      ],
+      "Solid-state Transformations": [
+        "Precipitation",
+        "eutectoid transformation, diffusionless transformations",
+        "precipitate coarsening, Gibbs-Thomson effect",
+        "glass transition in ceramics and polymers"
+      ],
+      "Principles of heat treatment": [
+        "Heat treatment of steels",
+        "time-temperature-transformation (TTT) and continuous cooling transformation (CCT) diagrams",
+        "surface hardening",
+        "recovery, recrystallization and grain growth",
+        "heat treatment of cast irons and aluminium alloys"
+      ],
+      "Corrosion": ["Basic forms of corrosion and its prevention"]
+    },
+    "Mechanical Behaviour of Materials": {
+      "Elasticity and Plasticity": [
+        "Elasticity",
+        "strain tensor and stress tensor",
+        "representation by Mohr's circle",
+        "uniaxial tensile testing and stress-strain curves for metals, ceramics, and polymers",
+        "Tresca and von Mises yield criteria",
+        "plastic deformation by slip and twinning"
+      ],
+      "Dislocation Theory": [
+        "Edge, screw and mixed dislocations",
+        "sources and multiplication of dislocations",
+        "stress fields around dislocations",
+        "partial dislocations",
+        "dislocation interactions and reactions"
+      ],
+      "Strengthening Mechanisms": [
+        "Work/strain hardening, strengthening due to grain boundaries, solid solution, precipitation and dispersion"
+      ],
+      "Fracture behaviour": [
+        "Griffith theory",
+        "linear elastic fracture mechanics",
+        "fracture toughness",
+        "fractography",
+        "ductile to brittle transition",
+        "toughening mechanisms in ceramics"
+      ],
+      "Fatigue": ["Low and high cycle fatigue", "crack growth"],
+      "High Temperature deformation": [
+        "Mechanisms of high temperature deformation and failure",
+        "creep and stress rupture, stress exponent and activation energy"
+      ]
+    },
+    "Manufacturing Processes": {
+      "Metal Casting": [
+        "Mould design involving feeding, gating and risering, casting practices, casting defects"
+      ],
+      "Hot, Warm and Cold Working of Metals": [
+        "Metal forming fundamentals of metal forming processes of rolling, forging, extrusion, wire drawing and sheet metal forming",
+        "defects in forming"
+      ],
+      "Metal Joining": [
+        "Principles of soldering, brazing and welding",
+        "welding metallurgy, defects in welded joints in steels and aluminium alloys"
+      ],
+      "Powder Metallurgy": ["Production of powders, compaction and sintering"],
+      "Non-destructive Testing (NDT)": [
+        "Dye-penetrant, ultrasonic, radiography, eddy current, acoustic emission and magnetic particle inspection methods"
+      ]
+    },
+    "Materials Science and Non-Metallic Materials": {
+      "Structure and Classification": [
+        "Classification of engineering materials",
+        "chemical bonding- ionic, covalent, metallic and secondary bonding in materials",
+        "Structure of metals and alloys, ionic and covalent bonded solids and polymers"
+      ],
+      "Polymers": [
+        "Molecular weight",
+        "thermoplastics and thermosets",
+        "copolymers",
+        "crystallinity of polymers"
+      ],
+      "Ceramics": [
+        "Radius ratio and electroneutrality rules for determining crystal structure",
+        "Schottky and Frenkel defects, non-stoichiometric defects"
+      ],
+      "Composites": [
+        "Types of reinforcements and matrices",
+        "enhancement in modulus and strength",
+        "isostrain and isostress loading conditions"
+      ],
+      "Electronic Properties": [
+        "Band gap",
+        "Fermi energy",
+        "conductors, semiconductors and insulators"
+      ],
+      "Magnetic properties": [
+        "Magnetization and B-H curves, principles of ferro-, ferri-, antiferro-, para- and dia- magnetism"
+      ]
+    }
+  }
 }

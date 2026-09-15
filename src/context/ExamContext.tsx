@@ -30,6 +30,7 @@ interface ExamContextType {
   examTitle: string;
   streamTitle: string;
   shortBadge: string;
+  category?: string;
   isOnboardingCompleted: boolean;
   isLoading: boolean;
   isModalOpen: boolean;
@@ -120,6 +121,7 @@ export function ExamProvider({ children }: { children: React.ReactNode }) {
       examTitle: displayInfo.exam.name,
       streamTitle: displayInfo.stream.name,
       shortBadge: displayInfo.shortBadge,
+      category: displayInfo.category,
       isOnboardingCompleted,
       isLoading,
       isModalOpen,

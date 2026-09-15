@@ -1,3 +1,206 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "systems of linear equations",
+        "consistency and rank",
+        "eigenvalues and eigenvectors",
+        "tensors"
+      ],
+      "Calculus": [
+        "Functions, limits, continuity",
+        "differentiation, differentiability, partial derivatives, maxima and minima",
+        "integration, multiple integrals",
+        "vector algebra",
+        "line, surface and volume integrals",
+        "Stokes, Gauss and Green's theorems"
+      ],
+      "Differential Equations": [
+        "Ordinary differential equations",
+        "first order linear differential equations",
+        "second order linear differential equations with constant coefficients",
+        "method of variation of parameters",
+        "Cauchy's and Euler's equations",
+        "initial and boundary value problems",
+        "solution of partial differential equations: variable separable method"
+      ],
+      "Analysis of Complex Variables": [
+        "Analytic functions",
+        "Cauchy's integral theorem and integral formula",
+        "Taylor's and Laurent's series",
+        "residue theorem",
+        "solution of integrals"
+      ],
+      "Probability and Statistics": [
+        "Random variables",
+        "discrete and continuous distributions: normal, Poisson and Binomial distributions",
+        "Sampling from distributions",
+        "conditional probability and Bayes' theorem",
+        "mean, median, mode, standard deviation and variance"
+      ],
+      "Numerical Methods": [
+        "Solution of matrix equations",
+        "solutions of non-linear algebraic equations",
+        "iterative methods for solving differential equations",
+        "numerical integration",
+        "regression and correlation analysis",
+        "backpropagation for neural networks"
+      ]
+    },
+    "Electricity and Magnetism": {
+      "Electrostatics and Magnetostatics": [
+        "Coulomb's law",
+        "electric field intensity, electric flux density, Gauss' law",
+        "electric field and potential due to point, line, plane and spherical charge distributions",
+        "effect of dielectric medium, permittivity, capacitance",
+        "magnetic field intensity, magnetic flux density",
+        "Biot-Savart's law, Ampere's law, Faraday's law, Lorentz force",
+        "permeability, self and mutual inductance",
+        "electrical and magnetic dipoles",
+        "electromagnetic induction",
+        "magnetomotive force, reluctance, magnetic circuits, B-H curve",
+        "Maxwell's equations: vector, differential and integral forms"
+      ]
+    },
+    "Electrical Circuits and Machines": {
+      "Electrical Circuits": [
+        "Independent, dependent, ideal and practical sources",
+        "V-I characteristics of practical current and voltage sources, battery, solar cell, resistor, inductor, coupled inductor, capacitor",
+        "transient analysis of RC, RL, LC, RLC circuits",
+        "power and energy consumption, power rating of components, efficiency and losses",
+        "Kirchhoff's laws, mesh and nodal analysis, star-delta transformation",
+        "superposition, Thevenin's, Norton's, Miller's, maximum power transfer and reciprocity theorems",
+        "Peak, average and rms values of AC quantities",
+        "apparent, active and reactive powers, power factor",
+        "phasor analysis, impedance and admittance",
+        "series and parallel resonance, locus diagrams",
+        "realization of basic filters with R, L, and C elements",
+        "transient analysis of RLC circuits with AC excitation",
+        "Analysis of one-port and two-port networks with controlled voltage and current sources",
+        "driving point impedance and admittance, open and short circuit parameters"
+      ],
+      "Electrical Machines": [
+        "Single phase transformers",
+        "permanent magnet synchronous machines",
+        "buck and boost converters, rectifiers, single phase inverters",
+        "rotor position and speed sensing, current sensing",
+        "pulse width modulation (PWM) control"
+      ]
+    },
+    "Signals and Systems": {
+      "Signals and Transforms": [
+        "Periodic, aperiodic and impulse signals",
+        "sampling",
+        "Fourier series, Laplace, Fourier and z-transforms, DFT and FFT"
+      ],
+      "Systems Analysis": [
+        "continuous-time and discrete-time systems",
+        "transfer function, linear time invariant systems",
+        "impulse response, frequency response, pulse transfer function",
+        "convolution, correlation",
+        "basics of IIR and FIR filters"
+      ]
+    },
+    "Control Systems": {
+      "System Dynamics and Stability": [
+        "Feedback principles, role of sensing in feedback",
+        "signal flow graphs",
+        "transient response, steady state error",
+        "Bode plot, phase and gain margins",
+        "Routh and Nyquist criteria, root loci",
+        "state-space representation of systems",
+        "time-delay systems"
+      ],
+      "Actuators and Controllers": [
+        "Actuators for control system: control valves, servo valves, servo motors, stepper motors",
+        "on-off, P, PI, PID, cascade, feed forward, and ratio controllers",
+        "tuning of PID controllers",
+        "design of lead, lag and lead-lag compensators",
+        "basic concept of supervisory control",
+        "basics of distributed control system (DCS) and programmable logic controller (PLC)"
+      ]
+    },
+    "Analog Electronics": {
+      "Diodes and Transistors": [
+        "Types of diode and their applications",
+        "BJT and MOSFET circuits, biasing, power dissipation, DC analysis, small signal analysis",
+        "frequency response of transistor circuits",
+        "feedback, amplifier design"
+      ],
+      "Operational Amplifiers and Circuits": [
+        "Characteristics of ideal and practical operational amplifiers",
+        "applications of opamps: adder, subtractor, integrator, differentiator, difference amplifier, instrumentation amplifier, precision rectifier, active filters, comparators, Schmitt trigger, multivibrators, oscillators, signal generators, voltage-controlled oscillators and phase-locked loop"
+      ],
+      "Noise and Circuit Design": [
+        "Sources and effects of noise and interference in electronic circuits",
+        "conductively, capacitively, inductively coupled interference",
+        "noise generated by electronic components, thermal noise, shot noise, flicker noise",
+        "shielding and grounding",
+        "Basic principles of component selection based on specifications, circuit board realization and testing"
+      ]
+    },
+    "Digital Electronics": {
+      "Combinational and Sequential Logic": [
+        "Basics of number systems",
+        "Combinational logic circuits, multiplexer and demultiplexer, truth table, minimization of Boolean functions",
+        "IC families: ECL, TTL and CMOS, CMOS implementation of logic gates",
+        "arithmetic circuits, sequential circuits, finite state machines, flipflops, shift registers, timers and counters"
+      ],
+      "Data Converters and Embedded Systems": [
+        "Analog front end: analog multiplexer, programmable gain amplifier, sample-and-hold circuit",
+        "analog-to-digital converters (ADC) (successive approximation, integrating, flash and sigma-delta)",
+        "digital-to-analog converters (DAC) (weighted R, R-2R ladder and current steering logic)",
+        "characteristics and specifications of ADC and DAC (dynamic range, resolution, quantization, significant bits, conversion/settling time, INL, DNL, ENOB)",
+        "embedded systems: common microprocessors and microcontrollers, memory and input-output interfacing, embedded systems programming",
+        "basics of data acquisition systems, virtual instrumentation, IoT",
+        "basic AI applications in instrumentation (sensor linearization, system calibration and tuning, signal classification)"
+      ]
+    },
+    "Measurements": {
+      "Measurement Basics and Errors": [
+        "SI units, standards of basic electrical quantities (R, L, C, voltage, current and frequency)",
+        "systematic and random errors in measurement, expression of uncertainty, accuracy and precision, propagation of errors, linear and weighted regression"
+      ],
+      "Bridges and Meters": [
+        "bridges: Wheatstone, Kelvin, Maxwell, Anderson, Schering and Wien bridges for measurement of R, L, C and frequency",
+        "typical applications of bridges, Q-meter",
+        "megohm measurement",
+        "measurement of voltage, current and power in DC, single and three phase AC circuits",
+        "contact and noncontact type AC and DC current and voltage probes",
+        "true rms meters, voltage and current scaling, instrument transformers, timer/counter, time, phase and frequency measurements",
+        "digital voltmeter, digital multimeter, digital energy meter, digital storage oscilloscope, spectrum analyzer"
+      ]
+    },
+    "Sensors and Industrial Instrumentation": {
+      "Sensors and Signal Conditioning": [
+        "Resistive, capacitive, inductive, piezoelectric, electromagnetic and Hall effect sensors and associated signal conditioning circuits"
+      ],
+      "Industrial Transducers": [
+        "transducers for industrial instrumentation: displacement, velocity, acceleration (linear and angular), force, torque, vibration, shock",
+        "pressure (including low and high pressure)",
+        "flow (variable head, variable area, electromagnetic, ultrasonic, turbine flowmeters)",
+        "temperature (thermocouple, bolometer, 2, 3, 4 wire RTD, thermistor, pyrometer and semiconductor sensor)",
+        "liquid level, pH, conductivity and viscosity measurement"
+      ]
+    },
+    "Communication and Optical Instrumentation": {
+      "Communication Systems": [
+        "Amplitude and frequency modulation and demodulation",
+        "pulse code modulation",
+        "frequency and time division multiplexing",
+        "amplitude, phase, frequency, quadrature amplitude, pulse shift keying for digital modulation and demodulation",
+        "functional architectures of transmitters and receivers",
+        "instrument and sensor networks, 4-20 mA two-wire transmitter"
+      ],
+      "Optical Instrumentation": [
+        "Optical sources and detectors: LED, laser, photo-diode, light dependent resistor, square law detectors and their characteristics",
+        "interferometer: applications in metrology",
+        "basics of fiber optic sensing",
+        "Near-infrared (NIR) sensing",
+        "Ultraviolet-Visible (UV-VIS) spectrophotometers",
+        "mass spectrometer"
+      ]
+    }
+  }
 }

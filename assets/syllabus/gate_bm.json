@@ -1,3 +1,312 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "Systems of linear equations",
+        "Eigenvalues and Eigenvectors"
+      ],
+      "Calculus": [
+        "Mean value theorems",
+        "Theorems of integral calculus",
+        "Partial derivatives",
+        "Maxima and minima",
+        "Multiple integrals",
+        "Fourier series",
+        "Vector identities",
+        "Line integrals",
+        "Surface integrals",
+        "Volume integrals",
+        "Stokes theorem",
+        "Gauss theorem",
+        "Green's theorem"
+      ],
+      "Differential Equations": [
+        "First order linear differential equations",
+        "First order nonlinear differential equations",
+        "Higher order linear differential equations with constant coefficients",
+        "Method of separation of variables",
+        "Cauchy's equations",
+        "Euler's equations",
+        "Initial and boundary value problems",
+        "Solution of partial differential equations"
+      ],
+      "Analysis of Complex Variables": [
+        "Analytic functions",
+        "Cauchy's integral theorem",
+        "Cauchy's integral formula",
+        "Taylor's series",
+        "Laurent's series",
+        "Residue theorem"
+      ],
+      "Probability and Statistics": [
+        "Sampling theorems",
+        "Conditional probability",
+        "Mean",
+        "Median",
+        "Mode",
+        "Standard deviation",
+        "Random variables",
+        "Normal distribution",
+        "Poisson distribution",
+        "Binomial distribution",
+        "Tests of significance",
+        "Statistical power analysis",
+        "Sample size estimation",
+        "Linear regression",
+        "Correlation analysis"
+      ],
+      "Numerical Methods": [
+        "Matrix inversion",
+        "Numerical solutions of nonlinear algebraic equations",
+        "Iterative methods for solving differential equations",
+        "Numerical integration"
+      ]
+    },
+
+    "Electrical Circuits": {
+      "Circuit Fundamentals": [
+        "Voltage and current sources",
+        "Independent sources",
+        "Dependent sources",
+        "Ideal and practical sources",
+        "v-i relationships of resistor, inductor and capacitor"
+      ],
+      "Circuit Analysis": [
+        "Transient analysis of RLC circuits with DC excitation",
+        "Kirchhoff's laws",
+        "Superposition theorem",
+        "Thevenin theorem",
+        "Norton theorem",
+        "Maximum power transfer theorem",
+        "Reciprocity theorem"
+      ],
+      "AC Circuit Analysis": [
+        "Peak values of AC quantities",
+        "Average values of AC quantities",
+        "RMS values of AC quantities",
+        "Apparent power",
+        "Active power",
+        "Reactive power",
+        "Phasor analysis",
+        "Impedance",
+        "Admittance"
+      ],
+      "Resonance and Filters": [
+        "Series resonance",
+        "Parallel resonance",
+        "Basic filters using R, L and C elements",
+        "Bode plot"
+      ]
+    },
+
+    "Signals and Systems": {
+      "Continuous and Discrete Signals and Systems": [
+        "Periodic signals",
+        "Aperiodic signals",
+        "Impulse signals",
+        "Sampling theorem"
+      ],
+      "Transforms and System Analysis": [
+        "Laplace transforms",
+        "Fourier transforms",
+        "Impulse response of systems",
+        "Transfer function",
+        "Frequency response of first order linear time invariant systems",
+        "Frequency response of second order linear time invariant systems"
+      ],
+      "System Operations": ["Convolution", "Correlation"],
+      "Discrete-Time Systems": [
+        "Impulse response",
+        "Frequency response",
+        "DFT",
+        "Z-transform",
+        "Basics of IIR filters",
+        "Basics of FIR filters"
+      ]
+    },
+
+    "Analog and Digital Electronics": {
+      "Semiconductor Devices": [
+        "Basic characteristics of diode",
+        "Applications of diode",
+        "Basic characteristics of BJT",
+        "Applications of BJT",
+        "Basic characteristics of MOSFET",
+        "Applications of MOSFET"
+      ],
+      "Operational Amplifiers": [
+        "Difference amplifier",
+        "Adder",
+        "Subtractor",
+        "Integrator",
+        "Differentiator",
+        "Instrumentation amplifier",
+        "Buffer",
+        "Filters",
+        "Waveform generators"
+      ],
+      "Digital Electronics": [
+        "Number systems",
+        "Boolean algebra",
+        "Combinational logic circuits",
+        "Arithmetic circuits",
+        "Comparators",
+        "Schmitt trigger",
+        "Encoder and decoder",
+        "MUX and DEMUX",
+        "Multi-vibrators"
+      ],
+      "Data Conversion": ["Principles of ADC", "Principles of DAC"],
+      "Microprocessors": [
+        "Microprocessor architecture",
+        "Memory interfacing",
+        "Input-output device interfacing"
+      ]
+    },
+
+    "Measurements and Control Systems": {
+      "Measurement Fundamentals": [
+        "SI units",
+        "Systematic errors",
+        "Random errors",
+        "Expression of uncertainty",
+        "Accuracy index",
+        "Precision index",
+        "Propagation of errors"
+      ],
+      "Electrical Measuring Instruments": [
+        "PMMC instruments",
+        "MI instruments",
+        "Dynamometer type instruments",
+        "DC potentiometer",
+        "Bridges for measurement of resistance",
+        "Bridges for measurement of inductance",
+        "Bridges for measurement of capacitance",
+        "Q-meter"
+      ],
+      "Control Systems": ["Basics of control systems", "Transfer function"]
+    },
+
+    "Sensors and Bioinstrumentation": {
+      "Sensors": [
+        "Resistive sensors",
+        "Capacitive sensors",
+        "Inductive sensors",
+        "Piezoelectric sensors",
+        "Hall effect sensors",
+        "Electrochemical sensors",
+        "Optical sensors"
+      ],
+      "Signal Conditioning and LASER": [
+        "Sensor signal conditioning circuits",
+        "Application of LASER in sensing",
+        "Application of LASER in therapy"
+      ],
+      "Bio-potentials and Their Measurement": [
+        "Origin of bio-potentials",
+        "ECG",
+        "EEG",
+        "EMG",
+        "ERG",
+        "EOG",
+        "GSR",
+        "PCG"
+      ],
+      "Physiological Measurements": [
+        "Measurement of blood pressure",
+        "Measurement of body temperature",
+        "Measurement of volume in arteries, veins and tissues",
+        "Measurement of flow in arteries, veins and tissues",
+        "Respiratory measurements",
+        "Cardiac output measurement"
+      ],
+      "Medical Equipment": [
+        "Sphygmomanometer",
+        "Ventilator",
+        "Cardiac pacemaker",
+        "Defibrillator",
+        "Pulse oximeter",
+        "Hemodialyzer"
+      ],
+      "Safety and Isolation": [
+        "Electrical isolation",
+        "Optical isolation",
+        "Safety aspects of biomedical instruments",
+        "Regulatory aspects of biomedical instruments"
+      ]
+    },
+
+    "Mammalian Cell Biology, Human Anatomy and Physiology": {
+      "Cell Biology": [
+        "Basics of cell",
+        "Types of tissues",
+        "Organ systems",
+        "Homeostasis"
+      ],
+      "Organ Systems and Physiology": [
+        "Musculoskeletal system",
+        "Respiratory system",
+        "Circulatory system",
+        "Excretory system",
+        "Endocrine system",
+        "Nervous system",
+        "Gastro-intestinal system"
+      ]
+    },
+
+    "Medical Imaging Systems": {
+      "Medical Imaging Modalities": [
+        "Instrumentation and image formation in X-Ray",
+        "Instrumentation and image formation in Computed Tomography",
+        "Instrumentation and image formation in Single Photon Emission Computed Tomography",
+        "Instrumentation and image formation in Positron Emission Tomography",
+        "Instrumentation and image formation in Magnetic Resonance Imaging",
+        "Instrumentation and image formation in Ultrasound"
+      ]
+    },
+
+    "Biomechanics": {
+      "Musculoskeletal Biomechanics": [
+        "Kinematics of muscles and joints",
+        "Free-body diagrams",
+        "Equilibrium",
+        "Forces in joints",
+        "Stresses in joints",
+        "Biomechanical analysis of joints",
+        "Gait analysis"
+      ],
+      "Hard Tissues": [
+        "Definition of stress and strain",
+        "Structure of bone",
+        "Mechanical properties of bone",
+        "Cortical bones",
+        "Cancellous bones"
+      ],
+      "Soft Tissues": ["Structure", "Functions", "Material properties"]
+    },
+
+    "Biomaterials and Tissue Engineering": {
+      "Biomaterials": [
+        "Metallic biomaterials",
+        "Ceramic biomaterials",
+        "Polymeric biomaterials",
+        "Carbon-based biomaterials",
+        "Composite biomaterials"
+      ],
+      "Implants": ["Biocompatibility", "Bioactivity", "Biodegradability"],
+      "Tissue Engineering": ["Basics of tissue engineering"],
+      "Biomaterial Characterization": [
+        "Atomic Force Microscopy",
+        "Electron Microscopy",
+        "Fourier Transform Infrared Spectroscopy"
+      ],
+      "Scaffold Fabrication": ["Electrospinning", "3D Printing", "Bioprinting"],
+      "Advanced Biomedical Applications": [
+        "Artificial organs",
+        "Organoid",
+        "Organ-on-chip"
+      ]
+    }
+  }
 }

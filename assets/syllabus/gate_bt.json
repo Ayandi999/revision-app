@@ -1,3 +1,124 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrices and determinants",
+        "Systems of linear equations",
+        "Eigen values and Eigen vectors"
+      ],
+      "Calculus": [
+        "Multivariable calculus",
+        "Partial derivatives",
+        "Maxima and minima",
+        "Sequences and series",
+        "Test for convergence",
+        "Gradient, divergence, and curl"
+      ],
+      "Differential Equations": [
+        "Linear and nonlinear first order ODEs",
+        "Higher order ODEs with constant coefficients",
+        "Cauchy's and Euler's equations",
+        "Laplace transforms"
+      ]
+    },
+
+    "General Biology": {
+      "Biochemistry": [
+        "Biomolecules - structure and function",
+        "Biological membranes",
+        "Membrane channels and pumps",
+        "Molecular motors",
+        "Action potential and transport processes",
+        "Metabolism of carbohydrates, lipids, amino acids and nucleic acids",
+        "Glycolysis",
+        "Citric acid cycle",
+        "Fatty acid oxidation",
+        "Photosynthesis",
+        "Respiration and electron transport chain",
+        "Enzyme classification",
+        "Enzyme kinetics - Michaelis-Menten equation",
+        "Enzyme inhibition"
+      ],
+      "Microbiology": [
+        "History of Microbiology",
+        "Bacterial classification and diversity",
+        "Bacterial cell wall composition",
+        "Gram-positive and Gram-negative bacteria",
+        "Archaea",
+        "Methods in microbiology",
+        "Microbial growth and nutrition",
+        "Lac, Trp and Ara operons",
+        "Nitrogen fixation",
+        "Microbial diseases and host-pathogen interactions",
+        "Antibiotics and antimicrobial resistance",
+        "Two-component system",
+        "Bacterial communication",
+        "Viruses - structure and classification"
+      ],
+      "Immunology": [
+        "Primary and secondary lymphoid organs",
+        "Innate immunity and inflammation",
+        "Cytokines and chemokines",
+        "Complement system",
+        "Cellular and humoral immunity",
+        "Antibody diversity and function",
+        "Polyclonal and monoclonal antibodies",
+        "T-cell and B-cell development",
+        "Memory responses",
+        "Major Histocompatibility Complex",
+        "Antigen processing and presentation",
+        "Regulation of immune responses",
+        "Immune tolerance",
+        "Hypersensitivity",
+        "Autoimmunity and immunodeficiency",
+        "Graft vs Host disease",
+        "Immunization and vaccines"
+      ]
+    },
+
+    "Genetics, Cellular and Molecular Biology": {
+      "Genetics and Evolutionary Biology": [
+        "Mendelian inheritance",
+        "Gene interaction",
+        "Complementation",
+        "Linkage, recombination and chromosome mapping",
+        "Extra chromosomal inheritance",
+        "Microbial genetics",
+        "Bacterial gene mapping",
+        "Horizontal gene transfer and transposable elements",
+        "Chromosomal variation",
+        "Sex determination",
+        "Genetic disorders",
+        "Population genetics",
+        "Epigenetics",
+        "Selection and inheritance",
+        "Adaptive and neutral evolution",
+        "Genetic drift",
+        "Species and speciation"
+      ],
+      "Cell Biology": [
+        "Eukaryotic cell structure",
+        "Cell cycle and cell growth control",
+        "Cell-cell communication",
+        "Cell signalling and signal transduction",
+        "Non-cell autonomous cell signalling",
+        "Post-translational modifications",
+        "Protein trafficking",
+        "Cell death and autophagy",
+        "Extra-cellular matrix"
+      ],
+      "Molecular Biology": [
+        "Molecular structure of genes and chromosomes",
+        "Mutations and mutagenesis",
+        "Regulation of gene expression",
+        "DNA replication",
+        "Transcription",
+        "Splicing",
+        "Translation",
+        "Non-coding and micro RNA",
+        "RNA interference",
+        "DNA damage and repair"
+      ]
+    }
+  }
 }

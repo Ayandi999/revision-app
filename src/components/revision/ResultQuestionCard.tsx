@@ -286,7 +286,7 @@ export function ResultQuestionCard({
                     transition={200}
                   />
                   <View style={styles.zoomIconOverlay}>
-                    <Ionicons name="expand" size={14} color="#FFFFFF" />
+                    <Ionicons name="expand" size={12} color="#FFFFFF" />
                   </View>
                 </TouchableOpacity>
               ) : (
@@ -353,130 +353,131 @@ export function ResultQuestionCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#1E2028",
-    borderRadius: 16,
+    borderRadius: 13,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
-    marginBottom: 10,
+    marginBottom: 8,
   },
 
   // Header (collapsed view)
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 14,
-    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    gap: 8,
   },
   headerLeft: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
   },
   indexBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 8,
     borderWidth: 1.5,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.03)",
   },
   indexText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "800",
   },
   headerInfo: {
     flex: 1,
-    gap: 4,
+    gap: 2,
   },
   statusRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
   statusText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
   pointsText: {
     color: "#6B7280",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "500",
     marginLeft: 4,
   },
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
   metaText: {
     color: "#6B7280",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "400",
   },
   typePill: {
     backgroundColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 6,
+    paddingHorizontal: 5,
     paddingVertical: 1,
-    borderRadius: 6,
+    borderRadius: 5,
   },
   typePillText: {
     color: "#3B82F6",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
   },
 
   // Thumbnail
   thumbnailWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#1E2028",
     position: "relative",
   },
   thumbnail: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
   },
   thumbnailCountBadge: {
     position: "absolute",
     bottom: 2,
     right: 2,
     backgroundColor: "rgba(11, 12, 16, 0.85)",
-    borderRadius: 6,
-    paddingHorizontal: 4,
+    borderRadius: 5,
+    paddingHorizontal: 3,
     paddingVertical: 1,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.2)",
   },
   thumbnailCountText: {
     color: "#14B8A6",
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: "700",
   },
   thumbnailPlaceholder: {
-    width: 48,
-    height: 48,
+    width: 40,
+    height: 40,
     justifyContent: "center",
     alignItems: "center",
   },
   chevron: {
-    marginLeft: 4,
+    marginLeft: 2,
   },
 
   // Multi-image strip in expanded view
   multiImageStrip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingVertical: 4,
+    gap: 8,
+    paddingVertical: 2,
   },
   stripCard: {
-    width: 140,
-    height: 140,
-    borderRadius: 12,
+    width: 95,
+    height: 95,
+    borderRadius: 10,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1,
@@ -489,38 +490,40 @@ const styles = StyleSheet.create({
   },
   stripBadge: {
     position: "absolute",
-    bottom: 6,
-    left: 6,
+    bottom: 4,
+    left: 4,
     backgroundColor: "rgba(0, 0, 0, 0.75)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
   },
   stripBadgeText: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
   },
 
   // Expanded body
   expandedBody: {
-    padding: 14,
+    paddingHorizontal: 12,
+    paddingBottom: 10,
     paddingTop: 0,
-    gap: 16,
+    gap: 10,
   },
 
   // Answer comparison
   answerRow: {
     flexDirection: "row",
     backgroundColor: "#1c1b1b",
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: "hidden",
   },
   answerBlock: {
     flex: 1,
-    padding: 12,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
     alignItems: "center",
-    gap: 4,
+    gap: 2,
   },
   answerDivider: {
     width: 1,
@@ -528,19 +531,19 @@ const styles = StyleSheet.create({
   },
   answerLabel: {
     color: "#6B7280",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   answerValue: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "800",
   },
 
   // Solution section
   solutionSection: {
-    gap: 8,
+    gap: 5,
   },
   solutionHeaderRow: {
     flexDirection: "row",
@@ -549,26 +552,26 @@ const styles = StyleSheet.create({
   },
   solutionLabel: {
     color: "#94A3B8",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
   },
   tapToZoomBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 3,
     backgroundColor: "rgba(59, 130, 246, 0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
   tapToZoomText: {
     color: "#3B82F6",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
   },
   solutionImageWrapper: {
     backgroundColor: "#1E2028",
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
@@ -576,16 +579,16 @@ const styles = StyleSheet.create({
   },
   solutionImage: {
     width: "100%",
-    height: 300,
+    height: 160,
   },
   zoomIconOverlay: {
     position: "absolute",
-    bottom: 10,
-    right: 10,
+    bottom: 6,
+    right: 6,
     backgroundColor: "rgba(11, 12, 16, 0.75)",
-    borderRadius: 16,
-    width: 32,
-    height: 32,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
@@ -595,23 +598,24 @@ const styles = StyleSheet.create({
   // Notes section
   notesSection: {
     backgroundColor: "rgba(59, 130, 246, 0.06)",
-    borderRadius: 12,
-    padding: 12,
-    gap: 6,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    gap: 3,
   },
   notesHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
   notesLabel: {
     color: "#3B82F6",
-    fontSize: 13,
+    fontSize: 11.5,
     fontWeight: "600",
   },
   notesText: {
     color: "#D1D5DB",
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 17,
   },
 });

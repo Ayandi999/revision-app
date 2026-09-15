@@ -1,3 +1,453 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "Systems of linear equations",
+        "Eigenvalues and eigenvectors"
+      ],
+      "Calculus": [
+        "Functions of single variable",
+        "Limit, continuity and differentiability",
+        "Mean value theorems",
+        "Local maxima and minima",
+        "Taylor series",
+        "Evaluation of definite and indefinite integrals",
+        "Application of definite integral to obtain area and volume",
+        "Partial derivatives",
+        "Total derivative",
+        "Gradient, divergence and curl",
+        "Vector identities",
+        "Directional derivatives",
+        "Line integrals",
+        "Surface integrals",
+        "Volume integrals"
+      ],
+      "Ordinary Differential Equation (ODE)": [
+        "First order linear equations",
+        "First order non-linear equations",
+        "Higher order linear equations with constant coefficients",
+        "Euler-Cauchy equations",
+        "Initial and boundary value problems"
+      ],
+      "Partial Differential Equation (PDE)": [
+        "Fourier series",
+        "Separation of variables",
+        "Solutions of one-dimensional diffusion equation",
+        "First order one-dimensional wave equation",
+        "Second order one-dimensional wave equation",
+        "Two-dimensional Laplace equation"
+      ],
+      "Probability and Statistics": [
+        "Basic concepts of probability",
+        "Axioms and theorems of probability",
+        "Statistical independence",
+        "Conditional probability",
+        "Mean",
+        "Median",
+        "Mode",
+        "Standard deviation",
+        "Random variables",
+        "Probability mass function",
+        "Probability density function",
+        "Cumulative distribution function",
+        "Poisson distribution",
+        "Normal distribution",
+        "Linear regression"
+      ],
+      "Numerical Methods": [
+        "Error analysis",
+        "Numerical solutions of linear algebraic equations",
+        "Numerical solutions of nonlinear algebraic equations",
+        "Newton polynomials",
+        "Lagrange polynomials",
+        "Numerical differentiation",
+        "Integration by trapezoidal rule",
+        "Integration by Simpson's rule",
+        "Single-step methods for first-order differential equations",
+        "Multi-step methods for first-order differential equations"
+      ]
+    },
+
+    "Structural Engineering": {
+      "Engineering Mechanics": [
+        "System of forces",
+        "Free-body diagrams",
+        "Equilibrium equations",
+        "Internal forces in structures",
+        "Friction and its applications",
+        "Centre of mass"
+      ],
+      "Solid Mechanics": [
+        "Bending moment and shear force in statically determinate beams",
+        "Transformation of stress",
+        "Mohr's circle",
+        "Simple stress and strain relationships",
+        "Simple bending theory",
+        "Flexural stresses",
+        "Shear stresses",
+        "Shear centre",
+        "Uniform torsion",
+        "Combined stresses",
+        "Column buckling"
+      ],
+      "Structural Analysis": [
+        "Principle of superposition",
+        "Principle of virtual work",
+        "Castigliano's second theorem",
+        "Deflections of statically determinate beams",
+        "Deflections of frames",
+        "Deflections of trusses",
+        "Analysis of statically indeterminate structures by force methods",
+        "Method of consistent deformations",
+        "Slope-deflection method",
+        "Moment distribution method",
+        "Influence lines",
+        "Moving loads",
+        "Stiffness matrix method",
+        "Analysis of determinate arches",
+        "Analysis of determinate cables"
+      ],
+      "Concrete Structures": [
+        "Working stress design concepts",
+        "Limit state design concepts",
+        "Design and detailing of beams",
+        "Design and detailing of slabs",
+        "Design and detailing of columns",
+        "Design and detailing of isolated footings",
+        "Bond and development length"
+      ],
+      "Steel Structures": [
+        "Working stress design concepts",
+        "Limit state design concepts",
+        "Design of tension members",
+        "Design of compression members",
+        "Design of beams",
+        "Design of beam-columns",
+        "Column bases",
+        "Simple connections",
+        "Eccentric connections",
+        "Beam-column connections",
+        "Plastic analysis",
+        "Plastic analysis of beams",
+        "Plastic analysis of portal frames"
+      ]
+    },
+
+    "Geotechnical Engineering": {
+      "Soil Properties and Classification": [
+        "Three-phase system and phase relationships",
+        "Index properties",
+        "Unified soil classification system",
+        "Indian standard soil classification system"
+      ],
+      "Permeability and Seepage": [
+        "Permeability",
+        "One-dimensional flow",
+        "Seepage through soils",
+        "Two-dimensional flow",
+        "Flow nets",
+        "Uplift pressure",
+        "Piping",
+        "Capillarity",
+        "Seepage force",
+        "Principle of effective stress",
+        "Quicksand condition"
+      ],
+      "Compaction and Consolidation": [
+        "Compaction of soils",
+        "One-dimensional consolidation",
+        "Time rate of consolidation"
+      ],
+      "Shear Strength": [
+        "Shear strength",
+        "Mohr's circle",
+        "Effective shear strength parameters",
+        "Total shear strength parameters",
+        "Stress-strain characteristics of clays",
+        "Stress-strain characteristics of sand",
+        "Stress paths"
+      ],
+      "Sub-surface Investigations": [
+        "Drilling bore holes",
+        "Sampling",
+        "Plate load test",
+        "Standard penetration test",
+        "Cone penetration test"
+      ],
+      "Earth Pressure and Slope Stability": [
+        "Rankine earth pressure theory",
+        "Coulomb earth pressure theory",
+        "Stability of finite slopes",
+        "Stability of infinite slopes",
+        "Bishop's method",
+        "Sheet piles"
+      ],
+      "Stress Distribution": ["Boussinesq's theory", "Pressure bulbs"],
+      "Shallow Foundations": [
+        "Terzaghi's bearing capacity theory",
+        "Meyerhof's bearing capacity theory",
+        "Effect of water table",
+        "Combined footing",
+        "Raft foundation",
+        "Contact pressure",
+        "Settlement analysis in sands",
+        "Settlement analysis in clays"
+      ],
+      "Deep Foundations": [
+        "Static formulae",
+        "Axial load capacity of piles in sands",
+        "Axial load capacity of piles in clays",
+        "Pile load test",
+        "Pile under lateral loading",
+        "Pile group efficiency",
+        "Negative skin friction"
+      ],
+      "Ground Improvement": ["Ground improvement techniques"]
+    },
+
+    "Water Resources Engineering": {
+      "Fluid Mechanics": [
+        "Properties of fluids",
+        "Fluid statics",
+        "Continuity equation",
+        "Momentum equation",
+        "Energy equation",
+        "Applications of continuity, momentum and energy equations",
+        "Potential flow",
+        "Laminar flow",
+        "Turbulent flow",
+        "Flow in pipes",
+        "Pipe networks",
+        "Boundary layer and its growth",
+        "Lift",
+        "Drag"
+      ],
+      "Hydraulics": [
+        "Forces on immersed bodies",
+        "Flow measurement in channels",
+        "Flow measurement in pipes",
+        "Dimensional analysis",
+        "Hydraulic similitude",
+        "Energy-depth relationships",
+        "Specific energy",
+        "Critical flow",
+        "Hydraulic jump",
+        "Uniform flow",
+        "Gradually varied flow",
+        "Water surface profiles",
+        "Prismatic channels",
+        "Mobile channels",
+        "Steady flow",
+        "Unsteady flow",
+        "Rapidly varied flow",
+        "Flow past sharp crested weirs"
+      ],
+      "Hydrology": [
+        "Hydrologic cycle",
+        "Precipitation",
+        "Evaporation",
+        "Evapo-transpiration",
+        "Watershed",
+        "Infiltration",
+        "Streamflow measurements",
+        "Unit hydrographs",
+        "Hydrograph analysis",
+        "Reservoir capacity",
+        "Flood estimation",
+        "Flood routing",
+        "Surface runoff models",
+        "Ground water hydrology",
+        "Steady state well hydraulics",
+        "Aquifers",
+        "Application of Darcy's Law"
+      ],
+      "Irrigation": [
+        "Types of irrigation systems",
+        "Irrigation methods",
+        "Crop water requirements",
+        "Duty",
+        "Delta",
+        "Evapo-transpiration",
+        "Gravity dams",
+        "Spillways",
+        "Lined canals",
+        "Unlined canals",
+        "Design of weirs on permeable foundation",
+        "Cross drainage structures",
+        "River training structures",
+        "Earthen dams",
+        "Seepage through dams",
+        "Well irrigation"
+      ]
+    },
+
+    "Environmental Engineering": {
+      "Water and Waste Water Quality and Treatment": [
+        "Water quality standards",
+        "Physical water quality parameters",
+        "Chemical water quality parameters",
+        "Biological water quality parameters",
+        "Water quality index",
+        "Unit processes",
+        "Unit operations",
+        "Water requirement",
+        "Water distribution system",
+        "Drinking water treatment"
+      ],
+      "Wastewater Treatment": [
+        "Sewerage system design",
+        "Quantity of domestic wastewater",
+        "Primary treatment",
+        "Secondary treatment",
+        "Tertiary treatment",
+        "Effluent discharge standards",
+        "Sludge treatment and disposal",
+        "Reuse of treated sewage"
+      ],
+      "Air Pollution": [
+        "Types of pollutants",
+        "Sources of air pollutants",
+        "Impacts of air pollution",
+        "Air pollution control",
+        "Air quality standards",
+        "Air quality index and limits"
+      ],
+      "Municipal Solid Wastes": [
+        "Characteristics of solid wastes",
+        "Generation of solid wastes",
+        "Collection of solid wastes",
+        "Transportation of solid wastes",
+        "Reuse",
+        "Recycling",
+        "Energy recovery",
+        "Solid waste treatment",
+        "Solid waste disposal",
+        "Landfill design",
+        "Landfill operation"
+      ]
+    },
+
+    "Transportation Engineering": {
+      "Transportation Infrastructure": [
+        "Geometric design of roadways using IRC codes",
+        "Cross-sectional elements",
+        "Sight distances",
+        "Classifications of roadways",
+        "Design vehicle",
+        "Horizontal alignment",
+        "Vertical alignment",
+        "Geometric design of railway track",
+        "Speed",
+        "Cant",
+        "Airport runway length",
+        "Runway length calculations and corrections",
+        "Taxiway design",
+        "Exit taxiway design"
+      ],
+      "Highway Pavements": [
+        "Highway materials",
+        "Desirable properties of highway materials",
+        "Tests of highway materials",
+        "Desirable properties of bituminous paving mixes",
+        "Design factors for flexible pavements",
+        "Design factors for rigid pavements",
+        "Design of flexible pavement using IRC codes",
+        "Design of rigid pavement using IRC codes"
+      ],
+      "Traffic Engineering": [
+        "Traffic studies on flow",
+        "Traffic studies on speed",
+        "Peak hour factor",
+        "Accident study",
+        "Statistical analysis of traffic data",
+        "Microscopic parameters of traffic flow",
+        "Macroscopic parameters of traffic flow",
+        "Fundamental relationships of traffic flow",
+        "Traffic signs",
+        "Signal design by Webster's method",
+        "Types of intersections",
+        "Interchanges",
+        "Highway capacity",
+        "Level of service"
+      ],
+      "Transportation Planning": [
+        "Four-step travel demand modelling",
+        "Trip generation",
+        "Trip distribution",
+        "Mode choice",
+        "Traffic assignment",
+        "Applications of travel demand modelling"
+      ]
+    },
+
+    "Geomatics Engineering": {
+      "Surveying": [
+        "Principles of surveying",
+        "Plane surveying",
+        "Geodetic surveying",
+        "GNSS surveying",
+        "Errors and their adjustment",
+        "Maps",
+        "Scale",
+        "Coordinate system",
+        "Distance measurement",
+        "Angle measurement",
+        "Levelling",
+        "Trigonometric levelling",
+        "Traversing",
+        "Triangulation survey",
+        "Total station",
+        "Topographic surveying",
+        "Cadastral surveying",
+        "Engineering surveying",
+        "Introduction to cartography",
+        "Map projections"
+      ],
+      "Photogrammetry": [
+        "Introduction to photogrammetry",
+        "Digital photogrammetry",
+        "Photographic scale",
+        "Flying height",
+        "Space resection",
+        "Parallax equations",
+        "Elevations by parallax differences",
+        "Camera calibration"
+      ]
+    },
+
+    "Construction Materials and Management": {
+      "Construction Materials": [
+        "Steel composition",
+        "Steel material properties and behaviour",
+        "Cement composition",
+        "Cement hydration",
+        "Cement microstructure",
+        "Chemical admixtures",
+        "Mineral admixtures",
+        "Concrete constituents",
+        "Concrete mix design",
+        "Short-term properties of concrete",
+        "Long-term properties of concrete"
+      ],
+      "Construction Management": [
+        "Types of construction projects",
+        "Estimation and costing",
+        "Quantity estimation using long wall and short wall method",
+        "Center line method",
+        "Analysis of rates",
+        "Project planning and scheduling",
+        "AOA network analysis",
+        "AON network analysis",
+        "PERT",
+        "CPM",
+        "Project updating and monitoring",
+        "Construction equipment for earthwork",
+        "Construction equipment for concreting",
+        "Construction equipment for hoisting",
+        "Construction equipment for transportation of materials",
+        "Types of contracts"
+      ]
+    }
+  }
 }

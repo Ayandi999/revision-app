@@ -1,3 +1,304 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Vector algebra",
+        "Matrix algebra",
+        "Systems of linear equations",
+        "Rank of a matrix",
+        "Eigenvalues and eigenvectors"
+      ],
+      "Calculus": [
+        "Functions of single variable",
+        "Limits",
+        "Continuity and differentiability",
+        "Chain rule",
+        "Maxima and minima",
+        "Integration",
+        "Functions of several variables",
+        "Partial derivatives",
+        "Gradient",
+        "Divergence and curl",
+        "Directional derivatives",
+        "Line integrals",
+        "Surface integrals",
+        "Volume integrals",
+        "Stokes theorem",
+        "Gauss theorem",
+        "Green theorem"
+      ],
+      "Differential Equations": [
+        "First order linear ordinary differential equations",
+        "Higher order linear ODEs with constant coefficients",
+        "Classification of partial differential equations",
+        "Wave equation using separation of variables",
+        "Laplace equation using separation of variables",
+        "Heat equation using separation of variables"
+      ],
+      "Numerical Methods": [
+        "Numerical solutions for linear algebraic equations by bisection",
+        "Numerical solutions for nonlinear algebraic equations by bisection",
+        "Newton-Raphson method",
+        "Basic numerical differentiation",
+        "Numerical integration by trapezoidal rule",
+        "Numerical integration by Simpson's rule",
+        "Linear regression",
+        "Least squares method",
+        "Linear interpolation"
+      ],
+      "Fourier Series": ["Fourier series"],
+      "Complex Numbers": [
+        "Complex numbers",
+        "Analytic functions",
+        "Cauchy-Riemann equations"
+      ],
+      "Probability and Statistics": [
+        "Bayes theorem",
+        "Mean",
+        "Median",
+        "Mode",
+        "Variance",
+        "Binomial distribution",
+        "Normal distribution",
+        "Poisson distribution"
+      ]
+    },
+
+    "Flight Mechanics & Space Dynamics": {
+      "Atmosphere": ["Properties of standard atmosphere"],
+      "Aircraft Classification and Configuration": [
+        "Classification of aircraft",
+        "Airplane (fixed wing aircraft) configuration and various parts",
+        "Pressure altitude",
+        "Equivalent air speed",
+        "Calibrated air speed",
+        "Indicated air speed"
+      ],
+      "Primary Flight Instruments": [
+        "Altimeter",
+        "Air speed indicator",
+        "Vertical speed indicator",
+        "Turn-bank indicator"
+      ],
+      "Aerodynamic Forces and Controls": [
+        "Aerodynamic forces and moments",
+        "Angle of attack",
+        "Sideslip",
+        "High-lift devices",
+        "Roll controls",
+        "Pitch controls",
+        "Yaw controls"
+      ],
+      "Airplane Performance": [
+        "CL-alpha curve",
+        "Drag polar",
+        "Take-off and landing",
+        "Steady climb and descent",
+        "Absolute ceiling",
+        "Service ceiling",
+        "Range and endurance",
+        "Load factor",
+        "Turning flight",
+        "V-n diagram",
+        "Head winds",
+        "Tail winds",
+        "Cross winds"
+      ],
+      "Static Stability": [
+        "Stability and control derivatives",
+        "Longitudinal stick fixed stability",
+        "Longitudinal stick free stability",
+        "Horizontal tail position and size",
+        "Directional stability",
+        "Vertical tail position and size",
+        "Lateral stability",
+        "Wing dihedral",
+        "Wing sweep",
+        "Wing position",
+        "Hinge moments",
+        "Stick forces"
+      ],
+      "Rigid Body Dynamics": [
+        "Linear momentum balance for rigid bodies",
+        "Angular momentum balance for rigid bodies"
+      ],
+      "Space Dynamics": [
+        "Central force motion",
+        "Keplerian orbits",
+        "Kepler's laws",
+        "Escape velocity"
+      ],
+      "Equations of Motion": [
+        "Equations of motion",
+        "Euler angles",
+        "Decoupling of longitudinal and lateral-directional dynamics",
+        "Longitudinal modes",
+        "Lateral-directional modes",
+        "Hohmann orbital transfers"
+      ]
+    },
+
+    "Aerodynamics": {
+      "Basic Fluid Mechanics": [
+        "Fluid kinematics",
+        "Streamline",
+        "Streakline",
+        "Pathline",
+        "Conservation of mass",
+        "Conservation of linear momentum",
+        "Conservation of energy",
+        "Integral form of conservation laws",
+        "Differential form of conservation laws",
+        "Dimensional analysis",
+        "Dynamic similarity",
+        "Incompressibility conditions",
+        "Newtonian fluids"
+      ],
+      "Viscous Flows": [
+        "Hagen-Poiseuille flow",
+        "Couette flow",
+        "Basic concepts in boundary layers",
+        "Boundary layer thickness"
+      ],
+      "Two-Dimensional Potential Flow": [
+        "Sources",
+        "Sinks",
+        "Doublets",
+        "Point vortex",
+        "Superposition",
+        "Bernoulli's equation"
+      ],
+      "Airfoils and Wings": [
+        "Airfoil nomenclature",
+        "Lift coefficient",
+        "Drag coefficient",
+        "Moment coefficient",
+        "Kutta-Joukowski theorem",
+        "Thin airfoil theory",
+        "Kutta condition",
+        "Starting vortex",
+        "Finite wing theory",
+        "Induced drag",
+        "Prandtl lifting line theory",
+        "Critical Mach number",
+        "Drag divergence Mach number"
+      ],
+      "Compressible Flows": [
+        "Basic concepts of compressibility",
+        "One-dimensional compressible flows",
+        "Isentropic flows",
+        "Normal shocks",
+        "Oblique shocks",
+        "Prandtl-Meyer flow",
+        "Flow through nozzles",
+        "Flow through diffusers"
+      ],
+      "Special Topics": [
+        "Fanno flow",
+        "Rayleigh flow",
+        "Pressure measurements using U-tube manometers",
+        "Pressure measurements using Pitot probe"
+      ]
+    },
+
+    "Structures": {
+      "Strength of Materials": [
+        "Stress and strain",
+        "Stress-strain curves of steel and Aluminium",
+        "Stresses and deflections in statically determinate linear elastic trusses",
+        "Stresses and deflections in statically indeterminate linear elastic trusses",
+        "Stresses and deflections in statically determinate linear elastic bars",
+        "Stresses and deflections in statically indeterminate linear elastic bars",
+        "Stresses and deflections in statically determinate linear elastic beams",
+        "Stresses and deflections in statically indeterminate linear elastic beams",
+        "Stresses and deflections in statically determinate linear elastic shafts",
+        "Stresses and deflections in statically indeterminate linear elastic shafts",
+        "Two-dimensional transformations of stresses and strains",
+        "Mohr's circle",
+        "Principal stresses and strains",
+        "Combined loading",
+        "Maximum stress failure criterion",
+        "Tresca failure criterion",
+        "von Mises failure criterion",
+        "Strain energy",
+        "Castigliano's principles",
+        "Three-dimensional Hooke's law",
+        "Plane stress and strain",
+        "Euler buckling of columns"
+      ],
+      "Flight Vehicle Structures": [
+        "Torsion of open thin-walled sections",
+        "Torsion of closed thin-walled sections",
+        "Bending of open thin-walled sections",
+        "Bending of closed thin-walled sections",
+        "Shear of open thin-walled sections",
+        "Shear of closed thin-walled sections",
+        "Symmetric cross-sections",
+        "Unsymmetric cross-sections",
+        "Loads on aircraft"
+      ],
+      "Structural Dynamics": [
+        "Free vibrations of undamped SDOF systems",
+        "Forced vibrations of undamped SDOF systems",
+        "Free vibrations of damped SDOF systems",
+        "Forced vibrations of damped SDOF systems",
+        "Free vibrations of undamped 2-DOF systems"
+      ],
+      "Special Topics": [
+        "Equilibrium equations in two-dimensional elasticity",
+        "Compatibility equations in two-dimensional elasticity"
+      ]
+    },
+
+    "Propulsion": {
+      "Thermodynamics": ["Basics of thermodynamics"],
+      "Aerothermodynamics of Aircraft Engines": [
+        "Thrust",
+        "Efficiency",
+        "Range",
+        "Brayton cycle"
+      ],
+      "Engine Performance": [
+        "Ramjet",
+        "Turbojet",
+        "Turbofan",
+        "Turboprop",
+        "Turboshaft engines",
+        "After-burners"
+      ],
+      "Non-Rotating Propulsion Components": [
+        "Aerothermodynamics of intakes",
+        "Aerothermodynamics of nozzles"
+      ],
+      "Gas Turbine Combustor": [
+        "Types and configurations of gas turbine combustors",
+        "Combustion",
+        "Stoichiometric fuel-to-air ratio"
+      ],
+      "Turbomachinery": [
+        "Axial compressors",
+        "Angular momentum",
+        "Work and compression",
+        "Characteristic performance of a single axial compressor stage",
+        "Efficiency of the compressor",
+        "Degree of reaction",
+        "Multi-staging",
+        "Centrifugal compressor stage dynamics",
+        "Centrifugal compressor inducer",
+        "Centrifugal compressor impeller",
+        "Centrifugal compressor diffuser",
+        "Axial turbine stage performance"
+      ],
+      "Rockets": [
+        "Thrust equation",
+        "Specific impulse",
+        "Rocket performance",
+        "Multi-staging",
+        "Chemical rockets",
+        "Performance of solid propellant rockets",
+        "Performance of liquid propellant rockets"
+      ],
+      "Special Topics": ["Turbine blade cooling", "Compressor-turbine matching"]
+    }
+  }
 }

@@ -1,3 +1,379 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "Systems of linear equations",
+        "Eigenvalues",
+        "Eigenvectors"
+      ],
+      "Calculus": [
+        "Functions of single variable",
+        "Limit, continuity and differentiability",
+        "Mean value theorems",
+        "Evaluation of definite integrals",
+        "Partial derivative",
+        "Total derivative",
+        "Maxima and minima",
+        "Gradient, divergence and curl",
+        "Vector identities",
+        "Directional derivatives",
+        "Line integrals",
+        "Surface integrals",
+        "Volume integrals",
+        "Stokes theorem",
+        "Gauss theorem",
+        "Green's theorem",
+        "Taylor series"
+      ],
+      "Differential Equations": [
+        "First order linear equations",
+        "First order nonlinear equations",
+        "Higher order linear differential equations with constant coefficients",
+        "Cauchy's equation",
+        "Euler's equation",
+        "Initial and boundary value problems",
+        "Laplace transform"
+      ],
+      "Probability and Statistics": [
+        "Definitions of probability",
+        "Sampling theorems",
+        "Conditional probability",
+        "Mean",
+        "Median",
+        "Mode",
+        "Standard deviation",
+        "Linear regression",
+        "Random variables",
+        "Poisson distribution",
+        "Normal distribution",
+        "Binomial distribution",
+        "Exponential distribution"
+      ],
+      "Numerical Methods": [
+        "Numerical solutions of linear and nonlinear algebraic equations",
+        "Integration by trapezoidal rule",
+        "Integration by Simpson's rules",
+        "Single-step methods for differential equations",
+        "Multi-step methods for differential equations"
+      ]
+    },
+    "General Engineering": {
+      "Engineering Materials": [
+        "Structure of common engineering materials",
+        "Physical and mechanical properties of common engineering materials",
+        "Metals and alloys",
+        "Semiconductors",
+        "Ceramics",
+        "Polymers",
+        "Composites (metal, polymer and ceramic based)",
+        "Iron-carbon equilibrium phase diagram",
+        "Heat treatment of metals and alloys",
+        "Influence of heat treatment on mechanical properties",
+        "Stress-strain behavior of metals and alloys"
+      ],
+      "Applied Mechanics": [
+        "Equivalent force systems",
+        "Free body concepts",
+        "Equations of equilibrium",
+        "Stress, strain and their relationship",
+        "Failure theories",
+        "Mohr's circle (stress)",
+        "Deflection of beams",
+        "Bending stresses",
+        "Shear stresses",
+        "Thick cylinders",
+        "Thin cylinders",
+        "Torsion"
+      ],
+      "Theory of Machines and Design": [
+        "Analysis of planar mechanisms",
+        "Cams and followers",
+        "Governors",
+        "Flywheels",
+        "Design of bolted joints",
+        "Design of riveted joints",
+        "Design of welded joints",
+        "Interference/shrink fit joints",
+        "Friction and lubrication",
+        "Design of shafts",
+        "Keys",
+        "Couplings",
+        "Spur gears",
+        "Belt drives",
+        "Brakes and clutches"
+      ],
+      "Thermal and Fluids Engineering": [
+        "Fluid statics",
+        "Bernoulli's equation",
+        "Flow through pipes",
+        "Laminar and turbulent flows",
+        "Equations of continuity and momentum",
+        "Capillary action",
+        "Dimensional analysis",
+        "Zeroth law of thermodynamics",
+        "First law of thermodynamics",
+        "Second law of thermodynamics",
+        "Thermodynamic systems and processes",
+        "Calculation of work and heat for systems and control volumes",
+        "Air standard cycles",
+        "Conduction",
+        "Convection",
+        "Radiation"
+      ]
+    },
+    "Manufacturing Processes I": {
+      "Casting": [
+        "Types of casting processes and applications",
+        "Sand casting patterns types, materials and allowances",
+        "Molds and cores materials, making, and testing",
+        "Design of gating system and riser",
+        "Solidification analysis and microstructure development",
+        "Pressure die casting",
+        "Centrifugal casting",
+        "Investment casting",
+        "Casting defects",
+        "Non-destructive testing of castings"
+      ],
+      "Metal Forming": [
+        "Stress-strain relations in elastic and plastic deformation",
+        "von Mises yield criteria",
+        "Tresca yield criteria",
+        "Flow stress",
+        "Hot, warm and cold working",
+        "Forging",
+        "Rolling",
+        "Extrusion",
+        "Wire drawing",
+        "Blanking",
+        "Punching",
+        "Bending",
+        "Deep drawing",
+        "Ideal work and slab analysis",
+        "Defects in metal working and their causes"
+      ],
+      "Joining of Materials": [
+        "Classification of joining processes",
+        "Principles of fusion welding processes",
+        "Heat transfer and associated losses in welding",
+        "Shielded Metal Arc Welding (SMAW)",
+        "Gas Metal Arc Welding (GMAW)",
+        "Gas Tungsten Arc Welding (GTAW)",
+        "Plasma arc welding",
+        "Submerged arc welding",
+        "Friction welding",
+        "Friction stir welding",
+        "Ultrasonic welding",
+        "Welding defects causes and inspection",
+        "Adhesive joining",
+        "Brazing",
+        "Soldering"
+      ],
+      "Powder Processing": [
+        "Production of metal/ceramic powders",
+        "Compaction of metal and ceramic powders",
+        "Sintering of metal and ceramic powders"
+      ],
+      "Polymers and Composites": [
+        "Injection molding",
+        "Compression molding",
+        "Blow molding",
+        "Extrusion of polymers",
+        "Calendaring",
+        "Thermoforming",
+        "Molding of composites"
+      ]
+    },
+    "Manufacturing Processes II": {
+      "Machining": [
+        "Orthogonal and oblique machining",
+        "Single point cutting tool and tool signature",
+        "Chip formation",
+        "Cutting forces",
+        "Merchant's analysis",
+        "Specific cutting energy and power",
+        "Machining parameters",
+        "Material removal rate",
+        "Tool materials",
+        "Tool wear",
+        "Tool life",
+        "Thermal aspects of machining",
+        "Cutting fluids",
+        "Machinability",
+        "Economics of machining",
+        "Turning",
+        "Taper turning",
+        "Thread cutting",
+        "Drilling",
+        "Boring",
+        "Milling",
+        "Gear cutting",
+        "Thread production",
+        "Grinding",
+        "Honing",
+        "Lapping",
+        "Super-finishing"
+      ],
+      "Machine Tools": [
+        "Lathe machine construction and kinematics",
+        "Milling machine construction and kinematics",
+        "Drilling machine construction and kinematics",
+        "Shaping machine construction and kinematics",
+        "Jigs and fixtures principles, applications, and design"
+      ],
+      "Advanced Manufacturing": [
+        "Ultrasonic Machining (USM)",
+        "Abrasive Jet Machining (AJM)",
+        "Water Jet Machining (WJM)",
+        "Abrasive Water Jet Machining (AWJM)",
+        "Electrical Discharge Machining (EDM)",
+        "Laser Beam Machining (LBM)",
+        "Electron Beam Machining (EBM)",
+        "Plasma Arc Machining (PAM)",
+        "Chemical Machining (CHM)",
+        "Electrochemical Machining (ECM)",
+        "Effect of process parameters on MRR, roughness, and power",
+        "Stereolithography",
+        "Fused filament fabrication",
+        "Selective laser sintering",
+        "Selective laser melting",
+        "Directed energy deposition"
+      ],
+      "Computer Integrated Manufacturing": [
+        "CAD and CAM basic concepts",
+        "Computer Numerical Control (CNC)",
+        "Automation in manufacturing",
+        "Industrial robots configurations, drives and controls",
+        "Cellular manufacturing",
+        "Flexible Manufacturing Systems (FMS)",
+        "Group technology",
+        "Internet of Things (IoT)",
+        "Digital twins"
+      ]
+    },
+    "Quality and Reliability": {
+      "Metrology and Inspection": [
+        "Accuracy and precision",
+        "Types of errors",
+        "Limits, fits and tolerances",
+        "Gauge design",
+        "Interchangeability",
+        "Selective assembly",
+        "Straightness measurement",
+        "Flatness measurement",
+        "Roundness measurement",
+        "Runout measurement",
+        "Cylindricity measurement",
+        "Inspection of screw threads",
+        "Inspection of gears",
+        "Contact surface roughness measurement",
+        "Non-contact surface roughness measurement"
+      ],
+      "Quality Management": [
+        "Quality concepts and cost",
+        "Process capability analysis",
+        "Control charts for variables",
+        "Control charts for attributes",
+        "Acceptance sampling",
+        "Six sigma",
+        "Total quality management (TQM)",
+        "Just-in-Time (JIT) inventory management",
+        "ISO 9001:2015 certification",
+        "ISO 14001:2015 certification",
+        "Sustainable manufacturing with quality management"
+      ],
+      "Reliability and Maintenance": [
+        "Reliability",
+        "Availability",
+        "Maintainability",
+        "Distribution of failure and repair times",
+        "Mean Time Between Failures (MTBF)",
+        "Mean Time To Repair (MTTR)",
+        "Reliability models",
+        "Determination of system reliability",
+        "Preventive maintenance",
+        "Predictive maintenance and replacement",
+        "Total productive maintenance (TPM)"
+      ]
+    },
+    "Industrial Engineering": {
+      "Product Design and Development": [
+        "Principles of product design",
+        "Tolerance design",
+        "Quality and cost considerations",
+        "Product life cycle",
+        "Standardization",
+        "Simplification",
+        "Diversification",
+        "Value engineering and analysis",
+        "Concurrent engineering",
+        "Design for 'X'"
+      ],
+      "Work System Design": [
+        "Taylor's scientific management",
+        "Gilbreths' contributions",
+        "Productivity concepts and measurements",
+        "Method study",
+        "Micro-motion study",
+        "Principles of motion economy",
+        "Time study",
+        "Work sampling",
+        "Standard data",
+        "Predetermined Motion Time System (PMTS)",
+        "Ergonomics",
+        "Job evaluation and merit rating"
+      ],
+      "Facility Design": [
+        "Facility location factors",
+        "Evaluation of alternate locations",
+        "Types of plant layout and their evaluation",
+        "Assembly line balancing",
+        "Material handling systems"
+      ]
+    },
+    "Operations research and Operations management": {
+      "Operation Research": [
+        "Linear programming problem formulation",
+        "Simplex method",
+        "Duality and sensitivity analysis",
+        "Transportation models",
+        "Assignment models",
+        "Integer programming",
+        "Markovian queuing models",
+        "Discrete event simulation"
+      ],
+      "Engineering Economy and Costing": [
+        "Elementary cost accounting",
+        "Methods of depreciation",
+        "Break-even analysis",
+        "Activity based costing"
+      ],
+      "Production Control": [
+        "Causal and time series forecasting models",
+        "Moving average forecasting",
+        "Exponential smoothing",
+        "Trend and seasonality",
+        "Aggregate production planning",
+        "Master production scheduling (MPS)",
+        "Material Requirements Planning (MRP)",
+        "MRP-II",
+        "Enterprise Resource Planning (ERP)",
+        "Routing, scheduling and priority dispatching",
+        "Push and pull production systems",
+        "Lean and agile manufacturing systems",
+        "Logistics, distribution, and supply chain management",
+        "Inventory functions and costs",
+        "Deterministic inventory models",
+        "Quantity discount models",
+        "Perpetual inventory control systems",
+        "Periodic inventory control systems"
+      ],
+      "Project Management": [
+        "Critical Path Method (CPM)",
+        "Program Evaluation and Review Technique (PERT)",
+        "Gantt chart",
+        "Time-cost tradeoff"
+      ]
+    }
+  }
 }

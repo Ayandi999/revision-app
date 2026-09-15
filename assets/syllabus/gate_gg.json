@@ -1,3 +1,271 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Part A: Common Section": {
+      "Introduction to Earth and planetary systems": [
+        "Terrestrial planets and moons of the solar system",
+        "Concept of isostasy",
+        "Internal structure of Earth - elasticity, body and surface waves, propagation of body waves in the Earth's interior",
+        "Heat flow within the Earth",
+        "Gravitational field of the Earth",
+        "Continental and oceanic crust - composition, structure and thickness"
+      ],
+      "Plate Tectonics": [
+        "Type of plate boundaries",
+        "Plate motions and driving mechanisms",
+        "Processes at plate boundaries - volcanism, seismicity, orogenesis, sea-floor spreading and magnetic anomalies and paleomagnetism, formation of back-arc basins",
+        "Continental rifting, mantle plumes, hotspots",
+        "Numerical problems related to plate motions"
+      ],
+      "Earth surface processes": [
+        "Landforms created by hillslopes, rivers, wind, glaciers, oceans, and volcanoes"
+      ],
+      "Basic structural geology": [
+        "Mohr's circle, stress, strain, and material response",
+        "Brittle and ductile deformation",
+        "Nomenclature and classification of folds and faults"
+      ],
+      "Mineralogy": [
+        "Silicate crystal structure",
+        "physical and chemical properties of common rock-forming minerals"
+      ],
+      "Common Igneous, Sedimentary, and Metamorphic Rocks": [
+        "composition, structure, and formation processes"
+      ],
+      "Stratigraphy and Geological time scale": [
+        "Relative and absolute time",
+        "Half-life, decay constant, radioactive equilibrium",
+        "stratigraphic principles, and major stratigraphic divisions of India",
+        "Major metallic ores, coal and petroleum resources of India"
+      ],
+      "Introduction to remote sensing": [
+        "Energy sources and radiation principles, atmospheric absorption, interaction of energy with Earth's surface",
+        "Engineering properties of rocks and soils",
+        "Natural hazards (landslide, volcanic, seismogenic, coastal) and mitigation",
+        "Principles of climate change"
+      ],
+      "Elements of hydrogeology": [
+        "Principles and applications of gravity, magnetic, electrical, electromagnetic, seismic, and radiometric methods of prospecting for oil, mineral, and groundwater"
+      ]
+    },
+    "Part B1: Advanced topics in Geology": {
+      "Geomorphology": [
+        "Basic geomorphic concepts, Geomorphic processes, and agents",
+        "Development and evolution of landforms in continental and oceanic settings",
+        "Landscape evolution in response to tectonics, climate, and base-level change",
+        "Quaternary geomorphology"
+      ],
+      "Structural Geology": [
+        "Stress and strain analysis, deformation mechanisms, primary and secondary structures",
+        "Geometry and genesis of planar and linear structures (bedding, cleavage, schistosity, lineation)",
+        "Folds, faults, joints, and unconformities",
+        "Shear zones, thrusts, and superposed folding",
+        "Geological maps-interpretation, measurements, and numerical analysis",
+        "Stereographic projection"
+      ],
+      "Crystallography and Mineralogy": [
+        "Elements of crystal symmetry, form, and twinning",
+        "Crystallographic projections",
+        "Classification of minerals, physical and optical properties of rock-forming minerals",
+        "Mineral nucleation",
+        "Mineral chemistry (major, trace, and rare earth elements), cation re-calculations"
+      ],
+      "Geochemistry": [
+        "Nucleosynthesis and cosmic abundance of elements",
+        "Classification and components of meteorites",
+        "Geochemical affinities and distribution of major, minor and trace elements in crust, mantle, and core",
+        "Planetary differentiation and geochemical evolution of the earth",
+        "Radiogenic (long-lived) isotopic evolution (Rb-Sr, Sm-Nd, U-Th-Pb) of the crust and the mantle, mantle reservoirs",
+        "Stable isotope geochemistry (H, O, C), isotope fractionation",
+        "geochemical cycles",
+        "Elements of high-temperature and low-temperature geochemical thermodynamics",
+        "Geochemical and isotopic (C-O, Sr isotopes) composition of river water, groundwater and seawater, residence time, and water-rock interaction",
+        "Principles of environmental geochemistry (pH, Salinity, TDS, BOD, COD)"
+      ],
+      "Igneous Petrology": [
+        "Classification and textures of common igneous rocks",
+        "Mantle melting",
+        "Magmatic differentiation",
+        "Role of major, trace, and rare earth elements in igneous petrogenesis",
+        "Magma evolution, modeling crystallization and melting processes, plate margin volcanism",
+        "Intra-plate volcanism and large igneous provinces"
+      ],
+      "Thermodynamics": [
+        "Equilibrium, Gibbs free energy; enthalpy, entropy, energy, Clapeyron Equation",
+        "Mineral stability and Phase equilibria, Schreinmakers rules",
+        "Phase rule",
+        "Phase diagrams, Activity-composition",
+        "Mineral solid solutions",
+        "Enthalpy and entropy of magma crystallization, Binary and ternary phase diagrams in igneous systems",
+        "Chemical speciation and equilibrium in natural waters, solubility and precipitation of minerals saturation index calculations, Eh-pH diagrams and redox equilibria"
+      ],
+      "Sedimentology": [
+        "Texture, structure, sedimentary processes, physical principles related to fluid flow",
+        "Statistical analysis in sedimentology",
+        "Petrology of common sedimentary rocks",
+        "Sedimentary facies and environments, cyclicities in sedimentary succession",
+        "Provenance and basin analysis"
+      ],
+      "Metamorphic Petrology": [
+        "Structures and textures of metamorphic rocks",
+        "Extreme metamorphism",
+        "Metamorphic facies and grades",
+        "Paired metamorphic belts",
+        "Mineral reactions and chemographic projections",
+        "Metamorphism of pelitic, mafic and impure carbonate rocks",
+        "role of bulk compositions and fluids in metamorphism",
+        "Thermobarometry",
+        "Timing of metamorphism"
+      ],
+      "Paleontology": [
+        "Diversity of life through time, mass extinctions- causes and effects",
+        "Taphonomy processes of fossilization",
+        "functional morphology of invertebrates (bivalves, brachiopods, gastropods, echinoids, ammonites) and microfossils - (foraminifera, Ostracoda, conodonts, bryozoa)",
+        "Statistical analysis of morphology",
+        "Vertebrate paleontology",
+        "Basic concepts of paleoecology",
+        "Fossils and paleoenvironments"
+      ],
+      "Stratigraphy": [
+        "Principles of stratigraphy, concepts of correlation and their applications in Indian stratigraphy",
+        "Quantitative Lithostratigraphy, biostratigraphy, and chronostratigraphy - statistical and probabilistic approaches",
+        "Isotope stratigraphy",
+        "Principles of sequence stratigraphy and applications",
+        "Boundary problems in Indian stratigraphy"
+      ],
+      "Resource Geology": [
+        "Ore-mineralogy",
+        "Ore forming processes - magmatic, hydrothermal, sedimentary, supergene, and metamorphogenic ores",
+        "Fluid inclusions in ore genesis",
+        "Coal and petroleum geology",
+        "Marine mineral resources",
+        "Prospecting and exploration of economic mineral deposits sampling, ore reserve estimation, geostatistics, and mining methods",
+        "Distribution of strategic, essential, and critical minerals and fossil fuel deposits in India"
+      ],
+      "Engineering Geology": [
+        "Physico-mechanical properties of rocks and soils",
+        "rock index tests",
+        "Rock failure criteria (Mohr-Coulomb, Griffith, and Hoek-Brown criteria)",
+        "Shear strength of rock discontinuities",
+        "Rock mass classifications (RMR and Q Systems)",
+        "in-situ stresses",
+        "Geological factors in the construction of engineering structures including dams, tunnels, and excavation sites",
+        "Analysis of slope stability"
+      ],
+      "Hydrogeology": [
+        "Porosity and permeability",
+        "Groundwater storage and aquifer properties",
+        "Darcy's law",
+        "Hydraulic conductivity and groundwater flow dynamics",
+        "Groundwater exploration, well hydraulics"
+      ],
+      "Remote Sensing": [
+        "EM spectrum, multispectral remote sensing in visible, infrared, thermal IR and microwave regions including hyperspectral",
+        "Digital processing of satellite images",
+        "GIS - basic concepts, raster and vector mode operations",
+        "Applications of remote sensing tools and techniques in geology"
+      ]
+    },
+    "Part B2: Advanced topics in Geophysics": {
+      "Heat flow": [
+        "Elements of conduction and convection within the mantle and the core, Half-space cooling, calculation of simple geotherms, geothermal gradient, equilibrium geotherms, thermal models in plate tectonics, adiabat, and melting in the mantle"
+      ],
+      "Geodesy": [
+        "Gravitational Field of the Earth",
+        "Clairaut's theorem, size and shape of Earth",
+        "Geoid",
+        "Ellipsoid",
+        "Geodetic Reference Systems",
+        "Datum",
+        "GPS"
+      ],
+      "Seismology and Interior of the Earth": [
+        "Variation of density, velocity, pressure, temperature, electrical and magnetic properties of the Earth",
+        "Conservation laws, Newton's law of viscosity, elements of laminar and turbulent flow",
+        "Elements of elasticity theory- stress and strain tensors, Generalized Hooke's Law",
+        "Body and Surface Waves",
+        "Rotational, dilatational, irrotational, and equivoluminal waves",
+        "Reflection and refraction of elastic waves",
+        "Inhomogeneous and evanescent waves and bounded waves",
+        "Eikonal Equation and Ray theory",
+        "Wave propagation in elastic media, Seismic Tomography"
+      ],
+      "Earthquake Seismology": [
+        "Earthquakes-causes and measurements, magnitude and intensity, focal mechanisms",
+        "Earthquake quantification, source characteristics, seismotectonics and seismic hazards",
+        "Digital seismographs, Earthquake statistics, quantifying earthquake source from seismological data",
+        "Uniqueness Theorem, Representation Theorems of correlation and convolution type, Reciprocity"
+      ],
+      "Potential and Time Varying Fields": [
+        "Scalar and vector potential fields",
+        "Laplace, Maxwell and Helmholtz equations for solution of different types of boundary value problems in Cartesian, cylindrical, and spherical polar coordinates",
+        "Green's theorem",
+        "Image theory",
+        "integral equations in potential and time-varying field theory"
+      ],
+      "Gravity": [
+        "The earth as a planet",
+        "Absolute and relative gravity measurements",
+        "The various corrections for gravity data reduction - free air, Bouguer and isostatic anomalies",
+        "density estimates of rocks",
+        "Regional and residual gravity separation",
+        "Principle of equivalent stratum",
+        "Upward and downward continuation",
+        "Wavelength filtering",
+        "Gravity anomalies and their interpretation anomalies due to geometrical and irregular shaped bodies, depth rules, calculation of mass"
+      ],
+      "Magnetic Methods": [
+        "Geomagnetic field, paleomagnetism",
+        "Inclination, declination",
+        "Magnetic induction equation - convection, diffusion, Ohm's law for a moving conductor, frozen flux theorem, magnetic fields of planets in the Solar System, Geodynamo and origin of Earth's Magnetic field, magnetic susceptibility of rocks and measurements",
+        "Various corrections applied to magnetic data, IGRF, Poisson's relation of gravity and magnetic potential field, upward and downward continuation, magnetic anomalies due to geometrical and irregular shaped bodies",
+        "Interpretation of processed magnetic anomaly data",
+        "Derivative, analytic signal and Euler Depth Solutions"
+      ],
+      "Electrical Methods": [
+        "Conduction of electricity through rocks, electrical conductivities of metals, non-metals, rock-forming minerals and different rocks, concepts of D.C. resistivity measurement and depth of investigation",
+        "Apparent Resistivity and Apparent Chargeability, Theory of Reciprocity, Sounding and Profiling, Various electrode arrangements, application of linear filter theory, Sounding curves over multi-layered earth, interpretation of resistivity field data, Principles of equivalence and suppression"
+      ],
+      "Electromagnetic Methods": [
+        "Geo-electromagnetic spectrum",
+        "Biot Savart's Law",
+        "Maxwell's Equation, Helmholtz Equation, Basic concept of EM induction in the earth, Skin-depth, elliptic polarization, in-phase and quadrature components, phasor diagrams",
+        "Response function and response parameters",
+        "Measurements in different source receiver configurations",
+        "Earth's natural electromagnetic methods- tellurics, geomagnetic depth sounding and magnetotellurics",
+        "Electromagnetic profiling and Sounding, Time domain EM method",
+        "EM scale modelling, processing of EM data and interpretation",
+        "Ground Penetrating Radar (GPR) Methods",
+        "Effect of conducting overburden"
+      ],
+      "Seismic Methods": [
+        "Elastic properties of earth materials",
+        "Reflection, refraction, generation, and propagation of elastic waves, velocity depth models, seismic noise and noise profile analysis, processing, and interpretation",
+        "CDP stacking charts, binning, filtering, static and dynamic corrections, Digital seismic data processing, seismic deconvolution and migration methods, attribute analysis, bright and dim spots, seismic stratigraphy, high-resolution seismics, VSP, AVO, multi-component seismics, and seismic interferometry",
+        "Kirchhoff migration, Time Reversal, Time-Reversal imaging, Reverse-Time Migration",
+        "Representation theorem of cross-correlation and convolution type"
+      ],
+      "Reservoir Geophysics": [
+        "Rock Physics and Petrophysics, Failure Criteria, stress concentration, Linear elasticity fracture mechanics, Elastic-Plastic Fracture mechanics",
+        "Griffith's criterion, dynamic fracture mechanics",
+        "Lithology and Porosity Estimation",
+        "Saturation and Permeability Estimation",
+        "application of borehole geophysics in groundwater, mineral, and oil exploration"
+      ],
+      "Geophysical Signal Processing": [
+        "Sampling theorem, Nyquist frequency, aliasing, Fourier series, periodic waveform, Fourier and Hilbert transform, Z-transform and wavelet transform",
+        "power spectrum, delta function, auto-correlation, cross-correlation, convolution, deconvolution, principles of digital filters, windows, poles, and zeros, Basics of Time-frequency analysis"
+      ],
+      "Geophysical Well Logging": [
+        "Principles and techniques of geophysical well-logging, SP, resistivity, induction, gamma ray, neutron, density, sonic, temperature, dip meter, caliper, nuclear magnetic resonance- longitudinal and transverse relaxation, CPMG sequence, porosity characterization, cement bond logging, micro-logs, Quantitative evaluation of formations from well logs"
+      ],
+      "Geophysical Inversion": [
+        "Basic concepts of forward and inverse problems, Ill-posedness of inverse problems, condition number, non-uniqueness and stability of solutions",
+        "L1, L2, and Lp norms, overdetermined, underdetermined and mixed determined inverse problems, quasi-linear and non-linear methods including Tikhonov's regularization method, Singular Value Decomposition, Backus-Gilbert method, simulated annealing, genetic algorithms, swarm intelligence, Statistics of misfit and likelihood, Random Variables and Processes, Probability distribution functions Gaussian, Poissonian, log-normal",
+        "Spatial analysis, Hypothesis testing",
+        "Bayesian construction of posterior probabilities, sparsity promoting L1 optimization",
+        "Ambiguity and uncertainty in geophysical interpretation",
+        "PDE constrained optimization, Adjoint-state method"
+      ]
+    }
+  }
 }

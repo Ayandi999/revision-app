@@ -38,7 +38,35 @@ import neet_pg from "@/assets/syllabus/neet_pg.json";
 import jee_main from "@/assets/syllabus/jee_main.json";
 import jee_advanced from "@/assets/syllabus/jee_advanced.json";
 
+import gov_isro from "@/assets/syllabus/gov_isro.json";
+
 import self_study from "@/assets/syllabus/self_study.json";
+
+export type ExamCategory = "Government Exams" | "Entrance Exams" | "Self Study";
+
+export interface CategoryMeta {
+  id: ExamCategory;
+  label: string;
+  icon: string;
+}
+
+export const EXAM_CATEGORIES: CategoryMeta[] = [
+  {
+    id: "Government Exams",
+    label: "Government Examinations",
+    icon: "shield-checkmark-outline",
+  },
+  {
+    id: "Entrance Exams",
+    label: "National Entrance Exams",
+    icon: "school-outline",
+  },
+  {
+    id: "Self Study",
+    label: "Self-Paced & Custom",
+    icon: "book-outline",
+  },
+];
 
 export interface StreamOption {
   id: string;
@@ -51,6 +79,7 @@ export interface ExamOption {
   id: string;
   name: string;
   shortName: string;
+  category: ExamCategory;
   description: string;
   icon: string; // Ionicons name
   color: string;
@@ -59,32 +88,50 @@ export interface ExamOption {
 
 export const EXAM_OPTIONS: ExamOption[] = [
   {
+    id: "gov",
+    name: "Government Exams",
+    shortName: "GOV",
+    category: "Government Exams",
+    description: "Recruitment exams for PSUs, Research & Civil Services",
+    icon: "shield-checkmark-outline",
+    color: "#F97316",
+    streams: [
+      {
+        id: "gov_isro",
+        code: "ISRO",
+        name: "ISRO - Scientist/Engineer 'SC' (CS)",
+        description: "Indian Space Research Organisation (ICRB) - Computer Science",
+      },
+    ],
+  },
+  {
     id: "gate",
     name: "GATE",
     shortName: "GATE",
+    category: "Entrance Exams",
     description: "Graduate Aptitude Test in Engineering (30 Disciplines)",
     icon: "hardware-chip-outline",
     color: "#3B82F6",
     streams: [
-      { id: "gate_cs", code: "CS", name: "Computer Science and Information Technology" },
-      { id: "gate_da", code: "DA", name: "Data Science and Artificial Intelligence" },
-      { id: "gate_ec", code: "EC", name: "Electronics and Communication Engineering" },
-      { id: "gate_ee", code: "EE", name: "Electrical Engineering" },
-      { id: "gate_me", code: "ME", name: "Mechanical Engineering" },
-      { id: "gate_ce", code: "CE", name: "Civil Engineering" },
-      { id: "gate_in", code: "IN", name: "Instrumentation Engineering" },
-      { id: "gate_ch", code: "CH", name: "Chemical Engineering" },
-      { id: "gate_bt", code: "BT", name: "Biotechnology" },
       { id: "gate_ae", code: "AE", name: "Aerospace Engineering" },
       { id: "gate_ag", code: "AG", name: "Agricultural Engineering" },
       { id: "gate_ar", code: "AR", name: "Architecture and Planning" },
       { id: "gate_bm", code: "BM", name: "Biomedical Engineering" },
+      { id: "gate_bt", code: "BT", name: "Biotechnology" },
+      { id: "gate_ce", code: "CE", name: "Civil Engineering" },
+      { id: "gate_ch", code: "CH", name: "Chemical Engineering" },
+      { id: "gate_cs", code: "CS", name: "Computer Science and Information Technology" },
       { id: "gate_cy", code: "CY", name: "Chemistry" },
+      { id: "gate_da", code: "DA", name: "Data Science and Artificial Intelligence" },
+      { id: "gate_ec", code: "EC", name: "Electronics and Communication Engineering" },
+      { id: "gate_ee", code: "EE", name: "Electrical Engineering" },
       { id: "gate_es", code: "ES", name: "Environmental Science and Engineering" },
       { id: "gate_ey", code: "EY", name: "Ecology and Evolution" },
       { id: "gate_ge", code: "GE", name: "Geomatics Engineering" },
       { id: "gate_gg", code: "GG", name: "Geology and Geophysics" },
+      { id: "gate_in", code: "IN", name: "Instrumentation Engineering" },
       { id: "gate_ma", code: "MA", name: "Mathematics" },
+      { id: "gate_me", code: "ME", name: "Mechanical Engineering" },
       { id: "gate_mn", code: "MN", name: "Mining Engineering" },
       { id: "gate_mt", code: "MT", name: "Metallurgical Engineering" },
       { id: "gate_nm", code: "NM", name: "Naval Architecture and Marine Engineering" },
@@ -102,6 +149,7 @@ export const EXAM_OPTIONS: ExamOption[] = [
     id: "neet",
     name: "NEET",
     shortName: "NEET",
+    category: "Entrance Exams",
     description: "National Eligibility cum Entrance Test (Medical)",
     icon: "medkit-outline",
     color: "#10B981",
@@ -114,6 +162,7 @@ export const EXAM_OPTIONS: ExamOption[] = [
     id: "jee",
     name: "JEE",
     shortName: "JEE",
+    category: "Entrance Exams",
     description: "Joint Entrance Examination (Engineering)",
     icon: "calculator-outline",
     color: "#F59E0B",
@@ -126,6 +175,7 @@ export const EXAM_OPTIONS: ExamOption[] = [
     id: "self_study",
     name: "Self Study",
     shortName: "SELF",
+    category: "Self Study",
     description: "Personalized revision & custom subjects",
     icon: "school-outline",
     color: "#8B5CF6",
@@ -174,6 +224,10 @@ const SYLLABUS_MAP: Record<string, any> = {
   jee_main,
   jee_advanced,
 
+  gov_isro,
+  isro: gov_isro,
+  gov: gov_isro,
+
   self_study,
 };
 
@@ -196,7 +250,11 @@ export function getSyllabusForStream(streamId: string): SyllabusSchema {
  * Helper to get readable titles for an exam + stream pair.
  */
 export function getExamDisplayInfo(examId: string, streamId: string) {
-  const exam = EXAM_OPTIONS.find((e) => e.id === examId) || EXAM_OPTIONS[1]; // NEET default
+  const exam =
+    EXAM_OPTIONS.find((e) => e.id === examId) ||
+    EXAM_OPTIONS.find((e) => (examId === "gov" || examId === "government") && (e.id === "isro" || e.category === "Government Exams")) ||
+    EXAM_OPTIONS.find((e) => e.streams.some((s) => s.id === streamId)) ||
+    EXAM_OPTIONS[1]; // NEET fallback
   const stream =
     exam.streams.find((s) => s.id === streamId) ||
     exam.streams[0] || { id: streamId, name: streamId, code: "" };
@@ -204,6 +262,7 @@ export function getExamDisplayInfo(examId: string, streamId: string) {
   return {
     exam,
     stream,
+    category: exam.category,
     fullTitle:
       exam.id === "self_study"
         ? "Self Study"

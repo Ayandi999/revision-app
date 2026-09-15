@@ -1,3 +1,307 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "Systems of linear equations",
+        "Eigenvalues and eigenvectors"
+      ],
+      "Calculus": [
+        "Functions of single variable",
+        "Limit, continuity and differentiability",
+        "Taylor series",
+        "Mean value theorem",
+        "Evaluation of definite and improper integrals",
+        "Partial derivatives",
+        "Total derivative",
+        "Maxima and minima",
+        "Gradient, divergence, and curl",
+        "Vector identities",
+        "Directional derivatives",
+        "Line, surface, and volume integrals",
+        "Stokes, Gauss, and Green’s theorems"
+      ],
+      "Differential Equations": [
+        "First order equations (linear and nonlinear)",
+        "Higher order linear differential equations with constant coefficients",
+        "Cauchy’s and Euler’s equations",
+        "Initial and boundary value problems",
+        "Laplace transforms",
+        "Solutions of one-dimensional heat equation",
+        "Solutions of one-dimensional wave equation",
+        "Solutions of one-dimensional Laplace equation"
+      ],
+      "Complex Variables": ["Complex number", "Polar form of complex number"],
+      "Probability and Statistics": [
+        "Definitions of probability and sampling theorems",
+        "Conditional probability",
+        "Mean, median, mode, and standard deviation",
+        "Random variables",
+        "Poisson distribution",
+        "Normal distribution",
+        "Binomial distribution"
+      ],
+      "Fundamentals of AI/ML": [
+        "Linear Regression",
+        "Principal Component Analysis (PCA)"
+      ],
+      "Numerical Methods": [
+        "Numerical solutions of linear algebraic equations",
+        "Numerical solutions of non-linear algebraic equations",
+        "Integration by trapezoidal rule",
+        "Integration by Simpson’s rule",
+        "Single-step methods for numerical solution of ordinary differential equations",
+        "Multi-step methods for numerical solution of ordinary differential equations",
+        "Finite-difference method for partial differential equations"
+      ]
+    },
+
+    "Process Calculations": {
+      "Material and Energy Balances": [
+        "Steady state mass balances",
+        "Unsteady state mass balances",
+        "Steady state energy balances",
+        "Unsteady state energy balances",
+        "Multiphase systems",
+        "Multi-component systems",
+        "Reacting systems",
+        "Non-reacting systems"
+      ],
+      "Process Flow Calculations": [
+        "Use of tie components",
+        "Recycle calculations",
+        "Bypass calculations",
+        "Purge calculations"
+      ],
+      "Process Analysis": ["Gibbs phase rule", "Degree of freedom analysis"]
+    },
+
+    "Thermodynamics": {
+      "Fundamentals of Thermodynamics": [
+        "Laws of thermodynamics",
+        "Open systems",
+        "Closed systems",
+        "Entropy",
+        "Chemical potential"
+      ],
+      "Thermodynamic Properties of Pure Substances": [
+        "Equations of state",
+        "Residual properties"
+      ],
+      "Thermodynamic Properties of Mixtures": [
+        "Partial molar properties",
+        "Fugacity",
+        "Excess properties",
+        "Activity coefficients"
+      ],
+      "Phase and Chemical Equilibria": [
+        "Predicting VLE of systems",
+        "Chemical reaction equilibrium"
+      ]
+    },
+
+    "Fluid Mechanics and Mechanical Operations": {
+      "Fluid Mechanics Fundamentals": [
+        "Newtonian fluids",
+        "Non-Newtonian fluids",
+        "Fluid statics",
+        "Surface tension",
+        "Fluid kinematics",
+        "Equation of continuity",
+        "Equation of motion",
+        "Equation of mechanical energy",
+        "Macroscopic friction factors",
+        "Dimensional analysis and similitude"
+      ],
+      "Fluid Flow": [
+        "Inviscid flows",
+        "Euler equation",
+        "Flow through pipes",
+        "Velocity profile",
+        "Pressure drop",
+        "Bernoulli equation",
+        "Flow meters",
+        "Pumps"
+      ],
+      "Turbulent Flow and Boundary Layers": [
+        "Fluctuating velocity",
+        "Universal velocity profile",
+        "Pressure drop in turbulent flow",
+        "Elementary boundary layer theory",
+        "Flow past immersed bodies",
+        "Packed beds",
+        "Fluidized beds"
+      ],
+      "Particle Technology": [
+        "Particle size and shape",
+        "Particle size distribution",
+        "Size reduction of solid particles",
+        "Classification of solid particles",
+        "Free settling",
+        "Hindered settling"
+      ],
+      "Mechanical Separation and Mixing": [
+        "Centrifuge",
+        "Cyclones",
+        "Thickening",
+        "Clarification",
+        "Filtration",
+        "Agitation",
+        "Mixing"
+      ]
+    },
+
+    "Heat Transfer": {
+      "Modes of Heat Transfer": [
+        "Equation of energy",
+        "Steady heat conduction",
+        "Unsteady heat conduction",
+        "Convection",
+        "Radiation"
+      ],
+      "Heat Transfer Coefficients": [
+        "Thermal boundary layer",
+        "Heat transfer coefficients"
+      ],
+      "Phase Change Operations": ["Boiling", "Condensation", "Evaporation"],
+      "Heat Exchangers and Evaporators": [
+        "Types of heat exchangers",
+        "Types of evaporators",
+        "Process calculations for heat exchangers",
+        "Process calculations for evaporators",
+        "Design of double pipe heat exchangers",
+        "Design of shell and tube heat exchangers",
+        "Design of single effect evaporators",
+        "Design of multiple effect evaporators"
+      ]
+    },
+
+    "Mass Transfer": {
+      "Diffusion and Mass Transfer": [
+        "Fick’s laws",
+        "Molecular diffusion in fluids",
+        "Mass transfer coefficients"
+      ],
+      "Mass Transfer Theories": [
+        "Film theory",
+        "Penetration theory",
+        "Surface renewal theory",
+        "Momentum, heat and mass transfer analogies"
+      ],
+      "Contacting and Stage Efficiency": [
+        "Stage-wise contacting",
+        "Continuous contacting",
+        "Stage efficiencies",
+        "HTU concepts",
+        "NTU concepts"
+      ],
+      "Mass Transfer Operations": [
+        "Distillation",
+        "Absorption",
+        "Leaching",
+        "Liquid-liquid extraction",
+        "Drying",
+        "Humidification",
+        "Dehumidification",
+        "Adsorption",
+        "Membrane separations"
+      ]
+    },
+
+    "Chemical Reaction Engineering": {
+      "Reaction Kinetics": [
+        "Theories of reaction rates",
+        "Kinetics of homogeneous reactions",
+        "Interpretation of kinetic data"
+      ],
+      "Ideal Reactors": [
+        "Single reactions in ideal reactors",
+        "Multiple reactions in ideal reactors"
+      ],
+      "Enzyme Reaction Kinetics": ["Michaelis-Menten model", "Monod model"],
+      "Non-Ideal Reactors": [
+        "Residence time distribution",
+        "Single parameter model"
+      ],
+      "Non-Isothermal and Catalytic Reactors": [
+        "Non-isothermal reactors",
+        "Kinetics of heterogeneous catalytic reactions",
+        "Diffusion effects in catalysis",
+        "Catalyst deactivation"
+      ]
+    },
+
+    "Instrumentation and Process Control": {
+      "Process Measurement": [
+        "Measurement of process variables",
+        "Sensors and transducers",
+        "P&ID equipment symbols"
+      ],
+      "Process Modeling": [
+        "Process modeling",
+        "Linearization",
+        "State-space models",
+        "Transfer functions",
+        "Dynamic responses of various systems",
+        "Systems with inverse response",
+        "Process reaction curve"
+      ],
+      "Controllers and Control Valves": [
+        "Controller modes",
+        "P controller",
+        "PI controller",
+        "PID controller",
+        "Control valves"
+      ],
+      "Closed Loop Control": [
+        "Stability analysis",
+        "Frequency response",
+        "Controller tuning",
+        "Cascade control",
+        "Feed forward control"
+      ]
+    },
+
+    "Plant Design and Economics": {
+      "Process Economics": [
+        "Principles of process economics",
+        "Cost estimation",
+        "Depreciation",
+        "Total annualized cost",
+        "Cost indices",
+        "Rate of return",
+        "Payback period",
+        "Discounted cash flow"
+      ],
+      "Process Design and Optimization": [
+        "Optimization in process design",
+        "Sizing of chemical engineering equipment",
+        "Heat exchanger sizing",
+        "Multistage contactor sizing"
+      ],
+      "Plant Operations": ["Batch plant scheduling"]
+    },
+
+    "Chemical Technology": {
+      "Inorganic Chemical Industries": [
+        "Raw materials",
+        "Unit operations",
+        "Processes involved in inorganic chemical industries",
+        "Synthesis gas",
+        "Sulfuric acid",
+        "Phosphoric acid",
+        "Chlor-alkali industry"
+      ],
+      "Fertilizer Industries": ["Ammonia", "Urea"],
+      "Natural Products Industries": ["Pulp and paper", "Sugar", "Ethanol"],
+      "Petroleum Refining and Petrochemicals": [
+        "Petroleum refining",
+        "Petrochemicals",
+        "Ethyl benzene",
+        "Styrene",
+        "Ethylene oxide"
+      ],
+      "Polymerization Industries": ["Polyethylene", "Polyester"]
+    }
+  }
 }

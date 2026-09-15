@@ -1,3 +1,265 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix Algebra",
+        "Systems of linear equations",
+        "Eigen values",
+        "Eigen vectors"
+      ],
+      "Calculus": [
+        "Mean value theorems",
+        "Theorems of integral calculus",
+        "Evaluation of definite and improper integrals",
+        "Partial Derivatives",
+        "Maxima and minima",
+        "Multiple integrals",
+        "Fourier series",
+        "Vector identities",
+        "Directional derivatives",
+        "Line integral",
+        "Surface integral",
+        "Volume integral",
+        "Stokes's theorem",
+        "Gauss's theorem",
+        "Divergence theorem",
+        "Green's theorem"
+      ],
+      "Differential Equations": [
+        "First order equations (linear and nonlinear)",
+        "Higher order linear differential equations with constant coefficients",
+        "Method of variation of parameters",
+        "Cauchy's equation",
+        "Euler's equation",
+        "Initial and boundary value problems",
+        "Partial Differential Equations",
+        "Method of separation of variables"
+      ],
+      "Complex Variables": [
+        "Analytic functions",
+        "Cauchy's integral theorem",
+        "Cauchy's integral formula",
+        "Taylor series",
+        "Laurent series",
+        "Residue theorem",
+        "Solution integrals"
+      ],
+      "Probability and Statistics": [
+        "Sampling theorems",
+        "Conditional probability",
+        "Mean",
+        "Median",
+        "Mode",
+        "Standard Deviation",
+        "Random variables",
+        "Discrete and Continuous distributions",
+        "Poisson distribution",
+        "Normal distribution",
+        "Binomial distribution",
+        "Correlation analysis",
+        "Regression analysis"
+      ]
+    },
+    "Electric circuits": {
+      "Network Elements": [
+        "Ideal voltage and current sources",
+        "dependent sources",
+        "R, L, C, M elements"
+      ],
+      "Network solution methods": ["KCL", "KVL", "Node and Mesh analysis"],
+      "Network Theorems": [
+        "Thevenin's",
+        "Norton's",
+        "Superposition and Maximum Power Transfer theorem"
+      ],
+      "General Circuit Analysis": [
+        "Transient response of DC and AC networks",
+        "sinusoidal steady-state analysis",
+        "resonance",
+        "two port networks",
+        "balanced three phase circuits",
+        "star-delta transformation",
+        "complex power and power factor in AC circuits"
+      ]
+    },
+    "Electromagnetic Fields": {
+      "Electrostatics": [
+        "Coulomb's Law",
+        "Electric Field Intensity",
+        "Electric Flux Density",
+        "Gauss's Law",
+        "Divergence",
+        "Electric field and potential due to point, line, plane and spherical charge distributions",
+        "Effect of dielectric medium",
+        "Capacitance of simple configurations"
+      ],
+      "Magnetostatics and Electromagnetics": [
+        "Biot-Savart's law",
+        "Ampere's law",
+        "Curl",
+        "Faraday's law",
+        "Lorentz force",
+        "Inductance",
+        "Magnetomotive force",
+        "Reluctance",
+        "Magnetic circuits",
+        "Self and Mutual inductance of simple configurations"
+      ]
+    },
+    "Signals and Systems": {
+      "Signals and Systems Basics": [
+        "Representation of continuous and discrete time signals",
+        "shifting and scaling properties",
+        "linear time invariant and causal systems",
+        "Fourier series representation of continuous and discrete time periodic signals",
+        "sampling theorem",
+        "Applications of Fourier Transform for continuous and discrete time signals",
+        "Laplace Transform and Z transform",
+        "R.M.S. value, average value calculation for any general periodic waveform"
+      ]
+    },
+    "Electrical Machines": {
+      "Single phase transformer": [
+        "equivalent circuit",
+        "phasor diagram",
+        "open circuit and short circuit tests",
+        "regulation and efficiency"
+      ],
+      "Three-phase transformers": [
+        "connections",
+        "vector groups",
+        "parallel operation"
+      ],
+      "Transformers and Conversion Principles": [
+        "Auto-transformer",
+        "Electromechanical energy conversion principles"
+      ],
+      "DC machines": [
+        "separately excited, series and shunt",
+        "motoring and generating mode of operation and their characteristics",
+        "speed control of dc motors"
+      ],
+      "Three-phase induction machines": [
+        "principle of operation",
+        "types",
+        "performance",
+        "torque-speed characteristics",
+        "no-load and blocked-rotor tests",
+        "equivalent circuit",
+        "starting and speed control"
+      ],
+      "Single-phase induction motors": [
+        "Operating principle of single-phase induction motors"
+      ],
+      "Synchronous machines": [
+        "cylindrical and salient pole machines",
+        "performance and characteristics",
+        "regulation and parallel operation of generators",
+        "starting of synchronous motors"
+      ],
+      "Machine Losses": [
+        "Types of losses and efficiency calculations of electric machines"
+      ]
+    },
+    "Power Systems": {
+      "Generation and Transmission": [
+        "Basic concepts of electrical power generation",
+        "AC and DC transmission concepts",
+        "Models and performance of transmission lines and cables",
+        "Economic Load Dispatch (with and without considering transmission losses)",
+        "Series and shunt compensation",
+        "Electric field distribution and insulators",
+        "Distribution systems"
+      ],
+      "System Analysis and Load Flow": [
+        "Per-unit quantities",
+        "Bus admittance matrix",
+        "Gauss-Seidel and Newton-Raphson load flow methods",
+        "Voltage and Frequency control",
+        "Power factor correction"
+      ],
+      "Fault Analysis and Protection": [
+        "Symmetrical components",
+        "Symmetrical and unsymmetrical fault analysis",
+        "Principles of over-current, differential, directional and distance protection",
+        "Circuit breakers"
+      ],
+      "Stability": ["System stability concepts", "Equal area criterion"]
+    },
+    "Control Systems": {
+      "System Modeling": [
+        "Mathematical modelling and representation of systems",
+        "Feedback principle",
+        "transfer function",
+        "Block diagrams and Signal flow graphs"
+      ],
+      "Time and Frequency Response": [
+        "Transient and Steady-state analysis of linear time invariant systems",
+        "Stability analysis using Routh-Hurwitz and Nyquist criteria",
+        "Bode plots",
+        "Root loci"
+      ],
+      "Compensators and Controllers": [
+        "Lag, Lead and Lead-Lag compensators",
+        "P, PI and PID controllers"
+      ],
+      "State Space Analysis": [
+        "State space model",
+        "Solution of state equations of LTI systems"
+      ]
+    },
+    "Electrical and Electronic Measurements": {
+      "Basic Measurements": [
+        "Bridges and Potentiometers",
+        "Measurement of voltage, current, power, energy and power factor"
+      ],
+      "Instruments and Metrics": [
+        "Instrument transformers",
+        "Digital voltmeters and multi-meters",
+        "Phase, Time and Frequency measurement",
+        "Oscilloscopes",
+        "Error analysis"
+      ]
+    },
+    "Analog and Digital Electronics": {
+      "Diode Circuits": ["clipping", "clamping", "rectifiers"],
+      "Amplifiers": [
+        "biasing",
+        "equivalent circuit and frequency response",
+        "oscillators and feedback amplifiers"
+      ],
+      "Operational Amplifiers and Active Filters": [
+        "characteristics and applications",
+        "single stage active filters",
+        "Sallen Key",
+        "Butterworth"
+      ],
+      "Digital Circuits and ICs": [
+        "VCOs and timers",
+        "combinatorial and sequential logic circuits",
+        "multiplexers",
+        "demultiplexers",
+        "Schmitt triggers",
+        "sample and hold circuits",
+        "A/D and D/A converters"
+      ]
+    },
+    "Power Electronics": {
+      "Power Semiconductor Devices": [
+        "Static V-I characteristics and firing/gating circuits for Thyristor, MOSFET, IGBT"
+      ],
+      "DC to DC Conversion": ["Buck", "Boost", "Buck-Boost Converters"],
+      "Rectifiers and Converters": [
+        "Single and three-phase configuration of uncontrolled rectifiers",
+        "Voltage and Current commutated Thyristor based converters",
+        "Bidirectional ac to dc voltage source converters",
+        "Magnitude and Phase of line current harmonics for uncontrolled and thyristor based converters",
+        "Power factor and Distortion Factor of AC to DC converters"
+      ],
+      "Inverters": [
+        "Single-phase and three-phase voltage and current source inverters",
+        "sinusoidal pulse width modulation"
+      ]
+    }
+  }
 }

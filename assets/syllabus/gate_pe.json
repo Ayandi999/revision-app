@@ -1,3 +1,295 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrix algebra",
+        "Systems of linear equations",
+        "Eigenvalues",
+        "Eigenvectors"
+      ],
+      "Calculus": [
+        "Functions of single variable",
+        "Limit, continuity and differentiability",
+        "Taylor series",
+        "Mean value theorems",
+        "Evaluation of definite and improper integrals",
+        "Partial derivative",
+        "Total derivative",
+        "Maxima and minima",
+        "Gradient, divergence and curl",
+        "Vector identities",
+        "Directional derivatives",
+        "Line, surface and volume integrals",
+        "Stokes theorem",
+        "Gauss theorem",
+        "Green's theorem"
+      ],
+      "Differential Equations": [
+        "First order linear equations",
+        "First order nonlinear equations",
+        "Higher order linear differential equations with constant coefficients",
+        "Cauchy's equation",
+        "Euler's equation",
+        "Initial and boundary value problems",
+        "Laplace transform",
+        "Solution of one-dimensional diffusivity equation",
+        "Solution of Laplace equation"
+      ],
+      "Complex Variables": [
+        "Complex number",
+        "Polar form of complex number",
+        "Triangle inequality"
+      ],
+      "Probability and Statistics": [
+        "Definitions of probability",
+        "Sampling theorems",
+        "Conditional probability",
+        "Mean, median, mode and standard deviation",
+        "Random variables",
+        "Poisson distribution",
+        "Normal distribution",
+        "Binomial distribution",
+        "Linear regression analysis"
+      ],
+      "Numerical Methods": [
+        "Numerical solutions of linear and non-linear algebraic equations",
+        "Integration by trapezoidal rule",
+        "Integration by Simpson's rule",
+        "Single-step methods for numerical solution of differential equations",
+        "Multi-step methods for numerical solution of differential equations"
+      ]
+    },
+    "Petroleum Exploration": {
+      "Geological Concepts and Rocks": [
+        "Classification and description of common rocks",
+        "Clastic reservoir rocks",
+        "Non-clastic reservoir rocks",
+        "Origin of petroleum",
+        "Migration of petroleum",
+        "Accumulation of petroleum"
+      ],
+      "Exploration and Evaluation": [
+        "Petroleum exploration methods",
+        "Petroleum resource classification",
+        "Petroleum resource evaluation"
+      ]
+    },
+    "Oil and Gas Well Drilling Technology": {
+      "Well Planning and Rigs": [
+        "Well planning",
+        "Drilling methods",
+        "Drilling rigs",
+        "Rig operating systems"
+      ],
+      "Fluids and Cementing": [
+        "Drilling fluids function and properties",
+        "Drilling fluid maintenance equipment",
+        "Oil and gas well cementing operations"
+      ],
+      "Drill String, Bits and Problems": [
+        "Drill bit types and their applications",
+        "Drill string function, operation, selection and design",
+        "Casing string function, operation, selection and design",
+        "Drilling problems, control and remedies"
+      ],
+      "Directional and Advanced Drilling": [
+        "Directional drilling tools",
+        "Directional survey",
+        "Horizontal wells",
+        "Multilateral wells",
+        "Extended reach wells",
+        "Slim wells",
+        "Image assisted drilling",
+        "Managed pressure drilling",
+        "Underbalanced drilling"
+      ]
+    },
+    "Reservoir Engineering": {
+      "Petrophysics and Fluid Properties": [
+        "Petrophysical properties of reservoir rocks",
+        "Coring and core analysis",
+        "Reservoir fluid properties",
+        "Phase behaviour of a hydrocarbon system"
+      ],
+      "Flow and Reservoir Dynamics": [
+        "Single phase flow through porous media",
+        "Multiphase flow through porous media",
+        "Water coning",
+        "Gas coning",
+        "Reservoir pressure measurement",
+        "Reservoir drives and drive mechanisms",
+        "Recovery factors",
+        "Theory of material balance",
+        "Reserve estimation techniques",
+        "Field development and reservoir management",
+        "Reservoir geomechanics: Stress analysis and fracturing"
+      ],
+      "Reservoir Simulation": [
+        "Mathematical models in simulation",
+        "Finite difference discretization",
+        "Cartesian grid systems",
+        "Radial grid systems",
+        "Black oil reservoir simulation",
+        "History matching"
+      ]
+    },
+    "Petroleum Production Operations": {
+      "Well Equipment and Completion": [
+        "Well equipment",
+        "Well completion techniques",
+        "Well production problems and mitigation",
+        "Well servicing and Workover operations",
+        "Workover and completion fluids",
+        "Formation damage",
+        "Well stimulation techniques",
+        "Artificial lift techniques"
+      ],
+      "Surface Processing and Transport": [
+        "Field processing of oil and gas",
+        "Storage and transportation of petroleum and petroleum products",
+        "Metering and measurements of oil and gas"
+      ],
+      "Production System Optimization": [
+        "Inflow performance",
+        "Tubing performance",
+        "Nodal analysis",
+        "Production testing",
+        "Multiphase flow in tubing and flow-lines",
+        "Flow assurance problems and remedies",
+        "Pressure vessels",
+        "Storage tanks",
+        "Shell and tube heat exchangers",
+        "Pumps and compressors"
+      ]
+    },
+    "Offshore Drilling and Production Practices": {
+      "Offshore Environment and Platforms": [
+        "Offshore oil and gas operations and ocean environment",
+        "Buoyancy and stability",
+        "Offshore fixed platforms",
+        "Offshore mobile units",
+        "Mooring systems",
+        "Dynamic positioning systems"
+      ],
+      "Offshore Drilling and Subsea Tech": [
+        "Drilling from fixed platforms",
+        "Drilling from jack-ups",
+        "Drilling from ships and semi-submersibles",
+        "Conductors, risers and umbilicals",
+        "Offshore well completion",
+        "Deep water subsea technology applications"
+      ],
+      "Offshore Production Facilities": [
+        "Oil processing platforms",
+        "Water injection platforms",
+        "Offshore storage",
+        "Single Point Mooring (SPM)",
+        "Single Buoy Mooring (SBM)",
+        "Offshore transportation and utilities",
+        "Deep water drilling and production systems"
+      ]
+    },
+    "Petroleum Formation Evaluation": {
+      "Well Logging Methods": [
+        "Spontaneous Potential (SP) log",
+        "Resistivity logs",
+        "Radioactive logs",
+        "Acoustic logs",
+        "Gamma ray logs",
+        "Logging While Drilling (LWD)"
+      ],
+      "Special Tools and Well Integrity Logs": [
+        "Cement Bond Log (CBL)",
+        "Variable Density Log (VDL)",
+        "Ultrasonic Imager Tool (USIT)",
+        "Segmented Frequency Tool (SFT)",
+        "Repeat Formation Tester (RFT)",
+        "Production logging tools",
+        "Casing inspection tools",
+        "Formations Micro Scanner (FMS)",
+        "Nuclear Magnetic Resonance (NMR) logging"
+      ],
+      "Log Interpretation": [
+        "Standard log interpretation methods",
+        "Cross-plotting methods"
+      ]
+    },
+    "Oil and Gas Well Testing": {
+      "Transient Analysis and Testing Principles": [
+        "Diffusivity equation and its solutions",
+        "Radius of investigation",
+        "Principle of superposition",
+        "Horner's approximation",
+        "Drill stem testing",
+        "Drawdown test analysis",
+        "Build up-test analysis",
+        "Pressure derivative analysis",
+        "Wellbore effects"
+      ],
+      "Advanced and Gas Well Testing": [
+        "Multilayer reservoirs testing",
+        "Injection well testing",
+        "Multiple well testing",
+        "Interference testing",
+        "Pulse testing",
+        "Well-test analysis by use of type curves",
+        "Gas well testing",
+        "Inflow testing"
+      ]
+    },
+    "Health Safety and Environment in Petroleum Industry": {
+      "Health Hazards and Safety Systems": [
+        "Toxicity and physiological effects of petroleum hydrocarbons",
+        "Asphyxiation",
+        "Respiratory and skin effects of sour gases",
+        "Manual and automatic shutdown systems",
+        "Blow down systems",
+        "Gas detection systems",
+        "Fire detection and suppression systems",
+        "Personal protection systems and measures",
+        "HSE policies",
+        "Disaster and crisis management"
+      ],
+      "Environmental Management": [
+        "Impact on ecosystem (air, water, and soil)",
+        "Impact of drilling and production operations",
+        "Environmental transport of petroleum wastes",
+        "Offshore environmental studies",
+        "Offshore oil-spill and control",
+        "Environmental regulations and compliance"
+      ]
+    },
+    "Enhanced Oil Recovery Techniques": {
+      "EOR Fundamentals": [
+        "Basic principles and mechanisms of EOR",
+        "Screening of EOR processes",
+        "Pattern flooding",
+        "Recovery efficiency",
+        "Permeability heterogeneity",
+        "Macroscopic displacement efficiency",
+        "Microscopic displacement efficiency"
+      ],
+      "EOR Methods": [
+        "Chemical flooding",
+        "Miscible flooding",
+        "Steam stimulation",
+        "Hot water flooding",
+        "Steam flooding",
+        "In-situ combustion",
+        "Microbial EOR",
+        "Low salinity water flooding"
+      ]
+    },
+    "Latest Trends in Petroleum Engineering": {
+      "Unconventional Resources and Decarbonization": [
+        "Coal bed methane",
+        "Shale gas",
+        "Oil shale",
+        "Gas hydrate",
+        "Heavy oil",
+        "Physical trapping of CO2 in underground reservoirs",
+        "Chemical trapping of CO2 in underground reservoirs"
+      ]
+    }
+  }
 }

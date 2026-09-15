@@ -274,14 +274,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   legendRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 4,
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
   },
   legendColor: {
     width: 8,

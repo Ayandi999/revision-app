@@ -1,3 +1,213 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Engineering Mathematics": {
+      "Linear Algebra": [
+        "Matrices - transpose, determinant, rank, eigenvalues and eigenvectors, trace, adjoint",
+        "Solutions to system of linear equations"
+      ],
+      "Calculus": [
+        "Functions of a single variable, limit, continuity, and differentiability",
+        "Mean value theorems",
+        "Indeterminate forms",
+        "Evaluation of definite and improper integrals",
+        "Double and triple integrals",
+        "Partial derivatives, total derivative",
+        "Taylor series (in one and two variables)",
+        "Maxima and minima",
+        "Gradient, divergence and curl, vector identities"
+      ],
+      "Differential Equations": [
+        "First-order equations (linear and nonlinear)",
+        "Higher-order linear differential equations with constant coefficients",
+        "Euler-Cauchy equation",
+        "Initial and boundary value problems",
+        "Laplace transforms",
+        "Solutions of heat, wave, and Laplace's equations",
+        "Fourier series"
+      ],
+      "Probability and Statistics": [
+        "Axioms of probability",
+        "Conditional probability",
+        "Mean, median, mode, standard deviation",
+        "Random variables",
+        "Expectation",
+        "Binomial, Poisson, and normal distributions",
+        "Hypothesis testing",
+        "Probability Density Function (PDF)",
+        "Cumulative Distribution Function (CDF)"
+      ],
+      "Numerical Methods": [
+        "Solutions of linear and non-linear algebraic equations",
+        "Integration by trapezoidal and Simpson's rules",
+        "Finite differences",
+        "Explicit single and multi-step methods for differential equations"
+      ]
+    },
+    "Basics of Mechatronics": {
+      "Network Elements and Analysis": [
+        "Ideal voltage and current sources, dependent sources, R, L, C, M elements",
+        "Network solution methods: Kirchoff's laws (KCL, KVL), Node and Mesh analysis",
+        "Network Theorems: Thevenin's, Norton's, Superposition, Maximum Power Transfer theorem",
+        "Transient response of DC and AC networks",
+        "Sinusoidal steady-state analysis, resonance",
+        "Two-port networks",
+        "Balanced three-phase circuits",
+        "Complex power and power factor in AC circuits"
+      ],
+      "Digital Circuits": [
+        "Boolean algebra",
+        "Combinational circuits (multiplexers, encoders, decoders)",
+        "Sequential circuits (flip-flops, counters)"
+      ],
+      "Sensors": [
+        "Resistive, capacitive, inductive, piezoelectric, Hall effect sensors and signal conditioning circuits",
+        "Transducers for industrial instrumentation: displacement (linear and angular), velocity, acceleration, force, torque, pressure"
+      ],
+      "Actuators": [
+        "Principles of operation, performance, torque-speed characteristics",
+        "Hydraulic and pneumatic actuators",
+        "DC motors, stepper motors, and servo motors"
+      ],
+      "Engineering Mechanics": [
+        "Free-body diagrams and equilibrium",
+        "Friction and its applications: rolling friction, belt-pulley",
+        "Trusses and frames",
+        "Kinematics and dynamics of rigid bodies in plane motion"
+      ],
+      "Programming": [
+        "Flowcharts and pseudo code",
+        "Programming in Python: data types, operators, expressions",
+        "Conditional statements (if, elif, else, case)",
+        "Looping statements (while, for), loop control statements (break, continue)",
+        "Functions, arrays, dictionary, strings, recursion"
+      ],
+      "Data Structures": [
+        "Stack",
+        "Queue",
+        "Linked list",
+        "Binary search tree",
+        "Binary heap",
+        "Graph"
+      ]
+    },
+    "Principles of Robotics and Automation": {
+      "Robotics": [
+        "Robotic classification: serial and parallel manipulators, geometrical configuration",
+        "Links and joints, coordinate systems, degrees-of-freedom",
+        "Rotation matrices in 2D and 3D, homogeneous transformations",
+        "Forward kinematics",
+        "Robot applications: point-to-point and continuous path control",
+        "Types of end-effectors",
+        "Robot accuracy and repeatability"
+      ],
+      "Automation and Computer Integrated Manufacturing": [
+        "Automation in Manufacturing",
+        "Programmable Logic Controllers (PLCs) in manufacturing",
+        "Automated material handling systems",
+        "Automated storage and retrieval systems",
+        "Automated identification, detection and capture systems",
+        "Computer numerical control (CNC)",
+        "Basics of single and multi-axis positioning systems",
+        "Basics of concurrent design and manufacturing planning for automation"
+      ]
+    },
+    "Analog Circuits and Embedded Systems": {
+      "Analog Circuits": [
+        "Analog filters: low-pass, high-pass, band-pass, band-reject",
+        "Amplifiers: biasing, equivalent circuit, frequency response, feedback amplifiers",
+        "Operational amplifiers: characteristics and applications",
+        "Oscillators, Voltage Controlled Oscillators (VCO), timers",
+        "Schmitt triggers, sample and hold circuits",
+        "Analog-to-Digital (A/D) and Digital-to-Analog (D/A) converters",
+        "Switched Mode Power Supplies (SMPS)"
+      ],
+      "Embedded Systems": [
+        "Microprocessor and microcontroller applications",
+        "Components of microcontrollers (CPU, memory, I/O ports, timers)",
+        "Interrupt handling",
+        "Memory and input-output interfacing",
+        "Basics of data acquisition systems"
+      ]
+    },
+    "Signals and Systems": {
+      "Signal Analysis": [
+        "Representation of continuous and discrete time signals",
+        "Shifting and scaling properties",
+        "Linear time-invariant (LTI) and causal systems",
+        "R.M.S. value and average value calculation"
+      ],
+      "Transforms and Theorems": [
+        "Fourier series representation of continuous and discrete time periodic signals",
+        "Shannon's sampling theorem",
+        "Fourier Transform definitions and properties",
+        "Laplace Transform definitions and properties",
+        "Z-Transform definitions and properties"
+      ]
+    },
+    "Control Systems": {
+      "System Modeling and Analysis": [
+        "Mathematical modeling and representation of systems",
+        "Feedback principle and transfer function",
+        "Block diagrams and Signal flow graphs",
+        "Transient and Steady-state analysis of linear time-invariant systems"
+      ],
+      "Stability and Control Design": [
+        "Stability analysis using Routh-Hurwitz and Nyquist criteria",
+        "Bode plots",
+        "Root Loci",
+        "Lag, Lead, and Lead-Lag compensators",
+        "P, PI, and PID controllers"
+      ]
+    },
+    "Mechanics of Materials": {
+      "Stress and Strain": [
+        "Stress and strain, elastic constants, Poisson's ratio",
+        "Mohr's circle for plane stress and plane strain",
+        "Thermal stresses",
+        "Thin cylinders"
+      ],
+      "Structural Elements and Deflection": [
+        "Shear force and bending moment diagrams",
+        "Bending and shear stresses, concept of shear centre",
+        "Deflection of beams",
+        "Torsion of circular shafts",
+        "Euler's theory of columns",
+        "Castigliano's theorems"
+      ],
+      "Experimental Stress and Material Testing": [
+        "Strain gauges and rosettes",
+        "Testing of materials with universal testing machine",
+        "Testing of hardness and impact strength"
+      ]
+    },
+    "Kinematics and Dynamics": {
+      "Mechanisms and Linkages": [
+        "Displacement, velocity, and acceleration analysis of plane mechanisms",
+        "Dynamic analysis of linkages",
+        "Gears and gear trains"
+      ],
+      "Dynamics and Vibrations": [
+        "Balancing of reciprocating and rotating masses",
+        "Gyroscope",
+        "Vibrations: free and forced vibration of single degree of freedom systems",
+        "Effect of damping and vibration isolation",
+        "Resonance and critical speeds of shafts"
+      ]
+    },
+    "Machine Design and Computer Integrated Manufacturing": {
+      "Machine Design": [
+        "Design for static and dynamic loading",
+        "Failure theories",
+        "Fatigue strength and the S-N diagram",
+        "Design of machine elements: bolted, riveted, and welded joints",
+        "Shafts, rolling and sliding contact bearings",
+        "Brakes and clutches",
+        "Springs"
+      ],
+      "CAD/CAM and Advanced Manufacturing": [
+        "Basic concepts of CAD/CAM and their integration tools",
+        "Additive manufacturing"
+      ]
+    }
+  }
 }

@@ -270,7 +270,7 @@ const AddQuestion = () => {
   const getMissingFields = (): string[] => {
     const missing: string[] = [];
     if (questionImageUris.length === 0) missing.push("Question image (at least 1)");
-    if (solutionImageUris.length === 0) missing.push("Solution image (at least 1)");
+    // Solution image is now optional per user request
     if (selectedType.key === "MCQ" && !mcqSelected)
       missing.push("Correct option");
     if (selectedType.key === "MSQ" && msqSelected.length === 0)
@@ -600,8 +600,7 @@ const AddQuestion = () => {
           <View style={styles.cameraSection}>
             <View style={styles.sectionLabelRow}>
               <Text style={styles.solutionCameraText}>
-                Solution {solutionImageUris.length > 1 ? "images" : "image"}{" "}
-                <Text style={styles.mandatoryAsterisk}>*</Text>
+                Solution {solutionImageUris.length > 1 ? "images" : "image"}
               </Text>
               {solutionImageUris.length > 0 && (
                 <Text style={styles.imageCountBadge}>
@@ -623,8 +622,7 @@ const AddQuestion = () => {
                   <>
                     <Ionicons name="camera-outline" size={30} color="#3B82F6" />
                     <Text style={styles.solutionCameraText}>
-                      Add solution image{" "}
-                      <Text style={styles.mandatoryAsterisk}>*</Text>
+                      Add solution image
                     </Text>
                   </>
                 )}

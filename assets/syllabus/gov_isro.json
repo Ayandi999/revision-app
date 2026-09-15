@@ -1,0 +1,476 @@
+{
+  "subjects": {
+    "Data Structures and Algorithms": {
+      "Data Structures": [
+        "Arrays and Strings",
+        "Linked Lists: singly, doubly, circular",
+        "Stacks, Queues, Circular Queues, Deques",
+        "Priority Queues",
+        "Trees: binary trees, BST, AVL trees, B-trees, B+ trees",
+        "Heaps",
+        "Graphs: directed, undirected and weighted graphs; representations",
+        "Hashing and collision resolution"
+      ],
+      "Algorithms": [
+        "Searching: linear and binary search",
+        "Sorting: bubble, selection, insertion, merge, quick, heap, counting and radix sort",
+        "Tree traversals: preorder, inorder, postorder and level order",
+        "Graph algorithms: BFS, DFS, Dijkstra, Bellman-Ford, Floyd-Warshall, Prim, Kruskal, topological sorting",
+        "Greedy algorithms",
+        "Divide and conquer",
+        "Dynamic programming",
+        "Backtracking and recursion"
+      ],
+      "Complexity": [
+        "Asymptotic notation: Big-O, Big-Ω and Big-Θ",
+        "Time and space complexity"
+      ]
+    },
+
+    "Computer Networks": {
+      "Network Fundamentals": [
+        "Network types and topologies",
+        "OSI model and TCP/IP model",
+        "Transmission media",
+        "Circuit, packet and message switching"
+      ],
+      "Data Link Layer": [
+        "Framing",
+        "Error detection: parity, checksum, CRC",
+        "Error correction",
+        "Flow control",
+        "Sliding-window protocols and ARQ",
+        "Ethernet and MAC addressing",
+        "CSMA/CD and CSMA/CA"
+      ],
+      "Network Layer": [
+        "IPv4 and IPv6",
+        "IP addressing, subnetting and CIDR",
+        "Routing and routing algorithms",
+        "ARP, ICMP, DHCP and NAT"
+      ],
+      "Transport Layer": [
+        "TCP and UDP",
+        "TCP three-way handshake",
+        "Reliable transmission",
+        "Flow control and congestion control",
+        "Ports and sockets"
+      ],
+      "Application Layer": [
+        "HTTP and HTTPS",
+        "FTP/SFTP",
+        "SMTP, POP3 and IMAP",
+        "DNS",
+        "DHCP",
+        "SNMP"
+      ],
+      "Numerical Topics": [
+        "Transmission and propagation delay",
+        "Throughput",
+        "Sliding-window calculations",
+        "TCP sequence and acknowledgement numbers",
+        "Subnetting and addressing"
+      ]
+    },
+
+    "Operating Systems": {
+      "OS Fundamentals": [
+        "Functions and services of an operating system",
+        "System calls",
+        "Kernel and user/kernel modes",
+        "Process versus program"
+      ],
+      "Processes and Threads": [
+        "Process states",
+        "Process Control Block (PCB)",
+        "Context switching",
+        "Threads and multithreading",
+        "Inter-process communication"
+      ],
+      "CPU Scheduling": [
+        "FCFS",
+        "SJF and SRTF",
+        "Priority scheduling",
+        "Round Robin",
+        "Multilevel queue",
+        "Multilevel feedback queue",
+        "Waiting time, turnaround time, response time and completion time"
+      ],
+      "Synchronization": [
+        "Critical section",
+        "Race conditions",
+        "Mutex and semaphores",
+        "Monitors",
+        "Producer-consumer",
+        "Readers-writers",
+        "Dining philosophers"
+      ],
+      "Deadlocks": [
+        "Necessary conditions",
+        "Resource allocation graph",
+        "Prevention",
+        "Avoidance",
+        "Banker's algorithm",
+        "Detection and recovery"
+      ],
+      "Memory Management": [
+        "Paging",
+        "Segmentation",
+        "Virtual memory",
+        "Page tables and TLB",
+        "Demand paging",
+        "Page replacement: FIFO, LRU and Optimal",
+        "Thrashing"
+      ],
+      "File Systems and Disk Scheduling": [
+        "File allocation",
+        "Directory structures",
+        "Disk scheduling: FCFS, SSTF, SCAN, C-SCAN, LOOK and C-LOOK"
+      ]
+    },
+
+    "Database Management Systems": {
+      "Database Fundamentals": [
+        "DBMS and RDBMS",
+        "Database architecture",
+        "Schema and instance",
+        "Data independence",
+        "Keys: super, candidate, primary and foreign keys"
+      ],
+      "ER and Relational Model": [
+        "Entities, attributes and relationships",
+        "Cardinality and participation",
+        "ER-to-relational mapping",
+        "Relational algebra: selection, projection, union, intersection, difference, Cartesian product, joins and division"
+      ],
+      "SQL": [
+        "SELECT, WHERE, GROUP BY, HAVING and ORDER BY",
+        "Aggregate functions",
+        "Joins",
+        "Nested queries and subqueries",
+        "Views",
+        "NULL values",
+        "Set operations"
+      ],
+      "Functional Dependencies and Normalization": [
+        "Functional dependencies",
+        "Attribute closure",
+        "Candidate keys",
+        "Armstrong's axioms",
+        "1NF, 2NF, 3NF and BCNF",
+        "Lossless decomposition",
+        "Dependency preservation"
+      ],
+      "Transactions and Concurrency": [
+        "ACID properties",
+        "Transaction states",
+        "Conflict and view serializability",
+        "Recoverability and cascading rollback",
+        "Locking and two-phase locking",
+        "Timestamp protocols",
+        "Deadlocks"
+      ],
+      "Recovery and Indexing": [
+        "Log-based recovery",
+        "Checkpoints",
+        "Shadow paging",
+        "B-tree and B+ tree indexing",
+        "Hash indexing"
+      ]
+    },
+
+    "Computer Organization and Architecture": {
+      "Digital and Computer Fundamentals": [
+        "Number systems",
+        "Binary arithmetic",
+        "1's and 2's complement",
+        "Boolean algebra",
+        "Logic gates",
+        "Karnaugh maps",
+        "Combinational and sequential circuits"
+      ],
+      "CPU and Instruction Set": [
+        "ALU, control unit and registers",
+        "Instruction cycle",
+        "Instruction formats",
+        "Addressing modes",
+        "RISC and CISC"
+      ],
+      "Memory Organization": [
+        "Memory hierarchy",
+        "RAM and ROM",
+        "Cache memory",
+        "Main and secondary memory",
+        "Direct, associative and set-associative cache mapping",
+        "Cache hit/miss and AMAT"
+      ],
+      "Pipelining": [
+        "Pipeline stages",
+        "Structural, data and control hazards",
+        "Pipeline speedup"
+      ],
+      "Input/Output": [
+        "Programmed I/O",
+        "Interrupt-driven I/O",
+        "Direct Memory Access (DMA)"
+      ],
+      "Numerical Topics": [
+        "Cache mapping",
+        "Address calculation",
+        "Memory organization",
+        "Pipeline performance and speedup"
+      ]
+    },
+
+    "Theory of Computation": {
+      "Finite Automata": ["DFA", "NFA", "ε-NFA", "DFA-NFA conversions"],
+      "Regular Languages": [
+        "Regular expressions",
+        "Regular languages",
+        "Closure properties",
+        "Pumping lemma"
+      ],
+      "Context-Free Languages": [
+        "Context-free grammars",
+        "Derivations and parse trees",
+        "Ambiguity",
+        "Chomsky hierarchy"
+      ],
+      "Pushdown Automata": ["PDA", "CFG-PDA relationship"],
+      "Turing Machines and Computability": [
+        "Turing machines and variants",
+        "Decidability",
+        "Recognizable languages",
+        "Halting problem",
+        "Undecidability"
+      ]
+    },
+
+    "Compiler Design": {
+      "Lexical Analysis": [
+        "Tokens and lexemes",
+        "Regular expressions",
+        "Finite automata",
+        "Lexical analyzer"
+      ],
+      "Syntax Analysis": [
+        "Context-free grammars",
+        "Parse trees",
+        "Top-down parsing",
+        "Bottom-up parsing"
+      ],
+      "Parsers": ["Recursive descent", "LL(1)", "LR", "SLR", "CLR", "LALR"],
+      "Semantic and Intermediate Code": [
+        "Semantic analysis",
+        "Type checking",
+        "Syntax-directed translation",
+        "Three-address code",
+        "Quadruples",
+        "Triples",
+        "Syntax trees"
+      ],
+      "Code Optimization and Generation": [
+        "Constant folding",
+        "Common subexpression elimination",
+        "Dead code elimination",
+        "Loop optimization",
+        "Peephole optimization",
+        "Basic blocks and DAG",
+        "Register allocation",
+        "Code generation"
+      ]
+    },
+
+    "Discrete Mathematics": {
+      "Set Theory, Relations and Functions": [
+        "Sets",
+        "Relations",
+        "Functions",
+        "Equivalence relations",
+        "Partial orders"
+      ],
+      "Logic": [
+        "Propositional logic",
+        "Predicate logic",
+        "Logical equivalence",
+        "Quantifiers",
+        "Inference"
+      ],
+      "Combinatorics": [
+        "Permutations and combinations",
+        "Pigeonhole principle",
+        "Inclusion-exclusion principle",
+        "Recurrence relations"
+      ],
+      "Graph Theory": [
+        "Graphs and graph representations",
+        "Connectivity",
+        "Trees",
+        "Euler and Hamilton paths/circuits",
+        "Planar graphs",
+        "Graph coloring and chromatic number",
+        "Shortest paths"
+      ],
+      "Boolean Algebra": [
+        "Boolean expressions",
+        "Simplification",
+        "Boolean functions"
+      ]
+    },
+
+    "Digital Logic": {
+      "Boolean Logic": ["Boolean algebra", "Logic gates", "Karnaugh maps"],
+      "Combinational Circuits": [
+        "Multiplexers and demultiplexers",
+        "Encoders and decoders",
+        "Adders and subtractors"
+      ],
+      "Sequential Circuits": [
+        "SR, JK, D and T flip-flops",
+        "Registers",
+        "Counters",
+        "Sequential circuit design"
+      ]
+    },
+
+    "Information and Cyber Security": {
+      "Security Fundamentals": [
+        "Confidentiality, integrity and availability",
+        "Authentication and authorization",
+        "Access control",
+        "Non-repudiation"
+      ],
+      "Cryptography": [
+        "Symmetric encryption",
+        "Asymmetric encryption",
+        "AES and DES",
+        "RSA",
+        "Diffie-Hellman",
+        "Hash functions and message digests",
+        "Message Authentication Codes (MAC)",
+        "Digital signatures"
+      ],
+      "Security Threats and Attacks": [
+        "Phishing",
+        "Spoofing",
+        "Eavesdropping",
+        "SQL injection",
+        "DoS and DDoS",
+        "Man-in-the-middle attacks",
+        "Malware"
+      ],
+      "Network and Application Security": [
+        "Firewalls",
+        "IDS/IPS",
+        "SSL/TLS",
+        "HTTPS",
+        "VPN",
+        "DNSSEC",
+        "SFTP"
+      ]
+    },
+
+    "Probability and Statistics": {
+      "Probability": [
+        "Basic probability",
+        "Conditional probability",
+        "Bayes theorem"
+      ],
+      "Random Variables and Distributions": [
+        "Discrete random variables",
+        "Continuous random variables",
+        "Probability distributions"
+      ],
+      "Statistical Measures": [
+        "Expectation",
+        "Mean",
+        "Variance",
+        "Standard deviation"
+      ]
+    },
+
+    "Programming and Object-Oriented Programming": {
+      "Programming Fundamentals": [
+        "Data types and operators",
+        "Control statements",
+        "Functions",
+        "Arrays and strings",
+        "Pointers",
+        "Structures",
+        "Dynamic memory allocation"
+      ],
+      "Object-Oriented Programming": [
+        "Classes and objects",
+        "Encapsulation",
+        "Inheritance",
+        "Polymorphism",
+        "Abstraction",
+        "Constructors and destructors",
+        "Function/operator overloading",
+        "Method overriding",
+        "Virtual functions"
+      ],
+      "Programming Concepts": [
+        "Recursion",
+        "Pointers and references",
+        "Stack and heap memory",
+        "Function calls",
+        "Output prediction",
+        "Program complexity"
+      ]
+    },
+
+    "Software Engineering": {
+      "Software Development": [
+        "SDLC",
+        "Waterfall model",
+        "Agile methodology",
+        "Scrum"
+      ],
+      "Requirements and Design": [
+        "Software requirements",
+        "Software design principles",
+        "UML basics"
+      ],
+      "Software Testing": [
+        "Unit testing",
+        "Integration testing",
+        "System testing",
+        "Black-box testing",
+        "White-box testing"
+      ],
+      "Other Topics": ["Version control", "Software metrics"]
+    },
+
+    "Aptitude / Ability": {
+      "Quantitative Aptitude": [
+        "Percentage",
+        "Ratio and proportion",
+        "Average",
+        "Profit and loss",
+        "Time and work",
+        "Time, speed and distance",
+        "Simple and compound interest",
+        "Number system",
+        "Probability",
+        "Permutation and combination",
+        "Data interpretation"
+      ],
+      "Logical Reasoning": [
+        "Series",
+        "Coding-decoding",
+        "Directions",
+        "Syllogism",
+        "Seating arrangement",
+        "Puzzles"
+      ],
+      "Verbal Ability": [
+        "Grammar",
+        "Vocabulary",
+        "Sentence correction",
+        "Reading comprehension",
+        "Synonyms and antonyms"
+      ]
+    }
+  }
+}

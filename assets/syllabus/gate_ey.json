@@ -1,3 +1,158 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Ecology": {
+      "Fundamental Concepts": [
+        "Abiotic and biotic components of ecosystems",
+        "Levels of biological organization (individuals, population, species, community, ecosystems, biomes)",
+        "Niches",
+        "Habitats",
+        "Functional traits",
+        "Ecophysiology (e.g. physiological adaptations, homeostasis, acclimation)"
+      ],
+      "Population Ecology": [
+        "Population dynamics and growth (density dependent/independent)",
+        "Meta-population ecology",
+        "Age-structured populations"
+      ],
+      "Interactions": [
+        "Types of interactions (mutualism, symbiosis, commensalism, competition, parasitism, predation, etc.)",
+        "Two species population models (Lotka-Voltera equations)",
+        "Trophic levels and their direct and indirect interactions"
+      ],
+      "Community Ecology": [
+        "Community assembly, structure and succession",
+        "Role of dispersal and habitat/environmental filtering",
+        "levels of diversity (alpha, beta, gamma)",
+        "Species richness, Evenness and diversity indices",
+        "Relative abundance",
+        "Species-area relationships",
+        "Diversity gradients (e.g. latitudinal and altitudinal gradients)",
+        "Theory of island biogeography"
+      ],
+      "Ecosystem Structure and Function": [
+        "Primary and secondary productivity",
+        "Food web, energy flow, and biogeochemical cycles (e.g. carbon and nitrogen)",
+        "Ecosystem properties (e.g. stability, resilience)",
+        "Global biomes and biogeographic zones",
+        "Flora and fauna of India",
+        "Biogeography of India"
+      ]
+    },
+    "Evolution": {
+      "Fundamentals": [
+        "Lamarckism",
+        "Darwinism",
+        "Modern Synthesis",
+        "Variation",
+        "Heritability",
+        "Natural selection",
+        "Fitness and adaptation",
+        "Types of selection (e.g. stabilizing, directional, disruptive)"
+      ],
+      "Diversity of Life": [
+        "Origin and history of life on earth",
+        "Paleobiological evidence",
+        "Diversity and classification of life",
+        "Classical taxonomy vs systematics (cladistics)"
+      ],
+      "Life History Theory": [
+        "Allocation of resources",
+        "Tradeoffs",
+        "r/K selection",
+        "Strategies (e.g. semelparity and iteroparity)"
+      ],
+      "Interactions": [
+        "Co-evolution (e.g. mutualism, arms race, co-speciation)",
+        "Prey-predator interactions (e.g. mimicry, crypsis)",
+        "Host-parasite interactions"
+      ],
+      "Population and Quantitative Genetics": [
+        "Origins of genetic variation",
+        "Mendelian genetics",
+        "Hardy-Weinberg equilibrium",
+        "Drift",
+        "Selection (one-locus two-alleles model)",
+        "Population genetic structure (panmixia, gene flow, FST)",
+        "Polygenic traits",
+        "Gene-environment interactions (phenotypic plasticity)",
+        "Heritability",
+        "Epistasis and epigenetic inheritance"
+      ],
+      "Molecular Evolution and Phylogenetics": [
+        "Mutation rates",
+        "Molecular clocks",
+        "Neutral processes",
+        "Rates of evolution",
+        "Chromosomal and genome evolution (e.g. hybridization, ploidy, introgression)",
+        "Phylogenetic methods (parsimony; maximum likelihood, Bayesian, etc)",
+        "Phylogeography"
+      ],
+      "Macroevolution": [
+        "Species concepts",
+        "Speciation and extinction",
+        "Adaptive radiation",
+        "Convergence",
+        "Biogeographic processes",
+        "Continental drift"
+      ]
+    },
+    "Mathematics and Quantitative Ecology": {
+      "Mathematics and Statistics in Ecology": [
+        "Simple functions (linear, quadratic, exponential, logarithmic, etc)",
+        "Concept of derivatives and slope of a function",
+        "Permutations and combinations",
+        "Basic probability (probability of random events; Sequences of events, conditional probability, etc)",
+        "Probability distributions (e.g. binomial, normal, Poisson)",
+        "Descriptive statistics (mean, variance, coefficient of variation, confidence intervals, etc.)"
+      ],
+      "Study design and Statistical methods": [
+        "Statistical hypothesis testing",
+        "Concept of p-value",
+        "Type I and Type II error",
+        "Statistical tests (e.g. t-test, Chi-square test)",
+        "Correlation, linear regression and ANOVA"
+      ]
+    },
+    "Behavioural Ecology": {
+      "Classical Ethology and Sensory Ecology": [
+        "Proximate and ultimate explanations for behaviour",
+        "Innate and learnt behavior",
+        "Basic mechanisms (e.g., neuroethology, behavioural endocrinology)",
+        "Modes of communication (chemical, visual, etc)",
+        "Movement (e.g. navigation)"
+      ],
+      "Foraging and Reproduction": [
+        "Optimal foraging theory",
+        "Space use (e.g. territoriality)",
+        "Mating systems",
+        "Sexual selection and sexual conflict (runaway selection, good-genes, handicap principle, etc)",
+        "Parental care"
+      ],
+      "Social Behaviour": [
+        "Costs and benefits of group-living",
+        "Intraspecific competition (e.g. scramble and contest)",
+        "Kin selection",
+        "Altruism"
+      ]
+    },
+    "Applied Ecology & Evolution": {
+      "Biodiversity and Conservation": [
+        "Biodiversity-ecosystem function relationships",
+        "Ecosystem services",
+        "Conservation (endemism, biodiversity hotspots, protected areas)",
+        "Global conservation initiatives (e.g. COP, IUCN, CBD, CITES)",
+        "Conservation genetics and methods (genetic diversity, inbreeding depression, DNA fingerprinting and DNA barcoding)"
+      ],
+      "Disease Ecology and Evolution": [
+        "Epidemiology",
+        "Zoonotic diseases",
+        "Antibiotic resistance"
+      ],
+      "Global Change": [
+        "Causes, consequences, adaptation and mitigation of climate change",
+        "Threats to biodiversity (e.g. pollution, habitat loss and change)",
+        "Invasive species"
+      ]
+    }
+  }
 }

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { EXAM_OPTIONS, ExamOption, StreamOption } from "@/config/exams";
+import { EXAM_OPTIONS, EXAM_CATEGORIES, ExamOption, StreamOption } from "@/config/exams";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -151,6 +151,11 @@ export function OnboardingModal() {
               </View>
 
               <View style={styles.dropdownTextGroup}>
+                <View style={styles.categoryPillRow}>
+                  <Text style={[styles.categoryTag, { color: selectedExam.color }]}>
+                    {selectedExam.category}
+                  </Text>
+                </View>
                 <Text style={[styles.dropdownTitle, { color: colors.text }]} numberOfLines={1}>
                   {selectedExam.name}
                 </Text>
@@ -297,58 +302,91 @@ export function OnboardingModal() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
-                {EXAM_OPTIONS.map((exam) => {
-                  const isSelected = exam.id === selectedExamId;
+              <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
+                {EXAM_CATEGORIES.map((category) => {
+                  const categoryExams = EXAM_OPTIONS.filter((e) => e.category === category.id);
+                  if (categoryExams.length === 0) return null;
+
                   return (
-                    <TouchableOpacity
-                      key={exam.id}
-                      style={[
-                        styles.pickerItem,
-                        {
-                          borderColor: isSelected ? exam.color : colors.borderSubtle,
-                          backgroundColor: isSelected ? `${exam.color}15` : "transparent",
-                        },
-                      ]}
-                      onPress={() => handleSelectExam(exam)}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.pickerBadgeLeft,
-                          {
-                            backgroundColor: `${exam.color}18`,
-                            borderColor: isSelected ? exam.color : `${exam.color}35`,
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={[styles.pickerBadgeLeftText, { color: exam.color }]}
-                          numberOfLines={1}
+                    <View key={category.id} style={styles.pickerSection}>
+                      <View style={styles.pickerSectionHeader}>
+                        <View style={styles.pickerSectionTitleRow}>
+                          <Ionicons
+                            name={category.icon as any}
+                            size={12}
+                            color={colors.textMuted}
+                            style={{ marginRight: 5 }}
+                          />
+                          <Text style={[styles.pickerSectionTitle, { color: colors.textMuted }]}>
+                            {category.label}
+                          </Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.sectionCountBadge,
+                            { backgroundColor: colors.borderSubtle },
+                          ]}
                         >
-                          {exam.shortName}
-                        </Text>
+                          <Text style={[styles.sectionCountText, { color: colors.textMuted }]}>
+                            {categoryExams.length} {categoryExams.length === 1 ? "EXAM" : "EXAMS"}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.pickerItemTitle, { color: colors.text }]} numberOfLines={1}>
-                          {exam.name}
-                        </Text>
-                        <Text
-                          style={[styles.pickerItemSubtitle, { color: colors.textMuted }]}
-                          numberOfLines={1}
-                        >
-                          {exam.description}
-                        </Text>
-                      </View>
-                      {isSelected && (
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={18}
-                          color={exam.color}
-                          style={{ marginLeft: 6 }}
-                        />
-                      )}
-                    </TouchableOpacity>
+
+                      {categoryExams.map((exam) => {
+                        const isSelected = exam.id === selectedExamId;
+                        return (
+                          <TouchableOpacity
+                            key={exam.id}
+                            style={[
+                              styles.pickerItem,
+                              {
+                                borderColor: isSelected ? exam.color : colors.borderSubtle,
+                                backgroundColor: isSelected ? `${exam.color}15` : "transparent",
+                              },
+                            ]}
+                            onPress={() => handleSelectExam(exam)}
+                            activeOpacity={0.7}
+                          >
+                            <View
+                              style={[
+                                styles.pickerBadgeLeft,
+                                {
+                                  backgroundColor: `${exam.color}18`,
+                                  borderColor: isSelected ? exam.color : `${exam.color}35`,
+                                },
+                              ]}
+                            >
+                              <Text
+                                style={[styles.pickerBadgeLeftText, { color: exam.color }]}
+                                numberOfLines={1}
+                              >
+                                {exam.shortName}
+                              </Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={[styles.pickerItemTitle, { color: colors.text }]} numberOfLines={1}>
+                                {exam.name}
+                              </Text>
+                              <Text
+                                style={[styles.pickerItemSubtitle, { color: colors.textMuted }]}
+                                numberOfLines={1}
+                              >
+                                {exam.description}
+                              </Text>
+                            </View>
+                            {isSelected && (
+                              <Ionicons
+                                name="checkmark-circle"
+                                size={18}
+                                color={exam.color}
+                                style={{ marginLeft: 6 }}
+                              />
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
                   );
                 })}
               </ScrollView>
@@ -380,7 +418,7 @@ export function OnboardingModal() {
             >
               <View style={styles.sheetHeader}>
                 <Text style={[styles.sheetTitle, { color: colors.text }]}>
-                  Select Stream for {selectedExam.shortName}
+                  Select Stream for {selectedExam.name}
                 </Text>
                 <TouchableOpacity
                   onPress={() => setIsStreamPickerOpen(false)}
@@ -632,5 +670,47 @@ const styles = StyleSheet.create({
   pickerItemSubtitle: {
     fontSize: 10.5,
     marginTop: 1,
+  },
+  categoryPillRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  categoryTag: {
+    fontSize: 9.5,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+  pickerSection: {
+    marginBottom: 12,
+  },
+  pickerSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+    paddingHorizontal: 2,
+    marginTop: 4,
+  },
+  pickerSectionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  pickerSectionTitle: {
+    fontSize: 10.5,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+  },
+  sectionCountBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 8,
+  },
+  sectionCountText: {
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 0.3,
   },
 });

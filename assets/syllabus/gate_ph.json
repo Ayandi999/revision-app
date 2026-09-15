@@ -1,3 +1,269 @@
 {
-  "subjects": {}
+  "subjects": {
+    "Measurements and Error Analysis": {
+      "Units, Dimensions and Measurements": [
+        "Units and dimensions",
+        "Dimensional analysis",
+        "Least count",
+        "Significant figures",
+        "Methods of measurement and error analysis for physical quantities",
+        "2-probe method for resistance measurement",
+        "4-probe method for resistance measurement"
+      ],
+      "Circuit Practices and Instrumentation": [
+        "Grounding for electrical circuits",
+        "Ground loops",
+        "Design of DC power supply",
+        "Signal processing through lock-in amplifiers"
+      ]
+    },
+    "Mathematical Physics": {
+      "Linear Vector Spaces and Matrices": [
+        "Linear vector spaces: basis, orthogonality and completeness",
+        "Matrices: similarity transformations",
+        "Diagonalization",
+        "Eigenvalues and eigen vectors"
+      ],
+      "Differential Equations and Transforms": [
+        "Linear differential equations: first order",
+        "Linear differential equations: second order",
+        "Fourier analysis"
+      ],
+      "Complex Analysis and Tensors": [
+        "Cauchy-Riemann conditions",
+        "Cauchy's theorem",
+        "Singularities",
+        "Residue theorem and applications",
+        "Tensors: tensor transformations",
+        "Covariant and contravariant tensors"
+      ]
+    },
+    "Classical Mechanics": {
+      "Lagrangian and Hamiltonian Formulations": [
+        "D'Alembert's principle",
+        "Euler-Lagrange equation",
+        "Hamilton's principle",
+        "Calculus of variations",
+        "Symmetry and conservation laws",
+        "Hamiltonian and Hamilton's equations of motion",
+        "Canonical transformations: Poisson bracket"
+      ],
+      "Central Forces and Rigid Body Dynamics": [
+        "Central force motion: Kepler problem",
+        "Small oscillations: coupled oscillations and normal modes",
+        "Inertia tensor",
+        "Orthogonal transformations",
+        "Euler angles",
+        "Torque free motion of a symmetric top"
+      ],
+      "Special Theory of Relativity": [
+        "Lorentz transformations",
+        "Relativistic kinematics",
+        "Mass-energy equivalence"
+      ]
+    },
+    "Thermodynamics and Statistical Mechanics": {
+      "Classical Thermodynamics": [
+        "Laws of thermodynamics",
+        "Macrostates and microstates",
+        "Phase space",
+        "Calculation of thermodynamic quantities",
+        "First and second order phase transitions",
+        "Phase equilibria",
+        "Critical phenomena"
+      ],
+      "Statistical Ensembles and Quantum Statistics": [
+        "Ensembles",
+        "Partition function",
+        "Free energy",
+        "Classical and quantum statistics",
+        "Degenerate Fermi gas",
+        "Black body radiation and Planck's distribution law",
+        "Bose-Einstein condensation"
+      ]
+    },
+    "Electromagnetic theory": {
+      "Electrostatics and Magnetostatics": [
+        "Solutions of electrostatic and magnetostatic boundary value problems",
+        "Method of images",
+        "Separation of variables",
+        "Dielectrics and conductors",
+        "Magnetic materials",
+        "Multipole expansion"
+      ],
+      "Electrodynamics and Wave Propagation": [
+        "Maxwell's equations",
+        "Scalar and vector potentials",
+        "Coulomb gauge",
+        "Lorentz gauge",
+        "Electromagnetic waves in free space",
+        "Electromagnetic waves in non-conducting media",
+        "Electromagnetic waves in conducting media",
+        "Reflection and transmission at normal incidence",
+        "Reflection and transmission at oblique incidence",
+        "Polarization of electromagnetic waves",
+        "Poynting vector",
+        "Poynting theorem",
+        "Energy and momentum of electromagnetic waves"
+      ]
+    },
+    "Optical Physics": {
+      "Waves and Interference": [
+        "Wave equation: plane and spherical waves",
+        "Superposition of waves",
+        "Standing waves",
+        "Phase and group velocities",
+        "Spatial and temporal coherence",
+        "Dielectric films",
+        "Newton's ring",
+        "Multiple-beam interference",
+        "Michelson interferometer",
+        "Fabry-Perot interferometer and etalon"
+      ],
+      "Diffraction, Polarization and Lasers": [
+        "Fresnel and Fraunhofer diffraction",
+        "Diffraction through rectangular and circular aperture",
+        "Rayleigh criterion of resolution",
+        "Diffraction from double slit and many slits",
+        "Dispersion by a grating",
+        "Jones vectors and matrices for linear, circular and elliptical polarization",
+        "Birefringence",
+        "Ray-transfer matrix for mirrors and lenses",
+        "Einstein coefficients",
+        "Population inversion",
+        "Two and three level laser systems"
+      ]
+    },
+    "Quantum Mechanics": {
+      "Foundations and Operators": [
+        "Basic ideas of quantum mechanics",
+        "Uncertainty principle",
+        "Linear vectors and operators in Hilbert space",
+        "Time independent Schrodinger equation"
+      ],
+      "Bound States and Potentials": [
+        "Step potential",
+        "Finite rectangular well",
+        "Tunnelling from a potential barrier",
+        "Particle in 1,2,3-dimensional box",
+        "Particle in single and double delta function potentials",
+        "1,2,3 dimensional harmonic oscillator",
+        "Concept of degeneracy",
+        "Central potentials",
+        "Hydrogen-like atoms"
+      ],
+      "Angular Momenta and Approximation Methods": [
+        "Orbital and spin angular momenta",
+        "Addition of angular momenta",
+        "Variational method",
+        "Time independent perturbation theory",
+        "Elementary scattering theory",
+        "Born approximation"
+      ]
+    },
+    "Atomic and Molecular Physics": {
+      "Atomic Spectra and Interactions": [
+        "Spectra of one- and many-electron atoms",
+        "Spin-orbit interaction: L-S coupling",
+        "Spin-orbit interaction: j-j coupling",
+        "Fine structure",
+        "Hyperfine structure",
+        "Zeeman effect",
+        "Paschen-Back effect",
+        "Stark effect",
+        "Electric dipole transitions and selection rules"
+      ],
+      "Molecular Spectra and Spectroscopy": [
+        "Rotational spectra of diatomic molecules",
+        "Vibrational spectra of diatomic molecules",
+        "Electronic transitions in diatomic molecules",
+        "Franck-Condon principle",
+        "Raman effect",
+        "Basics of Raman spectroscopy",
+        "NMR spectroscopy",
+        "ESR spectroscopy",
+        "X-ray spectroscopy",
+        "Mossbauer spectroscopy"
+      ]
+    },
+    "Solid State Physics": {
+      "Crystal Structures and Lattice Properties": [
+        "Elements of crystallography",
+        "Diffraction methods for structure determination",
+        "Bonding in solids",
+        "Lattice vibrations and thermal properties of solids"
+      ],
+      "Band Theory, Semiconductors and Dielectrics": [
+        "Free electron theory",
+        "Nearly free electron model",
+        "Metals, semiconductors and insulators",
+        "Conductivity in semiconductors",
+        "Electron and hole statistics in intrinsic and extrinsic semiconductors",
+        "Mobility and effective mass",
+        "Metal-semiconductor junctions",
+        "Ohmic and rectifying contacts",
+        "Dielectric properties of solids",
+        "Polarizability",
+        "Ferroelectricity"
+      ],
+      "Magnetism and Superconductivity": [
+        "Dia, para, ferro, antiferro and ferri magnetism",
+        "Ferromagnetic domains",
+        "Type-I superconductors",
+        "Type-II superconductors",
+        "Meissner effect",
+        "London equation",
+        "BCS theory",
+        "Flux quantization"
+      ]
+    },
+    "Nuclear and Particle Physics": {
+      "Nuclear Properties and Models": [
+        "Nuclear binding energy",
+        "Electric and magnetic moments",
+        "Semi-empirical mass formula",
+        "Liquid drop model",
+        "Nuclear shell model",
+        "Nuclear force and two nucleon problem"
+      ],
+      "Decay, Reactions and Particles": [
+        "Alpha decay",
+        "Beta-decay",
+        "Electromagnetic transitions in nuclei",
+        "Rutherford scattering",
+        "Nuclear reactions and conservation laws",
+        "Nuclear fission and fusion",
+        "Particle accelerators and detectors",
+        "Elementary particles: photons, baryons, mesons and leptons",
+        "Quark model",
+        "Conservation laws and isospin symmetry",
+        "Charge conjugation, parity and time-reversal invariance"
+      ]
+    },
+    "Electronics": {
+      "Semiconductor Devices and Analog Circuits": [
+        "p-n diodes",
+        "Bipolar junction transistors",
+        "Field effect transistors",
+        "Negative and positive feedback circuits",
+        "Oscillators",
+        "Operational amplifiers and their applications",
+        "Active filters",
+        "Sine wave generator",
+        "Square wave generator",
+        "Triangular wave generator"
+      ],
+      "Digital Circuits": [
+        "Basics of digital logic circuits",
+        "Combinational circuits",
+        "Sequential circuits",
+        "Flip-flops",
+        "Timers",
+        "Counters",
+        "Registers",
+        "A/D conversion",
+        "D/A conversion"
+      ]
+    }
+  }
 }

@@ -146,6 +146,24 @@ const Settings = () => {
             </View>
 
             <View style={styles.examTextGroup}>
+              {currentExamConfig?.category && (
+                <View style={styles.categoryRow}>
+                  <Ionicons
+                    name={
+                      currentExamConfig.category === "Government Exams"
+                        ? "shield-checkmark-outline"
+                        : currentExamConfig.category === "Self Study"
+                        ? "book-outline"
+                        : "school-outline"
+                    }
+                    size={10}
+                    color={examColor}
+                  />
+                  <Text style={[styles.categoryTag, { color: examColor }]}>
+                    {currentExamConfig.category}
+                  </Text>
+                </View>
+              )}
               <View style={styles.examTitleRow}>
                 <Text style={[styles.examTitle, { color: colors.text }]}>{examTitle}</Text>
                 <View style={[styles.badge, { backgroundColor: `${examColor}18` }]}>
@@ -299,6 +317,18 @@ const styles = StyleSheet.create({
   examTextGroup: {
     flex: 1,
     justifyContent: "center",
+  },
+  categoryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 2,
+  },
+  categoryTag: {
+    fontSize: 9.5,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   examTitleRow: {
     flexDirection: "row",
