@@ -188,13 +188,14 @@ export async function findAppDataFile(
 }
 
 /**
- * Helper to upload a binary file to appDataFolder using Resumable Upload.
+ * Helper to upload a binary file to Google Drive using Resumable Upload.
  */
 async function uploadBinaryToAppData(
   accessToken: string,
   filename: string,
   mimeType: string,
-  bytes: Uint8Array
+  bytes: Uint8Array,
+  parentId = "appDataFolder"
 ): Promise<DriveBackupFile> {
   const payload =
     bytes.byteOffset === 0 && bytes.byteLength === bytes.buffer.byteLength
@@ -205,7 +206,7 @@ async function uploadBinaryToAppData(
     const initUrl = `${DRIVE_UPLOAD_BASE}?uploadType=resumable`;
     const metadata = {
       name: filename,
-      parents: ["appDataFolder"],
+      parents: [parentId],
       mimeType,
     };
 
@@ -272,8 +273,81 @@ async function uploadBinaryToAppData(
   });
 }
 
+let cachedAudioFolderId: string | null = null;
+
 /**
- * Uploads a single image directly to Google Drive appDataFolder.
+ * Searches for or creates a folder inside appDataFolder.
+ * Caches the folder ID in memory to avoid repeated network lookups.
+ */
+export async function getOrCreateDriveFolder(
+  accessToken: string,
+  folderName: string,
+  parent = "appDataFolder"
+): Promise<string> {
+  if (folderName === "audio" && cachedAudioFolderId) {
+    return cachedAudioFolderId;
+  }
+
+  return withRetry(async () => {
+    // 1. Search for existing folder in appDataFolder
+    const escapedName = folderName.replace(/'/g, "\\'");
+    const query = encodeURIComponent(
+      `name = '${escapedName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`
+    );
+    const fields = encodeURIComponent("files(id, name)");
+    const url = `${DRIVE_API_BASE}?spaces=appDataFolder&q=${query}&fields=${fields}`;
+
+    const searchRes = await fetchWithTimeout(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+
+    if (searchRes.ok) {
+      const data = await searchRes.json().catch(() => ({}));
+      const files = data.files || [];
+      if (files.length > 0 && files[0].id) {
+        if (folderName === "audio") cachedAudioFolderId = files[0].id;
+        return files[0].id;
+      }
+    }
+
+    // 2. Folder does not exist, create it
+    const createRes = await fetchWithTimeout(DRIVE_API_BASE, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({
+        name: folderName,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [parent],
+      }),
+    });
+
+    if (!createRes.ok) {
+      const errText = await createRes.text().catch(() => "");
+      throw new DriveApiError(
+        `Failed to create folder ${folderName} in Google Drive (${createRes.status}): ${errText}`,
+        createRes.status
+      );
+    }
+
+    const created = await createRes.json().catch(() => ({}));
+    if (!created?.id) {
+      throw new DriveApiError(`Created folder missing ID for ${folderName}.`, 500);
+    }
+
+    if (folderName === "audio") cachedAudioFolderId = created.id;
+    return created.id;
+  });
+}
+
+/**
+ * Uploads a single media file (image or audio) directly to Google Drive.
+ * Images go to appDataFolder root, audio files go into the dedicated 'audio' folder.
  * Returns the confirmed driveFileId.
  */
 export async function uploadSingleImage(
@@ -282,15 +356,34 @@ export async function uploadSingleImage(
   imageBytes: Uint8Array
 ): Promise<string> {
   const ext = relativePath.split(".").pop()?.toLowerCase() || "jpg";
-  const mimeType = ext === "png" ? "image/png" : "image/jpeg";
-  // Encode relative path to a safe unique filename on Google Drive, escaping single quotes
-  const driveFileName = `img_${encodeURIComponent(relativePath).replace(/'/g, "%27")}`;
+  const isAudio =
+    relativePath.includes("/audio/") ||
+    ["m4a", "mp3", "aac", "wav", "3gp", "webm"].includes(ext);
+
+  let mimeType = "image/jpeg";
+  let parentId = "appDataFolder";
+  let driveFileName: string;
+
+  if (isAudio) {
+    if (ext === "m4a") mimeType = "audio/mp4";
+    else if (ext === "mp3") mimeType = "audio/mpeg";
+    else if (ext === "wav") mimeType = "audio/wav";
+    else if (ext === "aac") mimeType = "audio/aac";
+    else mimeType = "audio/mp4";
+
+    parentId = await getOrCreateDriveFolder(accessToken, "audio", "appDataFolder");
+    driveFileName = `aud_${encodeURIComponent(relativePath).replace(/'/g, "%27")}`;
+  } else {
+    mimeType = ext === "png" ? "image/png" : "image/jpeg";
+    driveFileName = `img_${encodeURIComponent(relativePath).replace(/'/g, "%27")}`;
+  }
 
   const result = await uploadBinaryToAppData(
     accessToken,
     driveFileName,
     mimeType,
-    imageBytes
+    imageBytes,
+    parentId
   );
 
   return result.id;

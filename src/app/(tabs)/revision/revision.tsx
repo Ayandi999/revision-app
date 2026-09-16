@@ -601,7 +601,7 @@ export default function RevisionScreen() {
                   color="#FFFFFF"
                 />
                 <Text style={styles.reviewResultsBtnText}>
-                  Review Today's Results
+                  Review Today&apos;s Results
                 </Text>
               </TouchableOpacity>
             )}

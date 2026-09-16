@@ -22,7 +22,7 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: true,
+    shouldPlaySound: false,
     shouldSetBadge: false,
   }),
 });
@@ -98,9 +98,10 @@ export async function initNotifications(): Promise<void> {
       name: "Daily Revision Reminders",
       description: "Alerts at 10:00 AM & 6:00 PM when daily revision is pending",
       importance: Notifications.AndroidImportance.HIGH,
+      enableVibrate: true,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: "#14B8A6",
-      sound: "default",
+      sound: null,
     });
   }
 
@@ -210,14 +211,15 @@ export async function syncRevisionReminders(): Promise<void> {
     // Cancel existing reminders first to prevent duplicate registrations
     await cancelAllRevisionReminders();
 
+    const questionText = dueCount === 1 ? "1 question" : `${dueCount} questions`;
+
     // 1. Schedule Morning Reminder at 10:00 AM daily
     await Notifications.scheduleNotificationAsync({
       identifier: MORNING_REMINDER_ID,
       content: {
-        title: "⏰ Morning Revision Ready",
-        body: `You have questions due for revision today. Take your test to keep your retention strong!`,
+        title: "RevLog",
+        body: `You have ${questionText} left to answer in today's revision test.`,
         data: { url: "/revision" },
-        sound: "default",
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -231,10 +233,9 @@ export async function syncRevisionReminders(): Promise<void> {
     await Notifications.scheduleNotificationAsync({
       identifier: EVENING_REMINDER_ID,
       content: {
-        title: "🎯 Revision Pending",
-        body: `Your daily revision test is still waiting. Don't break your streak—review before the day ends!`,
+        title: "RevLog",
+        body: `Reminder: You have ${questionText} left to answer before the day ends.`,
         data: { url: "/revision" },
-        sound: "default",
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -256,12 +257,17 @@ export async function sendInstantTestNotification(): Promise<boolean> {
     const hasPermission = await requestNotificationPermission();
     if (!hasPermission) return false;
 
+    const { dueCount } = await checkRevisionStatus();
+    const questionText =
+      dueCount > 0
+        ? `${dueCount === 1 ? "1 question" : `${dueCount} questions`}`
+        : "questions";
+
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "🔔 Test Revision Alert",
-        body: "Your notifications are working! You'll receive alerts at 10:00 AM & 6:00 PM when revision is due.",
+        title: "RevLog",
+        body: `You have ${questionText} left to answer in your revision test.`,
         data: { url: "/revision" },
-        sound: "default",
       },
       trigger: {
         channelId: NOTIFICATION_CHANNEL_ID,

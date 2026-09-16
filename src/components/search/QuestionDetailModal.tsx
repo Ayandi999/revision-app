@@ -1,4 +1,6 @@
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
+import { AudioNotePlayer } from "@/components/audio/AudioNotePlayer";
+import { isAudioPath } from "@/functions/audioHelpers";
 import type { Question } from "@/database/schema";
 import { getQuestionImages, getSolutionImages } from "@/functions/imageHelpers";
 import { Ionicons } from "@expo/vector-icons";
@@ -462,25 +464,35 @@ export function QuestionDetailModal({
               ) : null}
             </View>
 
-            {/* ── Section 4: Personal Notes ───────────────────────────────── */}
+            {/* ── Section 4: Personal Notes / Voice Note ─────────────────── */}
             {question.personalNote ? (
               <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
                 <View style={styles.sectionHeaderRow}>
-                  <Ionicons name="document-text" size={16} color={colors.warning} />
-                  <Text style={[styles.sectionHeading, { color: colors.text }]}>Personal Notes</Text>
+                  <Ionicons
+                    name={isAudioPath(question.personalNote) ? "mic" : "document-text"}
+                    size={16}
+                    color={isAudioPath(question.personalNote) ? colors.primary : colors.warning}
+                  />
+                  <Text style={[styles.sectionHeading, { color: colors.text }]}>
+                    {isAudioPath(question.personalNote) ? "Voice Note" : "Personal Notes"}
+                  </Text>
                 </View>
-                <View
-                  style={[
-                    styles.noteCard,
-                    {
-                      backgroundColor: colors.warningBg,
-                      borderColor: colors.warning,
-                      borderLeftColor: colors.warning,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.noteCardText, { color: colors.text }]}>{question.personalNote}</Text>
-                </View>
+                {isAudioPath(question.personalNote) ? (
+                  <AudioNotePlayer audioUri={question.personalNote} />
+                ) : (
+                  <View
+                    style={[
+                      styles.noteCard,
+                      {
+                        backgroundColor: colors.warningBg,
+                        borderColor: colors.warning,
+                        borderLeftColor: colors.warning,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.noteCardText, { color: colors.text }]}>{question.personalNote}</Text>
+                  </View>
+                )}
               </View>
             ) : null}
           </ScrollView>

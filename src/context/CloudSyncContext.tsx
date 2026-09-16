@@ -23,6 +23,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   canSyncNow,
   restoreFromManifest,
+  type RestoreResult,
   syncDatabaseOnly,
   syncPendingImages,
 } from "@/services/backupService";
@@ -72,7 +73,7 @@ export interface CloudSyncContextValue {
   refreshPendingCount: () => Promise<void>;
   signIn: () => Promise<boolean>;
   signOut: () => Promise<void>;
-  restore: () => Promise<void>;
+  restore: () => Promise<RestoreResult | null>;
 }
 
 const CloudSyncContext = createContext<CloudSyncContextValue | null>(null);
@@ -334,66 +335,45 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // ─── Restore Pipeline ───────────────────────────────────────────────────────
-  const restore = useCallback(async () => {
-    if (isSyncing || isRestoring) return;
+  const restore = useCallback(async (): Promise<RestoreResult | null> => {
+    if (isSyncing || isRestoring) return null;
 
     if (!isNativeSupported) {
-      Alert.alert(
-        "Native Build Required",
+      throw new Error(
         "Google Drive restore requires native compilation. Please run a native development build ('npx expo run:android' or 'npx expo run:ios')."
       );
-      return;
     }
 
-    Alert.alert(
-      "Restore from Drive",
-      "This will replace your current local revision database and download missing images from your Google Drive backup. Continue?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Restore",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setIsRestoring(true);
-              setProgressMessage("Connecting to Google Drive...");
+    try {
+      setIsRestoring(true);
+      setProgressMessage("Connecting to Google Drive...");
 
-              const result = await withTokenRetry(
-                (token) =>
-                  restoreFromManifest(token, (step) => {
-                    setProgressMessage(step);
-                  }),
-                (progress) => setProgressMessage(progress)
-              );
+      const result = await withTokenRetry(
+        (token) =>
+          restoreFromManifest(token, (step) => {
+            setProgressMessage(step);
+          }),
+        (progress) => setProgressMessage(progress)
+      );
 
-              // Invalidate stale caches so Home & Revision tabs reload freshly
-              try {
-                await AsyncStorage.removeItem("revision-data");
-                await AsyncStorage.removeItem("@revision_results_dismissed_today");
-              } catch {}
+      // Invalidate stale caches so Home & Revision tabs reload freshly
+      try {
+        await AsyncStorage.removeItem("revision-data");
+        await AsyncStorage.removeItem("@revision_results_dismissed_today");
+      } catch {}
 
-              setLastRestoredAt(result.restoredAt);
-              await loadMetadata();
-              await refreshPendingCount();
+      setLastRestoredAt(result.restoredAt);
+      await loadMetadata();
+      await refreshPendingCount();
 
-              Alert.alert(
-                "Restore Completed",
-                `Successfully restored ${result.questionCount} question(s) and verified ${result.imageCount} image(s) from your Google Drive.`
-              );
-            } catch (err: any) {
-              console.error("[CloudSyncContext] Restore failed:", err);
-              Alert.alert(
-                "Restore Failed",
-                err?.message || "Could not complete backup restoration. Your local data was preserved."
-              );
-            } finally {
-              setIsRestoring(false);
-              setProgressMessage(null);
-            }
-          },
-        },
-      ]
-    );
+      return result;
+    } catch (err: any) {
+      console.error("[CloudSyncContext] Restore failed:", err);
+      throw err;
+    } finally {
+      setIsRestoring(false);
+      setProgressMessage(null);
+    }
   }, [isNativeSupported, isSyncing, isRestoring, loadMetadata, refreshPendingCount]);
 
   return (

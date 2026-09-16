@@ -13,6 +13,12 @@ import { useCloudSync } from "@/hooks/useCloudSync";
 import { useTheme } from "@/context/ThemeContext";
 import { GoogleDriveLogo } from "@/components/icons/GoogleDriveLogo";
 import { LogoutConfirmationModal } from "@/components/settings/LogoutConfirmationModal";
+import {
+  RestoreConfirmationModal,
+  RestoreErrorModal,
+  RestoreSuccessModal,
+} from "@/components/settings/RestoreModals";
+import type { RestoreResult } from "@/services/backupService";
 
 export const GoogleDriveCard: React.FC = () => {
   const { colors } = useTheme();
@@ -39,7 +45,25 @@ export const GoogleDriveCard: React.FC = () => {
   } = useCloudSync();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [restoreSuccess, setRestoreSuccess] = useState<RestoreResult | null>(null);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
   const isBusy = isSyncing || isRestoring;
+
+  const handleConfirmRestore = async () => {
+    setShowRestoreModal(false);
+    try {
+      const res = await restore();
+      if (res) {
+        setRestoreSuccess(res);
+      }
+    } catch (err: any) {
+      console.error("[GoogleDriveCard] Restore failed:", err);
+      setRestoreError(
+        err?.message || "Could not complete backup restoration. Your local data was preserved."
+      );
+    }
+  };
 
   // Format date nicely
   const formattedLastSync = lastSyncAt
@@ -110,13 +134,6 @@ export const GoogleDriveCard: React.FC = () => {
               </Text>
             </View>
           )}
-
-          <View style={[styles.privacyBadge, { backgroundColor: colors.cardSecondary }]}>
-            <Ionicons name="shield-checkmark-outline" size={14} color="#10B981" />
-            <Text style={[styles.privacyText, { color: colors.textMuted }]}>
-              Private app scope • Cannot view or modify your personal files
-            </Text>
-          </View>
 
           <TouchableOpacity
             style={styles.signInButton}
@@ -269,7 +286,7 @@ export const GoogleDriveCard: React.FC = () => {
                 { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
                 isBusy && styles.buttonDisabled,
               ]}
-              onPress={restore}
+              onPress={() => setShowRestoreModal(true)}
               disabled={isBusy}
               activeOpacity={0.8}
             >
@@ -305,6 +322,28 @@ export const GoogleDriveCard: React.FC = () => {
         visible={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
         onConfirm={signOut}
+      />
+
+      {/* Restore Confirmation Modal */}
+      <RestoreConfirmationModal
+        visible={showRestoreModal}
+        onClose={() => setShowRestoreModal(false)}
+        onConfirm={handleConfirmRestore}
+      />
+
+      {/* Restore Success Modal */}
+      <RestoreSuccessModal
+        visible={!!restoreSuccess}
+        onClose={() => setRestoreSuccess(null)}
+        questionCount={restoreSuccess?.questionCount ?? 0}
+        imageCount={restoreSuccess?.imageCount ?? 0}
+      />
+
+      {/* Restore Error Modal */}
+      <RestoreErrorModal
+        visible={!!restoreError}
+        onClose={() => setRestoreError(null)}
+        errorMessage={restoreError || ""}
       />
     </View>
   );
@@ -420,21 +459,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
     lineHeight: 15,
-  },
-  privacyBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 6,
-    gap: 5,
-  },
-  privacyText: {
-    color: "#64748B",
-    fontSize: 10.5,
-    fontWeight: "500",
-    flex: 1,
   },
   signInButton: {
     flexDirection: "row",

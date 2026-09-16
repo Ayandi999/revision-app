@@ -2,6 +2,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
+import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
@@ -839,34 +840,18 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           >
             <View style={styles.sectionHeaderRow}>
               <Ionicons
-                name="create-outline"
+                name="mic-outline"
                 size={16}
                 color={colors.primary}
               />
               <Text style={[styles.fieldLabel, { color: colors.text }]}>
-                Personal Note / Insights
+                Voice Note / Explanation
               </Text>
             </View>
-            <View
-              style={[
-                styles.multilineInputContainer,
-                {
-                  backgroundColor: colors.inputBg,
-                  borderColor: colors.inputBorder,
-                },
-              ]}
-            >
-              <TextInput
-                style={[styles.multilineInput, { color: colors.text }]}
-                placeholder="Add formulas, tricks, or revision notes for this problem..."
-                placeholderTextColor={colors.textPlaceholder}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                value={personalNote}
-                onChangeText={setPersonalNote}
-              />
-            </View>
+            <AudioNoteField
+              value={personalNote}
+              onChange={(val) => setPersonalNote(val || "")}
+            />
           </View>
         </ScrollView>
 

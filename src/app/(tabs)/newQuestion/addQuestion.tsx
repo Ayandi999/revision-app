@@ -11,6 +11,7 @@ import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { AddQuestionFormData, OptionLetter } from "@/types/question";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
+import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import {
   SyllabusSchema,
   getSubjects,
@@ -786,23 +787,15 @@ const AddQuestion = () => {
             )}
           </View>
 
-          {/* Personal note */}
+          {/* Personal voice note */}
           <View style={styles.noteSection}>
             <Text style={styles.noteLabel}>
-              Personal note <Text style={styles.optionalLabel}>(optional)</Text>
+              Voice note <Text style={styles.optionalLabel}>(optional)</Text>
             </Text>
-            <View style={styles.noteInputContainer}>
-              <TextInput
-                style={styles.noteInput}
-                placeholder="Write your explanation, key insights, or mistakes to avoid..."
-                placeholderTextColor={colors.textPlaceholder}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-                value={personalNote}
-                onChangeText={setPersonalNote}
-              />
-            </View>
+            <AudioNoteField
+              value={personalNote}
+              onChange={(val) => setPersonalNote(val || "")}
+            />
           </View>
         </CollapsibleSection>
 

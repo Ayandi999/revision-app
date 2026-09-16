@@ -16,6 +16,8 @@ import type { Question } from "@/database/schema";
 import { getQuestionImages, getSolutionImages } from "@/functions/imageHelpers";
 import type { QuestionResult } from "@/functions/scoreCalculator";
 import { ImageZoomModal } from "./ImageZoomModal";
+import { AudioNotePlayer } from "@/components/audio/AudioNotePlayer";
+import { isAudioPath } from "@/functions/audioHelpers";
 import { useTheme } from "@/context/ThemeContext";
 
 // Enable LayoutAnimation on Android
@@ -324,15 +326,21 @@ export function ResultQuestionCard({
             </View>
           )}
 
-          {/* Personal Notes */}
+          {/* Personal Notes / Voice Note */}
           {question.personalNote && question.personalNote.trim().length > 0 && (
-            <View style={[styles.notesSection, { backgroundColor: colors.cardSecondary }]}>
-              <View style={styles.notesHeader}>
-                <Ionicons name="document-text-outline" size={14} color={colors.primary} />
-                <Text style={[styles.notesLabel, { color: colors.primary }]}>Notes</Text>
+            isAudioPath(question.personalNote) ? (
+              <View style={{ marginTop: 8 }}>
+                <AudioNotePlayer audioUri={question.personalNote} compact />
               </View>
-              <Text style={[styles.notesText, { color: colors.text }]}>{question.personalNote}</Text>
-            </View>
+            ) : (
+              <View style={[styles.notesSection, { backgroundColor: colors.cardSecondary }]}>
+                <View style={styles.notesHeader}>
+                  <Ionicons name="document-text-outline" size={14} color={colors.primary} />
+                  <Text style={[styles.notesLabel, { color: colors.primary }]}>Notes</Text>
+                </View>
+                <Text style={[styles.notesText, { color: colors.text }]}>{question.personalNote}</Text>
+              </View>
+            )
           )}
         </View>
       )}

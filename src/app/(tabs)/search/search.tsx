@@ -12,6 +12,7 @@ import type { Question } from "@/database/schema";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
 import { resolveImageUri } from "@/functions/imageHelpers";
+import { isAudioPath } from "@/functions/audioHelpers";
 import { deleteQuestionFromLocalDb } from "@/functions/queries";
 import {
   searchQuestions,
@@ -371,12 +372,33 @@ export default function SearchScreen() {
 
           {/* Column 2 (Middle): Subject on top and OCR extracted text snippet below */}
           <View style={styles.middleCol}>
-            <Text
-              style={[styles.colSubjectText, { color: subjColor }]}
-              numberOfLines={1}
-            >
-              {item.subject}
-            </Text>
+            <View style={styles.subjectRow}>
+              <Text
+                style={[styles.colSubjectText, { color: subjColor }]}
+                numberOfLines={1}
+              >
+                {item.subject}
+              </Text>
+              {item.personalNote && isAudioPath(item.personalNote) ? (
+                <View
+                  style={[
+                    styles.audioBadge,
+                    {
+                      backgroundColor: isDark
+                        ? "rgba(20, 184, 166, 0.15)"
+                        : "rgba(13, 148, 136, 0.1)",
+                    },
+                  ]}
+                >
+                  <Ionicons name="mic" size={9} color={colors.primary} />
+                  <Text
+                    style={[styles.audioBadgeText, { color: colors.primary }]}
+                  >
+                    Voice
+                  </Text>
+                </View>
+              ) : null}
+            </View>
             <Text
               style={[
                 styles.extractedSnippetText,
@@ -1126,10 +1148,30 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       paddingLeft: 8,
       gap: 3,
     },
+    subjectRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 6,
+    },
+    audioBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+      paddingHorizontal: 5,
+      paddingVertical: 1.5,
+      borderRadius: 4,
+    },
+    audioBadgeText: {
+      fontSize: 9.5,
+      fontWeight: "700",
+      letterSpacing: 0.2,
+    },
     colSubjectText: {
       fontSize: 12,
       fontWeight: "700",
       letterSpacing: 0.1,
+      flexShrink: 1,
     },
     extractedSnippetText: {
       color: colors.textSecondary,

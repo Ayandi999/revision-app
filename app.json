@@ -47,7 +47,14 @@
           "icon": "./assets/images/icon.png",
           "color": "#14B8A6"
         }
-      ]
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow RevLog to record personal voice notes."
+        }
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
