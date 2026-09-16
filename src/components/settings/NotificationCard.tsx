@@ -12,6 +12,8 @@ import {
   setNotificationsEnabled,
 } from "@/services/notificationService";
 
+import { hapticSelection } from "@/functions/hapticFeedback";
+
 export const NotificationCard: React.FC = () => {
   const { colors } = useTheme();
   const [isEnabled, setIsEnabled] = useState(true);
@@ -21,6 +23,7 @@ export const NotificationCard: React.FC = () => {
   }, []);
 
   const handleToggle = async (val: boolean) => {
+    hapticSelection();
     setIsEnabled(val);
     await setNotificationsEnabled(val);
   };

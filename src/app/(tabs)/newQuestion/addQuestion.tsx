@@ -13,6 +13,12 @@ import { AddQuestionFormData, OptionLetter } from "@/types/question";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import {
+  hapticError,
+  hapticImpactMedium,
+  hapticSuccess,
+  hapticWarning,
+} from "@/functions/hapticFeedback";
+import {
   SyllabusSchema,
   getSubjects,
   getSubtopicsForTopics,
@@ -284,8 +290,10 @@ const AddQuestion = () => {
 
   // ── Submit handler ──────────────────────────────────────────────────────
   const handleSubmit = async () => {
+    hapticImpactMedium();
     const missing = getMissingFields();
     if (missing.length > 0) {
+      hapticWarning();
       setMissingFieldsList(missing);
       setIsMissingModalVisible(true);
       return;
@@ -310,6 +318,7 @@ const AddQuestion = () => {
 
       const result = await insertIntoLocalDb(payload);
       if (result.success) {
+        hapticSuccess();
         showStatusModal(
           "success",
           "Question Saved!",
@@ -318,6 +327,7 @@ const AddQuestion = () => {
           resetForm,
         );
       } else {
+        hapticError();
         showStatusModal(
           "error",
           "Failed to Save",
@@ -326,6 +336,7 @@ const AddQuestion = () => {
         );
       }
     } catch (err) {
+      hapticError();
       console.error("[handleSubmit] Error:", err);
       showStatusModal(
         "error",

@@ -35,6 +35,10 @@ import {
 } from "@/functions/revisionQuestionFetch";
 import { calculateScores, type ScoreResult } from "@/functions/scoreCalculator";
 import { syncQuestionsToDB } from "@/functions/syncQuestion";
+import {
+  hapticImpactMedium,
+  hapticSuccess,
+} from "@/functions/hapticFeedback";
 
 // ─── Phase type ───────────────────────────────────────────────────────────────
 
@@ -96,6 +100,7 @@ export default function RevisionScreen() {
       c: RevisionCache | null,
     ) => {
       setPhase("computing");
+      hapticSuccess();
       fadeAnim.setValue(0);
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -260,6 +265,7 @@ export default function RevisionScreen() {
 
   // ── Start / Resume Quiz handler ───────────────────────────────────────────
   const handleStartQuiz = useCallback(async () => {
+    hapticImpactMedium();
     if (cache && cache.status !== "in-progress") {
       const updatedCache: RevisionCache = {
         ...cache,

@@ -8,6 +8,7 @@ import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
 import { resolveImageUri } from "@/functions/imageHelpers";
 import { updateQuestionInLocalDb } from "@/functions/queries";
+import { hapticError, hapticSuccess } from "@/functions/hapticFeedback";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import type { OptionLetter, QuestionType } from "@/types/question";
 import {
@@ -277,12 +278,15 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       });
 
       if (result.success && result.data) {
+        hapticSuccess();
         onSaveSuccess(result.data);
         onClose();
       } else {
+        hapticError();
         setErrorMessage(result.error || "Failed to update question.");
       }
     } catch (err) {
+      hapticError();
       console.error("[EditQuestionModal] Save error:", err);
       setErrorMessage(
         err instanceof Error ? err.message : "Failed to save changes.",

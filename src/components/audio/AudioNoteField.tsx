@@ -21,6 +21,11 @@ import {
   isAudioPath,
   persistAudioRecording,
 } from "@/functions/audioHelpers";
+import {
+  hapticImpactLight,
+  hapticImpactMedium,
+  hapticSuccess,
+} from "@/functions/hapticFeedback";
 import { AudioNotePlayer } from "./AudioNotePlayer";
 
 interface AudioNoteFieldProps {
@@ -68,6 +73,7 @@ export const AudioNoteField: React.FC<AudioNoteFieldProps> = ({
 
       await recorder.prepareToRecordAsync();
       recorder.record();
+      hapticImpactMedium();
     } catch (err) {
       console.error("[AudioNoteField] Failed to start recording:", err);
       Alert.alert("Recording Error", "Could not start audio recording. Please try again.");
@@ -97,6 +103,7 @@ export const AudioNoteField: React.FC<AudioNoteFieldProps> = ({
       }
 
       onChange(relativePath);
+      hapticSuccess();
     } catch (err) {
       console.error("[AudioNoteField] Failed to save recording:", err);
       Alert.alert("Save Error", "Failed to save the audio recording.");
@@ -107,6 +114,7 @@ export const AudioNoteField: React.FC<AudioNoteFieldProps> = ({
 
   // Delete recorded audio handler
   const handleDeleteRecordedNote = () => {
+    hapticImpactLight();
     if (value && isAudioPath(value)) {
       deleteAudioFile(value);
     }

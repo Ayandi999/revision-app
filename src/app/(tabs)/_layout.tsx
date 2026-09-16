@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
+import { hapticSelection } from "@/functions/hapticFeedback";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { colors } = useTheme();
@@ -55,6 +56,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         const color = isFocused ? colors.tabBarActive : colors.tabBarInactive;
 
         const onPress = () => {
+          hapticSelection();
           const event = navigation.emit({
             type: "tabPress",
             target: route.key,

@@ -19,6 +19,12 @@ import {
   RestoreSuccessModal,
 } from "@/components/settings/RestoreModals";
 import type { RestoreResult } from "@/services/backupService";
+import {
+  hapticError,
+  hapticImpactMedium,
+  hapticSelection,
+  hapticSuccess,
+} from "@/functions/hapticFeedback";
 
 export const GoogleDriveCard: React.FC = () => {
   const { colors } = useTheme();
@@ -55,9 +61,11 @@ export const GoogleDriveCard: React.FC = () => {
     try {
       const res = await restore();
       if (res) {
+        hapticSuccess();
         setRestoreSuccess(res);
       }
     } catch (err: any) {
+      hapticError();
       console.error("[GoogleDriveCard] Restore failed:", err);
       setRestoreError(
         err?.message || "Could not complete backup restoration. Your local data was preserved."
@@ -243,7 +251,10 @@ export const GoogleDriveCard: React.FC = () => {
               </View>
               <Switch
                 value={backupEnabled}
-                onValueChange={toggleBackupEnabled}
+                onValueChange={(val) => {
+                  hapticSelection();
+                  toggleBackupEnabled(val);
+                }}
                 trackColor={{ false: colors.border, true: colors.primary }}
                 thumbColor={backupEnabled ? "#FFFFFF" : colors.textMuted}
                 style={styles.compactSwitch}
@@ -260,7 +271,10 @@ export const GoogleDriveCard: React.FC = () => {
                 </View>
                 <Switch
                   value={wifiOnly}
-                  onValueChange={toggleWifiOnly}
+                  onValueChange={(val) => {
+                    hapticSelection();
+                    toggleWifiOnly(val);
+                  }}
                   trackColor={{ false: colors.border, true: colors.primary }}
                   thumbColor={wifiOnly ? "#FFFFFF" : colors.textMuted}
                   style={styles.compactSwitch}
@@ -286,7 +300,10 @@ export const GoogleDriveCard: React.FC = () => {
                 { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
                 isBusy && styles.buttonDisabled,
               ]}
-              onPress={() => setShowRestoreModal(true)}
+              onPress={() => {
+                hapticImpactMedium();
+                setShowRestoreModal(true);
+              }}
               disabled={isBusy}
               activeOpacity={0.8}
             >

@@ -13,6 +13,11 @@ import type { Question } from "@/database/schema";
 import { getQuestionImages } from "@/functions/imageHelpers";
 import { ImageZoomModal } from "./ImageZoomModal";
 import { useTheme } from "@/context/ThemeContext";
+import {
+  hapticImpactLight,
+  hapticImpactMedium,
+  hapticSelection,
+} from "@/functions/hapticFeedback";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,11 +56,13 @@ export function QuestionCard({
 
   // ── MCQ handler ─────────────────────────────────────────────────────────
   const handleMCQSelect = (option: string) => {
+    hapticSelection();
     onAnswerChange(answer === option ? null : option);
   };
 
   // ── MSQ handler ─────────────────────────────────────────────────────────
   const handleMSQToggle = (option: string) => {
+    hapticSelection();
     const current = Array.isArray(answer) ? answer : [];
     if (current.includes(option)) {
       const next = current.filter((o) => o !== option);
@@ -237,7 +244,14 @@ export function QuestionCard({
       <TouchableOpacity
         style={[styles.nextButton, { backgroundColor: colors.primary }]}
         activeOpacity={0.8}
-        onPress={onNext}
+        onPress={() => {
+          if (isLast) {
+            hapticImpactMedium();
+          } else {
+            hapticImpactLight();
+          }
+          onNext();
+        }}
       >
         <Text style={styles.nextButtonText}>
           {isLast ? "Submit" : "Next"}

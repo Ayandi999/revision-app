@@ -10,6 +10,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Image } from "expo-image";
 import { useCloudSync } from "@/hooks/useCloudSync";
+import { hapticImpactMedium } from "@/functions/hapticFeedback";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -319,6 +320,7 @@ export default function DashboardScreen() {
                 ]}
                 activeOpacity={0.8}
                 onPress={() => {
+                  hapticImpactMedium();
                   if (stats?.sessionStatus === "empty") {
                     router.push("/(tabs)/newQuestion/addQuestion" as any);
                   } else {
