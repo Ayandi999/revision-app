@@ -20,14 +20,19 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { QuestionCard } from "@/components/revision/QuestionCard";
-import { ResultQuestionCard } from "@/components/revision/ResultQuestionCard";
 import { OverallAccuracyBar } from "@/components/revision/OverallAccuracyBar";
 import { QuestionAccuracyBarChart } from "@/components/revision/QuestionAccuracyBarChart";
+import { QuestionCard } from "@/components/revision/QuestionCard";
+import { ResultQuestionCard } from "@/components/revision/ResultQuestionCard";
 import { TimePerQuestionChart } from "@/components/revision/TimePerQuestionChart";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
+import {
+  hapticImpactMedium,
+  hapticSelection,
+  hapticSuccess,
+} from "@/functions/hapticFeedback";
 import {
   getRevisionQuestions,
   writeCache,
@@ -35,11 +40,6 @@ import {
 } from "@/functions/revisionQuestionFetch";
 import { calculateScores, type ScoreResult } from "@/functions/scoreCalculator";
 import { syncQuestionsToDB } from "@/functions/syncQuestion";
-import {
-  hapticImpactMedium,
-  hapticSelection,
-  hapticSuccess,
-} from "@/functions/hapticFeedback";
 
 // ─── Phase type ───────────────────────────────────────────────────────────────
 
@@ -453,10 +453,7 @@ export default function RevisionScreen() {
 
   // ── Render: Results ───────────────────────────────────────────────────────
   if (phase === "results" && scoreResult) {
-    const totalTimeSecs = timeTaken.reduce(
-      (acc, curr) => acc + (curr || 0),
-      0,
-    );
+    const totalTimeSecs = timeTaken.reduce((acc, curr) => acc + (curr || 0), 0);
 
     return (
       <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -790,16 +787,16 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: colors.card,
-      borderRadius: 14,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: colors.border,
-      padding: 24,
+      padding: 20,
       marginTop: 8,
     },
     emptyIconCircle: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
+      width: 48,
+      height: 48,
+      borderRadius: 0,
       backgroundColor: isDark
         ? "rgba(16, 185, 129, 0.12)"
         : "rgba(16, 185, 129, 0.1)",
@@ -809,35 +806,37 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
         : "rgba(16, 185, 129, 0.2)",
       justifyContent: "center",
       alignItems: "center",
-      marginBottom: 12,
+      marginBottom: 10,
     },
     emptyTitle: {
       color: colors.text,
-      fontSize: 17,
+      fontSize: 16,
       fontWeight: "700",
       textAlign: "center",
     },
     emptySubtext: {
       color: colors.textMuted,
-      fontSize: 12.5,
-      lineHeight: 19,
+      fontSize: 12,
+      lineHeight: 18,
       textAlign: "center",
       marginTop: 4,
     },
     reviewResultsBtn: {
-      marginTop: 16,
+      marginTop: 14,
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
       backgroundColor: colors.primary,
-      paddingHorizontal: 16,
-      paddingVertical: 9,
-      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 0,
     },
     reviewResultsBtnText: {
       color: "#FFFFFF",
-      fontSize: 13,
+      fontSize: 12,
       fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
     },
 
     // Available Section & Rectangular Tab
@@ -846,52 +845,43 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     sectionLabel: {
       color: colors.textTertiary,
-      fontSize: 10.5,
-      fontWeight: "700",
+      fontSize: 10,
+      fontWeight: "800",
       letterSpacing: 0.8,
-      marginBottom: 8,
+      marginBottom: 6,
       textTransform: "uppercase",
     },
     revisionTab: {
       backgroundColor: colors.card,
-      borderRadius: 14,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: colors.cardBorder,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 9,
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: isDark ? 0.25 : 0.06,
-      shadowRadius: 5,
-      elevation: 2,
+      gap: 8,
     },
     tabIconBadge: {
-      width: 36,
-      height: 36,
-      borderRadius: 9,
+      width: 32,
+      height: 32,
+      borderRadius: 0,
+      borderWidth: 1,
+      borderColor: colors.border,
       justifyContent: "center",
       alignItems: "center",
     },
     tabIconBadgeDue: {
-      backgroundColor: isDark
-        ? "rgba(59, 130, 246, 0.15)"
-        : "rgba(37, 99, 235, 0.1)",
+      backgroundColor: colors.primaryLight,
       borderWidth: 1,
-      borderColor: isDark
-        ? "rgba(59, 130, 246, 0.25)"
-        : "rgba(37, 99, 235, 0.2)",
+      borderColor: colors.primary,
     },
     tabIconBadgeProgress: {
       backgroundColor: isDark
         ? "rgba(245, 158, 11, 0.15)"
         : "rgba(217, 119, 6, 0.1)",
       borderWidth: 1,
-      borderColor: isDark
-        ? "rgba(245, 158, 11, 0.25)"
-        : "rgba(217, 119, 6, 0.2)",
+      borderColor: colors.warning,
     },
     tabContent: {
       flex: 1,
@@ -904,38 +894,43 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     tabTitle: {
       color: colors.text,
-      fontSize: 14,
+      fontSize: 13.5,
       fontWeight: "700",
       flexShrink: 1,
     },
     tabStatusBadge: {
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 5,
+      paddingHorizontal: 5,
+      paddingVertical: 1.5,
+      borderRadius: 0,
+      borderWidth: 1,
+      borderColor: "transparent",
     },
     statusBadgeDue: {
-      backgroundColor: isDark
-        ? "rgba(59, 130, 246, 0.15)"
-        : "rgba(37, 99, 235, 0.12)",
+      backgroundColor: colors.primaryLight,
+      borderWidth: 1,
+      borderColor: colors.primary,
     },
     statusTextDue: {
-      color: isDark ? "#60A5FA" : "#2563EB",
+      color: colors.primary,
     },
     statusBadgeProgress: {
       backgroundColor: isDark
         ? "rgba(245, 158, 11, 0.15)"
         : "rgba(245, 158, 11, 0.12)",
+      borderWidth: 1,
+      borderColor: colors.warning,
     },
     statusTextProgress: {
       color: isDark ? "#FBBF24" : "#D97706",
     },
     tabStatusBadgeText: {
-      fontSize: 10,
-      fontWeight: "700",
+      fontSize: 9.5,
+      fontWeight: "800",
+      textTransform: "uppercase",
     },
     tabSubtitle: {
       color: colors.textMuted,
-      fontSize: 12,
+      fontSize: 11.5,
       fontWeight: "500",
       marginTop: 2,
     },
@@ -944,14 +939,14 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       backgroundColor: isDark
         ? "rgba(255, 255, 255, 0.08)"
         : "rgba(0, 0, 0, 0.06)",
-      borderRadius: 1.5,
+      borderRadius: 0,
       marginTop: 6,
       overflow: "hidden",
     },
     tabProgressBarFill: {
       height: "100%",
       backgroundColor: "#F59E0B",
-      borderRadius: 1.5,
+      borderRadius: 0,
     },
     tabActionWrapper: {
       justifyContent: "center",
@@ -959,17 +954,19 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     tabActionBtn: {
       backgroundColor: colors.primary,
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 5.5,
+      borderRadius: 0,
+      paddingHorizontal: 9,
+      paddingVertical: 5,
       flexDirection: "row",
       alignItems: "center",
-      gap: 3.5,
+      gap: 3,
     },
     tabActionBtnText: {
       color: "#FFFFFF",
-      fontSize: 11.5,
+      fontSize: 11,
       fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
     },
 
     // Computing
@@ -978,34 +975,34 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     congratsTitle: {
       color: colors.text,
-      fontSize: 24,
+      fontSize: 22,
       fontWeight: "800",
-      marginTop: 16,
+      marginTop: 14,
     },
     congratsSubtext: {
       color: colors.textMuted,
-      fontSize: 14,
+      fontSize: 13,
       textAlign: "center",
-      marginTop: 8,
-      lineHeight: 22,
+      marginTop: 6,
+      lineHeight: 20,
     },
 
     // Timer bar
     timerBar: {
       flexDirection: "row",
       alignItems: "center",
-      paddingHorizontal: 20,
-      paddingVertical: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
       gap: 8,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
     timerText: {
       color: colors.text,
-      fontSize: 18,
-      fontWeight: "700",
+      fontSize: 17,
+      fontWeight: "800",
       fontVariant: ["tabular-nums"],
-      minWidth: 56,
+      minWidth: 54,
     },
     timerTextUrgent: {
       color: colors.danger,
@@ -1016,23 +1013,23 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       backgroundColor: isDark
         ? "rgba(59, 130, 246, 0.08)"
         : "rgba(37, 99, 235, 0.08)",
-      borderRadius: 2,
+      borderRadius: 0,
       overflow: "hidden",
     },
     timerProgressFill: {
       height: "100%",
-      borderRadius: 2,
+      borderRadius: 0,
     },
 
     // Quiz scroll
     quizScroll: {
-      padding: 20,
-      paddingBottom: 100,
+      padding: 16,
+      paddingBottom: 80,
     },
 
     // Results
     resultsScroll: {
-      paddingHorizontal: 20,
+      paddingHorizontal: 16,
       paddingTop: 10,
       paddingBottom: 40,
     },
@@ -1046,33 +1043,35 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       alignItems: "center",
       gap: 4,
       backgroundColor: colors.primary,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 8,
+      paddingHorizontal: 11,
+      paddingVertical: 5,
+      borderRadius: 0,
     },
     doneBtnText: {
       color: "#FFFFFF",
-      fontSize: 12.5,
+      fontSize: 12,
       fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
     },
     sectionTitle: {
       color: colors.text,
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: "700",
       marginTop: 4,
-      marginBottom: 12,
+      marginBottom: 10,
     },
 
     // Retry Button
     retryButton: {
-      marginTop: 20,
+      marginTop: 18,
       backgroundColor: colors.primary,
       flexDirection: "row",
       alignItems: "center",
       gap: 8,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      borderRadius: 12,
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+      borderRadius: 0,
     },
     retryButtonText: {
       color: "#FFFFFF",

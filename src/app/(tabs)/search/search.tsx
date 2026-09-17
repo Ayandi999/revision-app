@@ -9,10 +9,11 @@ import { useCloudSync } from "@/context/CloudSyncContext";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
+import { isAudioPath } from "@/functions/audioHelpers";
 import { backfillExtractedText } from "@/functions/backfillExtractedText";
 import { isOcrSupported } from "@/functions/extractText";
+import { hapticSelection } from "@/functions/hapticFeedback";
 import { resolveImageUri } from "@/functions/imageHelpers";
-import { isAudioPath } from "@/functions/audioHelpers";
 import { deleteQuestionFromLocalDb } from "@/functions/queries";
 import {
   searchQuestions,
@@ -20,11 +21,11 @@ import {
   type SearchSortBy,
 } from "@/functions/searchQuestions";
 import {
+  compareLexicographic,
   getSubjects,
   getSubtopicsForTopics,
   getTopics,
 } from "@/types/syllabus";
-import { hapticSelection } from "@/functions/hapticFeedback";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
@@ -187,7 +188,7 @@ export default function SearchScreen() {
         prev.filter((s) => stillAvailable.includes(s)),
       );
     } else {
-      setSelectedTopics((prev) => [...prev, topic]);
+      setSelectedTopics((prev) => [...prev, topic].sort(compareLexicographic));
     }
   };
 
@@ -195,7 +196,7 @@ export default function SearchScreen() {
     setSelectedSubtopics((prev) =>
       prev.includes(subtopic)
         ? prev.filter((s) => s !== subtopic)
-        : [...prev, subtopic],
+        : [...prev, subtopic].sort(compareLexicographic),
     );
   };
 
@@ -250,7 +251,13 @@ export default function SearchScreen() {
         setIsRefreshing(false);
       }
     },
-    [debouncedQuery, selectedSubject, selectedTopics, selectedSubtopics, sortBy],
+    [
+      debouncedQuery,
+      selectedSubject,
+      selectedTopics,
+      selectedSubtopics,
+      sortBy,
+    ],
   );
 
   // Re-fetch search results when tab is focused
@@ -291,7 +298,10 @@ export default function SearchScreen() {
         }
         setQuestionToDelete(null);
       } else {
-        console.error("[SearchScreen] Failed to delete question:", result.error);
+        console.error(
+          "[SearchScreen] Failed to delete question:",
+          result.error,
+        );
       }
     } catch (err) {
       console.error("[SearchScreen] Delete error:", err);
@@ -336,6 +346,7 @@ export default function SearchScreen() {
         activeOpacity={0.88}
         style={styles.card}
         onPress={() => {
+          hapticSelection();
           setSelectedQuestion(item);
         }}
       >
@@ -348,6 +359,7 @@ export default function SearchScreen() {
                 activeOpacity={0.85}
                 style={styles.thumbnailWrapper}
                 onPress={() => {
+                  hapticSelection();
                   setZoomImageUri(resolvedImageUri);
                   setZoomTitle(`${item.subject} Question`);
                 }}
@@ -896,11 +908,11 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: colors.cardSecondary,
-      borderRadius: 12,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 12,
-      height: 46,
+      paddingHorizontal: 10,
+      height: 40,
     },
     searchBarDisabled: {
       opacity: 0.65,
@@ -912,7 +924,7 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     searchInput: {
       flex: 1,
       color: colors.text,
-      fontSize: 15,
+      fontSize: 14,
       paddingVertical: 0,
     },
     searchInputDisabled: {
@@ -922,9 +934,9 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       padding: 4,
     },
     filterButton: {
-      width: 46,
-      height: 46,
-      borderRadius: 12,
+      width: 40,
+      height: 40,
+      borderRadius: 0,
       backgroundColor: colors.cardSecondary,
       borderWidth: 1,
       borderColor: colors.border,
@@ -942,89 +954,81 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     filterBadge: {
       position: "absolute",
-      top: -4,
-      right: -4,
+      top: -3,
+      right: -3,
       backgroundColor: colors.danger,
-      borderRadius: 9,
-      minWidth: 18,
-      height: 18,
+      borderRadius: 0,
+      minWidth: 16,
+      height: 16,
       justifyContent: "center",
       alignItems: "center",
-      paddingHorizontal: 4,
-      borderWidth: 1.5,
+      paddingHorizontal: 3,
+      borderWidth: 1,
       borderColor: colors.bg,
     },
     filterBadgeText: {
       color: "#FFFFFF",
-      fontSize: 10,
-      fontWeight: "700",
+      fontSize: 9.5,
+      fontWeight: "800",
     },
     quickActiveFiltersRow: {
       flexDirection: "row",
       alignItems: "center",
       paddingHorizontal: 16,
       paddingBottom: 8,
-      gap: 8,
+      gap: 6,
       flexWrap: "wrap",
     },
     activePill: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: isDark
-        ? "rgba(59, 130, 246, 0.15)"
-        : "rgba(37, 99, 235, 0.1)",
-      borderColor: isDark
-        ? "rgba(59, 130, 246, 0.4)"
-        : "rgba(37, 99, 235, 0.3)",
+      backgroundColor: colors.primaryLight,
+      borderColor: colors.primary,
       borderWidth: 1,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 14,
-      gap: 6,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 0,
+      gap: 5,
     },
     activePillText: {
       color: colors.primary,
-      fontSize: 12,
-      fontWeight: "500",
+      fontSize: 11,
+      fontWeight: "600",
     },
     clearAllFiltersBtn: {
-      paddingVertical: 4,
-      paddingHorizontal: 6,
+      paddingVertical: 3,
+      paddingHorizontal: 5,
     },
     clearAllFiltersText: {
       color: colors.textMuted,
-      fontSize: 12,
+      fontSize: 11,
       textDecorationLine: "underline",
     },
     noticeBanner: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: isDark
-        ? "rgba(59, 130, 246, 0.1)"
-        : "rgba(37, 99, 235, 0.08)",
+      backgroundColor: colors.primaryLight,
       borderWidth: 1,
-      borderColor: isDark
-        ? "rgba(59, 130, 246, 0.25)"
-        : "rgba(37, 99, 235, 0.2)",
-      borderRadius: 10,
+      borderColor: colors.cardBorder,
+      borderRadius: 0,
       marginHorizontal: 16,
       marginBottom: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 7,
       gap: 8,
     },
     noticeText: {
       flex: 1,
       color: colors.primary,
-      fontSize: 12,
-      lineHeight: 16,
+      fontSize: 11.5,
+      lineHeight: 15,
     },
     filterPanel: {
       backgroundColor: colors.card,
       marginHorizontal: 16,
       marginBottom: 10,
-      borderRadius: 14,
-      padding: 14,
+      borderRadius: 0,
+      padding: 12,
       borderWidth: 1,
       borderColor: colors.border,
     },
@@ -1032,7 +1036,7 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 12,
+      marginBottom: 10,
     },
     filterPanelTitleRow: {
       flexDirection: "row",
@@ -1041,13 +1045,14 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     filterPanelTitle: {
       color: colors.text,
-      fontSize: 14,
-      fontWeight: "600",
+      fontSize: 13.5,
+      fontWeight: "700",
     },
     resetFiltersText: {
       color: colors.primary,
-      fontSize: 13,
-      fontWeight: "500",
+      fontSize: 12,
+      fontWeight: "700",
+      textTransform: "uppercase",
     },
     filterChipRow: {
       flexDirection: "row",
@@ -1059,36 +1064,38 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: colors.cardSecondary,
-      borderRadius: 12,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingHorizontal: 7,
+      paddingVertical: 3,
       gap: 4,
     },
     selectedFilterChipText: {
       color: colors.text,
-      fontSize: 11,
+      fontSize: 10.5,
       maxWidth: 160,
     },
     applyFilterButton: {
       backgroundColor: colors.primary,
-      borderRadius: 10,
-      paddingVertical: 8,
+      borderRadius: 0,
+      paddingVertical: 7,
       alignItems: "center",
       marginTop: 8,
     },
     applyFilterButtonText: {
       color: "#FFFFFF",
-      fontSize: 13,
-      fontWeight: "600",
+      fontSize: 12,
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
     },
     resultsHeader: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 16,
-      paddingVertical: 8,
+      paddingVertical: 6,
     },
     resultsCountRow: {
       flexDirection: "row",
@@ -1096,37 +1103,33 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     resultsCountText: {
       color: colors.textMuted,
-      fontSize: 13,
-      fontWeight: "500",
+      fontSize: 12,
+      fontWeight: "600",
     },
     sortTogglePill: {
       flexDirection: "row",
       alignItems: "center",
       gap: 4,
-      backgroundColor: isDark
-        ? "rgba(59, 130, 246, 0.12)"
-        : "rgba(37, 99, 235, 0.08)",
-      paddingHorizontal: 7,
-      paddingVertical: 3.5,
-      borderRadius: 8,
+      backgroundColor: colors.cardSecondary,
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 0,
       borderWidth: 1,
-      borderColor: isDark
-        ? "rgba(59, 130, 246, 0.25)"
-        : "rgba(37, 99, 235, 0.2)",
+      borderColor: colors.border,
     },
     sortToggleText: {
       color: colors.primary,
-      fontSize: 10.5,
+      fontSize: 10,
       fontWeight: "700",
     },
     listContent: {
-      paddingHorizontal: 16,
-      paddingBottom: 110,
-      gap: 8,
+      paddingHorizontal: 14,
+      paddingBottom: 72,
+      gap: 6,
     },
     card: {
       backgroundColor: colors.card,
-      borderRadius: 10,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: colors.border,
       padding: 6,
@@ -1137,13 +1140,13 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       gap: 8,
     },
     imageCol: {
-      width: 52,
-      height: 52,
+      width: 48,
+      height: 48,
     },
     thumbnailWrapper: {
-      width: 52,
-      height: 52,
-      borderRadius: 6,
+      width: 48,
+      height: 48,
+      borderRadius: 0,
       overflow: "hidden",
       backgroundColor: colors.cardSecondary,
       borderWidth: 1,
@@ -1171,7 +1174,7 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     imageTypeBadgeText: {
       color: isDark ? "#38BDF8" : "#0284C7",
-      fontSize: 8.5,
+      fontSize: 8,
       fontWeight: "800",
       letterSpacing: 0.4,
     },
@@ -1186,7 +1189,7 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       bottom: 2,
       right: 2,
       backgroundColor: isDark ? "rgba(0,0,0,0.65)" : "rgba(0,0,0,0.45)",
-      borderRadius: 3,
+      borderRadius: 0,
       padding: 1.5,
       zIndex: 2,
     },
@@ -1196,7 +1199,7 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       borderLeftWidth: 1,
       borderLeftColor: colors.border,
       paddingLeft: 8,
-      gap: 3,
+      gap: 2,
     },
     subjectRow: {
       flexDirection: "row",
@@ -1208,12 +1211,12 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 3,
-      paddingHorizontal: 5,
-      paddingVertical: 1.5,
-      borderRadius: 4,
+      paddingHorizontal: 4,
+      paddingVertical: 1,
+      borderRadius: 0,
     },
     audioBadgeText: {
-      fontSize: 9.5,
+      fontSize: 9,
       fontWeight: "700",
       letterSpacing: 0.2,
     },
@@ -1273,38 +1276,40 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       gap: 8,
     },
     emptyIconWrapper: {
-      width: 72,
-      height: 72,
-      borderRadius: 36,
-      backgroundColor: isDark
-        ? "rgba(148, 163, 184, 0.08)"
-        : "rgba(148, 163, 184, 0.12)",
+      width: 56,
+      height: 56,
+      borderRadius: 0,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.cardSecondary,
       justifyContent: "center",
       alignItems: "center",
-      marginBottom: 8,
+      marginBottom: 6,
     },
     emptyTitle: {
       color: colors.text,
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: "700",
     },
     emptySubtitle: {
       color: colors.textMuted,
-      fontSize: 13,
+      fontSize: 12,
       textAlign: "center",
-      lineHeight: 18,
+      lineHeight: 16,
     },
     clearAllButton: {
-      marginTop: 12,
+      marginTop: 10,
       backgroundColor: colors.primary,
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      borderRadius: 8,
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      borderRadius: 0,
     },
     clearAllButtonText: {
       color: "#FFFFFF",
-      fontSize: 13,
-      fontWeight: "600",
+      fontSize: 12,
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
     },
     loadingMoreContainer: {
       flexDirection: "row",

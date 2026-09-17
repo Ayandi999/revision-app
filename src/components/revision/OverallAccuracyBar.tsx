@@ -123,10 +123,6 @@ export function OverallAccuracyBar({
               styles.barCorrect,
               {
                 width: `${correctPct}%`,
-                borderTopLeftRadius: 5,
-                borderBottomLeftRadius: 5,
-                borderTopRightRadius: incorrectPct === 0 && unansweredPct === 0 ? 5 : 0,
-                borderBottomRightRadius: incorrectPct === 0 && unansweredPct === 0 ? 5 : 0,
               },
             ]}
           />
@@ -138,10 +134,6 @@ export function OverallAccuracyBar({
               styles.barIncorrect,
               {
                 width: `${incorrectPct}%`,
-                borderTopLeftRadius: correctPct === 0 ? 5 : 0,
-                borderBottomLeftRadius: correctPct === 0 ? 5 : 0,
-                borderTopRightRadius: unansweredPct === 0 ? 5 : 0,
-                borderBottomRightRadius: unansweredPct === 0 ? 5 : 0,
               },
             ]}
           />
@@ -153,10 +145,6 @@ export function OverallAccuracyBar({
               styles.barUnanswered,
               {
                 width: `${unansweredPct}%`,
-                borderTopRightRadius: 5,
-                borderBottomRightRadius: 5,
-                borderTopLeftRadius: correctPct === 0 && incorrectPct === 0 ? 5 : 0,
-                borderBottomLeftRadius: correctPct === 0 && incorrectPct === 0 ? 5 : 0,
               },
             ]}
           />
@@ -238,10 +226,10 @@ export function OverallAccuracyBar({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 14,
-    marginBottom: 14,
+    padding: 12,
+    marginBottom: 10,
   },
   headerRow: {
     flexDirection: "row",
@@ -269,33 +257,36 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   ratingPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 0,
   },
   ratingPillText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   scorePill: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 0,
     borderWidth: 1,
   },
   scorePillText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "600",
   },
   barTrack: {
-    height: 10,
-    borderRadius: 5,
+    height: 8,
+    borderRadius: 0,
     flexDirection: "row",
     overflow: "hidden",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   barSegment: {
     height: "100%",
+    borderRadius: 0,
   },
   barCorrect: {
     backgroundColor: "#10B981",
@@ -316,12 +307,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 0,
   },
   statChipText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "600",
   },
 });

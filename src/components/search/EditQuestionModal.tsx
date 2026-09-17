@@ -1,17 +1,18 @@
+import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
-import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
+import { hapticError, hapticSuccess } from "@/functions/hapticFeedback";
 import { resolveImageUri } from "@/functions/imageHelpers";
 import { updateQuestionInLocalDb } from "@/functions/queries";
-import { hapticError, hapticSuccess } from "@/functions/hapticFeedback";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import type { OptionLetter, QuestionType } from "@/types/question";
 import {
+  compareLexicographic,
   getSubjects,
   getSubtopicsForTopics,
   getTopics,
@@ -22,7 +23,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -109,12 +109,8 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedSubtopics(
         Array.isArray(question.subtopics) ? [...question.subtopics] : [],
       );
-      setSelectedType(
-        (question.questionType as QuestionType) || "MCQ",
-      );
-      setMcqSelected(
-        (question.mcqAnswer as OptionLetter) || null,
-      );
+      setSelectedType((question.questionType as QuestionType) || "MCQ");
+      setMcqSelected((question.mcqAnswer as OptionLetter) || null);
       setMsqSelected(
         Array.isArray(question.msqAnswer)
           ? (question.msqAnswer as OptionLetter[])
@@ -184,7 +180,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         prev.filter((sub) => stillAvailable.includes(sub)),
       );
     } else {
-      setSelectedTopics((prev) => [...prev, top]);
+      setSelectedTopics((prev) => [...prev, top].sort(compareLexicographic));
     }
   };
 
@@ -192,7 +188,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setSelectedSubtopics((prev) =>
       prev.includes(subtop)
         ? prev.filter((s) => s !== subtop)
-        : [...prev, subtop],
+        : [...prev, subtop].sort(compareLexicographic),
     );
   };
 
@@ -481,10 +477,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         color={colors.primary}
                       />
                       <Text
-                        style={[
-                          styles.addImageText,
-                          { color: colors.primary },
-                        ]}
+                        style={[styles.addImageText, { color: colors.primary }]}
                       >
                         + Add page
                       </Text>
@@ -843,11 +836,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             ]}
           >
             <View style={styles.sectionHeaderRow}>
-              <Ionicons
-                name="mic-outline"
-                size={16}
-                color={colors.primary}
-              />
+              <Ionicons name="mic-outline" size={16} color={colors.primary} />
               <Text style={[styles.fieldLabel, { color: colors.text }]}>
                 Voice Note / Explanation
               </Text>
@@ -1017,9 +1006,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   imageCard: {
-    width: 76,
-    height: 76,
-    borderRadius: 8,
+    width: 72,
+    height: 72,
+    borderRadius: 0,
     borderWidth: 1,
     overflow: "hidden",
     position: "relative",
@@ -1030,42 +1019,43 @@ const styles = StyleSheet.create({
   },
   pageNumberBadge: {
     position: "absolute",
-    bottom: 3,
-    left: 3,
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
-    borderRadius: 4,
-    paddingHorizontal: 4,
+    bottom: 2,
+    left: 2,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    borderRadius: 0,
+    paddingHorizontal: 3,
     paddingVertical: 1,
   },
   pageNumberText: {
     color: "#FFFFFF",
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: "700",
   },
   imageDeleteBtn: {
     position: "absolute",
-    top: 3,
-    right: 3,
-    backgroundColor: "rgba(239, 68, 68, 0.88)",
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    top: 2,
+    right: 2,
+    backgroundColor: "rgba(239, 68, 68, 0.9)",
+    width: 18,
+    height: 18,
+    borderRadius: 0,
     alignItems: "center",
     justifyContent: "center",
   },
   addImageCard: {
-    width: 76,
-    height: 76,
-    borderRadius: 8,
-    borderWidth: 1.5,
+    width: 72,
+    height: 72,
+    borderRadius: 0,
+    borderWidth: 1,
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
   },
   addImageText: {
-    fontSize: 10.5,
+    fontSize: 10,
     fontWeight: "700",
+    textTransform: "uppercase",
   },
   selectedSyllabusPreview: {
     flexDirection: "row",
@@ -1083,49 +1073,51 @@ const styles = StyleSheet.create({
   },
   typeBadge: {
     backgroundColor: "#3B82F6",
-    borderRadius: 4,
+    borderRadius: 0,
     paddingHorizontal: 5,
-    paddingVertical: 2,
+    paddingVertical: 1.5,
   },
   typeBadgeText: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "800",
+    textTransform: "uppercase",
   },
   selectedTypeDesc: {
-    fontSize: 12.5,
+    fontSize: 12,
   },
   optionsRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
     marginTop: 4,
   },
   optionCircle: {
     flex: 1,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1.5,
+    height: 38,
+    borderRadius: 0,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   optionCircleText: {
-    fontSize: 15,
+    fontSize: 14,
+    fontWeight: "700",
   },
   inputContainer: {
-    borderRadius: 8,
+    borderRadius: 0,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
     marginTop: 4,
   },
   textInput: {
-    fontSize: 13.5,
+    fontSize: 13,
     padding: 0,
   },
   sectionCard: {
-    borderRadius: 12,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 14,
+    padding: 12,
     gap: 6,
   },
   sectionHeaderRow: {
@@ -1138,40 +1130,42 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
   multilineInputContainer: {
-    borderRadius: 8,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 10,
-    minHeight: 80,
+    padding: 8,
+    minHeight: 76,
   },
   multilineInput: {
-    fontSize: 12.5,
-    lineHeight: 17,
+    fontSize: 12,
+    lineHeight: 16,
     padding: 0,
   },
   footerBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderTopWidth: 1,
-    gap: 10,
+    gap: 8,
   },
   footerCancelBtn: {
     flex: 1,
-    height: 42,
-    borderRadius: 10,
+    height: 38,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   footerCancelText: {
-    fontSize: 13.5,
-    fontWeight: "600",
+    fontSize: 12.5,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   footerSaveBtn: {
     flex: 2,
-    height: 42,
-    borderRadius: 10,
+    height: 38,
+    borderRadius: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1179,8 +1173,10 @@ const styles = StyleSheet.create({
   },
   footerSaveText: {
     color: "#FFFFFF",
-    fontSize: 13.5,
-    fontWeight: "700",
+    fontSize: 12.5,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   buttonDisabled: {
     opacity: 0.7,

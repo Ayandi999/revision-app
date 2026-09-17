@@ -1,15 +1,16 @@
+import { useTheme } from "@/context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Svg, {
-  Circle,
   Defs,
   Line,
   LinearGradient,
   Path,
+  Rect,
   Stop,
   Text as SvgText,
 } from "react-native-svg";
-import { useTheme } from "@/context/ThemeContext";
 
 interface TimePerQuestionChartProps {
   timeTaken: number[];
@@ -30,11 +31,11 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
   const avgSecs = Math.round(totalSecs / count);
 
   // Chart dimensions
-  const CHART_HEIGHT = 160;
-  const PADDING_TOP = 28;
-  const PADDING_BOTTOM = 30;
-  const PADDING_LEFT = 38;
-  const PADDING_RIGHT = 24;
+  const CHART_HEIGHT = 155;
+  const PADDING_TOP = 26;
+  const PADDING_BOTTOM = 28;
+  const PADDING_LEFT = 36;
+  const PADDING_RIGHT = 22;
 
   const PLOT_HEIGHT = CHART_HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
@@ -68,7 +69,7 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
   if (points.length === 1) {
     linePath = `M ${points[0].x - 20} ${points[0].y} L ${points[0].x + 20} ${points[0].y}`;
   } else {
-    // Smooth bezier or clean polyline
+    // Smooth bezier path
     linePath = `M ${points[0].x} ${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
       const prev = points[i - 1];
@@ -103,7 +104,7 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
     >
       {/* ── Header Row ── */}
       <View style={styles.headerRow}>
-        <View>
+        <View style={styles.titleWrapper}>
           <Text style={[styles.title, { color: colors.text }]}>
             Time Per Question
           </Text>
@@ -112,28 +113,56 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
           </Text>
         </View>
 
-        <View style={styles.quickStatsRow}>
-          <View style={styles.statMini}>
-            <Text style={[styles.statMiniLabel, { color: colors.textTertiary }]}>
-              Avg
+        <View style={styles.badgeRow}>
+          <View
+            style={[
+              styles.statBadge,
+              {
+                backgroundColor: colors.cardSecondary,
+                borderColor: colors.cardSecondaryBorder,
+              },
+            ]}
+          >
+            <Text style={[styles.statBadgeLabel, { color: colors.textMuted }]}>
+              AVG
             </Text>
-            <Text style={[styles.statMiniVal, { color: colors.primary }]}>
+            <Text style={[styles.statBadgeValue, { color: colors.primary }]}>
               {avgSecs}s
             </Text>
           </View>
-          <View style={styles.statMini}>
-            <Text style={[styles.statMiniLabel, { color: colors.textTertiary }]}>
-              Fast
+          <View
+            style={[
+              styles.statBadge,
+              {
+                backgroundColor: isDark
+                  ? "rgba(16, 185, 129, 0.12)"
+                  : "rgba(16, 185, 129, 0.08)",
+                borderColor: "rgba(16, 185, 129, 0.25)",
+              },
+            ]}
+          >
+            <Text style={[styles.statBadgeLabel, { color: colors.success }]}>
+              FAST
             </Text>
-            <Text style={[styles.statMiniVal, { color: "#10B981" }]}>
+            <Text style={[styles.statBadgeValue, { color: colors.success }]}>
               {minVal}s
             </Text>
           </View>
-          <View style={styles.statMini}>
-            <Text style={[styles.statMiniLabel, { color: colors.textTertiary }]}>
-              Slow
+          <View
+            style={[
+              styles.statBadge,
+              {
+                backgroundColor: isDark
+                  ? "rgba(245, 158, 11, 0.12)"
+                  : "rgba(245, 158, 11, 0.08)",
+                borderColor: "rgba(245, 158, 11, 0.25)",
+              },
+            ]}
+          >
+            <Text style={[styles.statBadgeLabel, { color: colors.warning }]}>
+              SLOW
             </Text>
-            <Text style={[styles.statMiniVal, { color: "#F59E0B" }]}>
+            <Text style={[styles.statBadgeValue, { color: colors.warning }]}>
               {maxVal}s
             </Text>
           </View>
@@ -144,7 +173,7 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingRight: 10 }}
+        contentContainerStyle={styles.scrollContainer}
       >
         <Svg width={SVG_WIDTH} height={CHART_HEIGHT}>
           <Defs>
@@ -152,7 +181,7 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
               <Stop
                 offset="0%"
                 stopColor={colors.primary}
-                stopOpacity={isDark ? "0.35" : "0.22"}
+                stopOpacity={isDark ? "0.3" : "0.18"}
               />
               <Stop
                 offset="100%"
@@ -173,15 +202,15 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
                   x2={SVG_WIDTH - PADDING_RIGHT}
                   y2={y}
                   stroke={
-                    isDark ? "rgba(255, 255, 255, 0.07)" : "rgba(0, 0, 0, 0.05)"
+                    isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)"
                   }
                   strokeWidth="1"
                 />
                 <SvgText
                   x={PADDING_LEFT - 10}
                   y={y + 3.5}
-                  fontSize="10"
-                  fontWeight="500"
+                  fontSize="9.5"
+                  fontWeight="600"
                   fill={colors.textTertiary}
                   textAnchor="end"
                 >
@@ -198,32 +227,39 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
           <Path
             d={linePath}
             stroke={colors.primary}
-            strokeWidth="2.5"
+            strokeWidth="2"
             fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            strokeLinecap="square"
+            strokeLinejoin="miter"
           />
 
           {/* Points + Labels */}
           {points.map((pt, idx) => (
             <React.Fragment key={idx}>
-              {/* Outer halo */}
-              <Circle
-                cx={pt.x}
-                cy={pt.y}
-                r="4.5"
-                fill={colors.bg}
+              {/* Outer sharp box */}
+              <Rect
+                x={pt.x - 3.5}
+                y={pt.y - 3.5}
+                width="7"
+                height="7"
+                fill={colors.card}
                 stroke={colors.primary}
-                strokeWidth="1.8"
+                strokeWidth="1.5"
               />
-              {/* Inner dot */}
-              <Circle cx={pt.x} cy={pt.y} r="2" fill={colors.primary} />
+              {/* Inner sharp dot */}
+              <Rect
+                x={pt.x - 1.5}
+                y={pt.y - 1.5}
+                width="3"
+                height="3"
+                fill={colors.primary}
+              />
 
-              {/* Data label above dot */}
+              {/* Data label above node */}
               <SvgText
                 x={pt.x}
                 y={pt.y - 8}
-                fontSize="9.5"
+                fontSize="9"
                 fontWeight="700"
                 fill={colors.text}
                 textAnchor="middle"
@@ -234,8 +270,8 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
               {/* X-axis label (Q1, Q2, ...) */}
               <SvgText
                 x={pt.x}
-                y={bottomY + 16}
-                fontSize="9.5"
+                y={bottomY + 15}
+                fontSize="9"
                 fontWeight="600"
                 fill={colors.textMuted}
                 textAnchor="middle"
@@ -246,48 +282,88 @@ export function TimePerQuestionChart({ timeTaken }: TimePerQuestionChartProps) {
           ))}
         </Svg>
       </ScrollView>
+
+      {/* ── Swipe hint ── */}
+      {count > 5 && (
+        <View style={styles.hintRow}>
+          <Ionicons name="arrow-back" size={11} color={colors.textTertiary} />
+          <Text style={[styles.hintText, { color: colors.textTertiary }]}>
+            Swipe horizontally to review all question times
+          </Text>
+          <Ionicons
+            name="arrow-forward"
+            size={11}
+            color={colors.textTertiary}
+          />
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 14,
-    marginBottom: 14,
+    padding: 12,
+    marginBottom: 10,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 10,
+    flexWrap: "wrap",
+    rowGap: 8,
+  },
+  titleWrapper: {
+    marginRight: 8,
   },
   title: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: "700",
     letterSpacing: -0.2,
   },
   subtitle: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: "500",
     marginTop: 2,
   },
-  quickStatsRow: {
+  badgeRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
   },
-  statMini: {
+  statBadge: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 0,
+    borderWidth: 1,
   },
-  statMiniLabel: {
-    fontSize: 9.5,
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
-  statMiniVal: {
-    fontSize: 12,
+  statBadgeLabel: {
+    fontSize: 9,
     fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  statBadgeValue: {
+    fontSize: 11,
+    fontWeight: "800",
+  },
+  scrollContainer: {
+    paddingRight: 14,
+  },
+  hintRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    marginTop: 6,
+  },
+  hintText: {
+    fontSize: 10.5,
+    fontWeight: "500",
   },
 });

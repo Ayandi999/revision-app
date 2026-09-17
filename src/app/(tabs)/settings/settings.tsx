@@ -1,14 +1,20 @@
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useActiveExam } from "@/context/ExamContext";
-import { useTheme } from "@/context/ThemeContext";
-import { EXAM_OPTIONS } from "@/config/exams";
 import { GoogleDriveCard } from "@/components/settings/GoogleDriveCard";
 import { NotificationCard } from "@/components/settings/NotificationCard";
+import { EXAM_OPTIONS } from "@/config/exams";
 import type { ThemeMode } from "@/constants/theme";
+import { useActiveExam } from "@/context/ExamContext";
+import { useTheme } from "@/context/ThemeContext";
 import { hapticSelection } from "@/functions/hapticFeedback";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Settings = () => {
   const { examId, streamTitle, examTitle, shortBadge, openExamSwitcher } =
@@ -18,16 +24,25 @@ const Settings = () => {
   const currentExamConfig = EXAM_OPTIONS.find((e) => e.id === examId);
   const examColor = currentExamConfig?.color || colors.primary;
 
-  const themeOptions: { mode: ThemeMode; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  const themeOptions: {
+    mode: ThemeMode;
+    label: string;
+    icon: keyof typeof Ionicons.glyphMap;
+  }[] = [
     { mode: "system", label: "System", icon: "phone-portrait-outline" },
     { mode: "light", label: "Light", icon: "sunny-outline" },
     { mode: "dark", label: "Dark", icon: "moon-outline" },
   ];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bg }]} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.bg }]}
+      edges={["top", "left", "right"]}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          Settings
+        </Text>
         <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>
           Preferences & target configuration
         </Text>
@@ -40,7 +55,9 @@ const Settings = () => {
       >
         {/* ─── Appearance Section ─────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Appearance</Text>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            Appearance
+          </Text>
           <View
             style={[
               styles.appearanceCard,
@@ -51,12 +68,28 @@ const Settings = () => {
             ]}
           >
             <View style={styles.appearanceHeader}>
-              <View style={[styles.appearanceIconWrap, { backgroundColor: colors.primaryLight }]}>
-                <Ionicons name="color-palette-outline" size={18} color={colors.primary} />
+              <View
+                style={[
+                  styles.appearanceIconWrap,
+                  { backgroundColor: colors.primaryLight },
+                ]}
+              >
+                <Ionicons
+                  name="color-palette-outline"
+                  size={18}
+                  color={colors.primary}
+                />
               </View>
               <View style={styles.appearanceTitleGroup}>
-                <Text style={[styles.appearanceTitle, { color: colors.text }]}>Theme</Text>
-                <Text style={[styles.appearanceSubtitle, { color: colors.textMuted }]}>
+                <Text style={[styles.appearanceTitle, { color: colors.text }]}>
+                  Theme
+                </Text>
+                <Text
+                  style={[
+                    styles.appearanceSubtitle,
+                    { color: colors.textMuted },
+                  ]}
+                >
                   {themeMode === "system"
                     ? `System default (${resolvedTheme === "dark" ? "Dark" : "Light"})`
                     : `${themeMode === "dark" ? "Dark" : "Light"} mode active`}
@@ -119,19 +152,25 @@ const Settings = () => {
 
         {/* ─── Cloud Backup & Sync Section ─────────────────────── */}
         <View style={styles.section}>
-          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Cloud Backup</Text>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            Cloud Backup
+          </Text>
           <GoogleDriveCard />
         </View>
 
         {/* ─── Notifications Section ───────────────────────────── */}
         <View style={styles.section}>
-          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Notifications</Text>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            Notifications
+          </Text>
           <NotificationCard />
         </View>
 
         {/* ─── Target Exam Section ─────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>Target Exam</Text>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            Target Exam
+          </Text>
           <TouchableOpacity
             style={[
               styles.examRow,
@@ -140,7 +179,10 @@ const Settings = () => {
                 borderColor: colors.cardBorder,
               },
             ]}
-            onPress={openExamSwitcher}
+            onPress={() => {
+              hapticSelection();
+              openExamSwitcher();
+            }}
             activeOpacity={0.7}
           >
             <View
@@ -158,14 +200,21 @@ const Settings = () => {
 
             <View style={styles.examTextGroup}>
               <View style={styles.examTitleRow}>
-                <Text style={[styles.examTitle, { color: colors.text }]}>{examTitle}</Text>
-                <View style={[styles.badge, { backgroundColor: `${examColor}18` }]}>
+                <Text style={[styles.examTitle, { color: colors.text }]}>
+                  {examTitle}
+                </Text>
+                <View
+                  style={[styles.badge, { backgroundColor: `${examColor}18` }]}
+                >
                   <Text style={[styles.badgeText, { color: examColor }]}>
                     {shortBadge}
                   </Text>
                 </View>
               </View>
-              <Text style={[styles.streamSubtitle, { color: colors.textMuted }]} numberOfLines={1}>
+              <Text
+                style={[styles.streamSubtitle, { color: colors.textMuted }]}
+                numberOfLines={1}
+              >
                 {streamTitle}
               </Text>
             </View>
@@ -181,8 +230,14 @@ const Settings = () => {
 
         {/* ─── Footer ─────────────────────────────────────────── */}
         <View style={styles.footerInfo}>
-          <Ionicons name="sparkles-outline" size={16} color={colors.textMuted} />
-          <Text style={[styles.footerText, { color: colors.textMuted }]}>RevLog • Multi-Exam Revision</Text>
+          <Ionicons
+            name="sparkles-outline"
+            size={16}
+            color={colors.textMuted}
+          />
+          <Text style={[styles.footerText, { color: colors.textMuted }]}>
+            RevLog • Multi-Exam Revision
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -215,26 +270,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 80, // Clearance for tab bar
-    gap: 14,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 72, // Clearance for docked tab bar
+    gap: 12,
   },
   section: {
-    gap: 6,
+    gap: 5,
   },
   sectionHeader: {
-    fontSize: 11,
-    fontWeight: "700",
+    fontSize: 10.5,
+    fontWeight: "800",
     textTransform: "uppercase",
-    letterSpacing: 0.6,
-    marginLeft: 2,
+    letterSpacing: 0.8,
+    marginLeft: 1,
   },
   appearanceCard: {
-    borderRadius: 14,
-    padding: 12,
+    borderRadius: 0,
+    padding: 11,
     borderWidth: 1,
-    gap: 12,
+    gap: 10,
   },
   appearanceHeader: {
     flexDirection: "row",
@@ -242,9 +297,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   appearanceIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -252,21 +309,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   appearanceTitle: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: "700",
     letterSpacing: -0.2,
   },
   appearanceSubtitle: {
-    fontSize: 11.5,
+    fontSize: 11,
     marginTop: 1,
     fontWeight: "500",
   },
   segmentedRow: {
     flexDirection: "row",
-    borderRadius: 10,
-    padding: 3,
+    borderRadius: 0,
+    padding: 2,
     borderWidth: 1,
-    gap: 4,
+    gap: 2,
   },
   segmentButton: {
     flex: 1,
@@ -274,35 +331,38 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 7,
-    borderRadius: 8,
+    paddingVertical: 6,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
   segmentButtonActive: {
     borderWidth: 1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 3,
-    elevation: 2,
+    elevation: 0,
   },
   segmentButtonText: {
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   segmentButtonTextActive: {
-    fontWeight: "700",
+    fontWeight: "800",
   },
   examRow: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 0,
     paddingVertical: 9,
-    paddingHorizontal: 12,
+    paddingHorizontal: 11,
     borderWidth: 1,
   },
   examIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -317,17 +377,17 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   examTitle: {
-    fontSize: 13.5,
+    fontSize: 13,
     fontWeight: "700",
   },
   badge: {
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 0,
   },
   badgeText: {
-    fontSize: 9.5,
-    fontWeight: "700",
+    fontSize: 9,
+    fontWeight: "800",
     textTransform: "uppercase",
   },
   streamSubtitle: {

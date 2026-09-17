@@ -1,23 +1,26 @@
-import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { AudioNotePlayer } from "@/components/audio/AudioNotePlayer";
-import { isAudioPath } from "@/functions/audioHelpers";
+import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
+import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
+import { isAudioPath } from "@/functions/audioHelpers";
+import { hapticSelection, hapticWarning } from "@/functions/hapticFeedback";
 import { getQuestionImages, getSolutionImages } from "@/functions/imageHelpers";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useState } from "react";
 import {
   Modal,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Svg, { ClipPath, Defs, G, Rect } from "react-native-svg";
-import { useTheme } from "@/context/ThemeContext";
 
 interface QuestionDetailModalProps {
   visible: boolean;
@@ -82,17 +85,33 @@ export function QuestionDetailModal({
       onRequestClose={onClose}
     >
       <View style={[styles.modalOverlay, { backgroundColor: colors.bg }]}>
-        <SafeAreaView style={[styles.safeContainer, { backgroundColor: colors.bg }]} edges={["top", "bottom"]}>
+        <SafeAreaView
+          style={[styles.safeContainer, { backgroundColor: colors.bg }]}
+          edges={["top", "bottom"]}
+        >
           {/* Header Bar */}
-          <View style={[styles.headerBar, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <View
+            style={[
+              styles.headerBar,
+              {
+                backgroundColor: colors.card,
+                borderBottomColor: colors.border,
+              },
+            ]}
+          >
             <View style={styles.headerLeft}>
               <View
                 style={[
                   styles.subjectPill,
-                  { backgroundColor: `${subjColor}20`, borderColor: `${subjColor}55` },
+                  {
+                    backgroundColor: `${subjColor}20`,
+                    borderColor: `${subjColor}55`,
+                  },
                 ]}
               >
-                <View style={[styles.subjectDot, { backgroundColor: subjColor }]} />
+                <View
+                  style={[styles.subjectDot, { backgroundColor: subjColor }]}
+                />
                 <Text style={[styles.subjectText, { color: subjColor }]}>
                   {question.subject}
                 </Text>
@@ -100,10 +119,18 @@ export function QuestionDetailModal({
               <View
                 style={[
                   styles.typeBadge,
-                  { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                  {
+                    backgroundColor: colors.cardSecondary,
+                    borderColor: colors.cardSecondaryBorder,
+                  },
                 ]}
               >
-                <Text style={[styles.typeBadgeText, { color: colors.textSecondary }]}>
+                <Text
+                  style={[
+                    styles.typeBadgeText,
+                    { color: colors.textSecondary },
+                  ]}
+                >
                   {question.questionType}
                 </Text>
               </View>
@@ -113,7 +140,10 @@ export function QuestionDetailModal({
               {onEdit && (
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  onPress={() => onEdit(question)}
+                  onPress={() => {
+                    hapticSelection();
+                    onEdit(question);
+                  }}
                   style={[
                     styles.headerActionBtn,
                     {
@@ -130,7 +160,10 @@ export function QuestionDetailModal({
               {onDelete && (
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  onPress={() => onDelete(question)}
+                  onPress={() => {
+                    hapticWarning();
+                    onDelete(question);
+                  }}
                   style={[
                     styles.headerActionBtn,
                     {
@@ -150,7 +183,10 @@ export function QuestionDetailModal({
 
               <TouchableOpacity
                 activeOpacity={0.7}
-                onPress={onClose}
+                onPress={() => {
+                  hapticSelection();
+                  onClose();
+                }}
                 style={[
                   styles.closeBtn,
                   {
@@ -158,7 +194,7 @@ export function QuestionDetailModal({
                     borderColor: colors.cardSecondaryBorder,
                   },
                 ]}
-                hitSlop={{ top: 8, bottom: 8, left: 6, right: 8 }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Ionicons name="close" size={18} color={colors.textMuted} />
               </TouchableOpacity>
@@ -174,11 +210,25 @@ export function QuestionDetailModal({
             showsVerticalScrollIndicator={false}
           >
             {/* ── Section 1: Attempt Stats & SVG Ratio Bar ────────────────── */}
-            <View style={[styles.statsCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <View
+              style={[
+                styles.statsCard,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
+            >
               <View style={styles.statsCardHeader}>
                 <View style={styles.statsHeaderLeft}>
-                  <Ionicons name="stats-chart" size={16} color={colors.primary} />
-                  <Text style={[styles.statsTitle, { color: colors.text }]}>Revision Performance</Text>
+                  <Ionicons
+                    name="stats-chart"
+                    size={16}
+                    color={colors.primary}
+                  />
+                  <Text style={[styles.statsTitle, { color: colors.text }]}>
+                    Revision Performance
+                  </Text>
                 </View>
                 <View style={styles.stagePill}>
                   <Text style={styles.stagePillText}>
@@ -197,7 +247,13 @@ export function QuestionDetailModal({
                   </Defs>
                   <G clipPath="url(#barClip)">
                     {/* Base Background Track */}
-                    <Rect x="0" y="0" width="100" height="8" fill={colors.border} />
+                    <Rect
+                      x="0"
+                      y="0"
+                      width="100"
+                      height="8"
+                      fill={colors.border}
+                    />
                     {totalAttempts > 0 && (
                       <>
                         <Rect
@@ -224,8 +280,14 @@ export function QuestionDetailModal({
               {totalAttempts > 0 ? (
                 <View style={styles.statsLegendRow}>
                   <View style={styles.legendItem}>
-                    <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-                    <Text style={[styles.legendText, { color: colors.textMuted }]}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={14}
+                      color="#10B981"
+                    />
+                    <Text
+                      style={[styles.legendText, { color: colors.textMuted }]}
+                    >
                       Correct:{" "}
                       <Text style={[styles.boldWhite, { color: colors.text }]}>
                         {correct} ({correctPercent}%)
@@ -235,7 +297,9 @@ export function QuestionDetailModal({
 
                   <View style={styles.legendItem}>
                     <Ionicons name="close-circle" size={14} color="#EF4444" />
-                    <Text style={[styles.legendText, { color: colors.textMuted }]}>
+                    <Text
+                      style={[styles.legendText, { color: colors.textMuted }]}
+                    >
                       Incorrect:{" "}
                       <Text style={[styles.boldWhite, { color: colors.text }]}>
                         {incorrect} ({incorrectPercent}%)
@@ -244,15 +308,28 @@ export function QuestionDetailModal({
                   </View>
                 </View>
               ) : (
-                <Text style={[styles.noAttemptsText, { color: colors.textMuted }]}>
+                <Text
+                  style={[styles.noAttemptsText, { color: colors.textMuted }]}
+                >
                   Not attempted yet in revision tests
                 </Text>
               )}
 
               {/* Next Revision Date */}
-              <View style={[styles.revisionDateRow, { borderTopColor: colors.borderSubtle }]}>
-                <Ionicons name="calendar-outline" size={14} color={colors.textMuted} />
-                <Text style={[styles.revisionDateText, { color: colors.textMuted }]}>
+              <View
+                style={[
+                  styles.revisionDateRow,
+                  { borderTopColor: colors.borderSubtle },
+                ]}
+              >
+                <Ionicons
+                  name="calendar-outline"
+                  size={14}
+                  color={colors.textMuted}
+                />
+                <Text
+                  style={[styles.revisionDateText, { color: colors.textMuted }]}
+                >
                   Next Revision:{" "}
                   <Text style={[styles.boldWhite, { color: colors.text }]}>
                     {formatRevisionDate(question.nextRevisionDate)}
@@ -262,11 +339,22 @@ export function QuestionDetailModal({
             </View>
 
             {/* ── Section 2: Question Media & Taxonomy (Top) ──────────────── */}
-            <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <View
+              style={[
+                styles.sectionContainer,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
+            >
               <View style={styles.sectionHeaderRow}>
                 <Ionicons name="help-circle" size={16} color={colors.primary} />
                 <Text style={[styles.sectionHeading, { color: colors.text }]}>
-                  Question {questionImages.length > 1 ? `(${questionImages.length} pages)` : ""}
+                  Question{" "}
+                  {questionImages.length > 1
+                    ? `(${questionImages.length} pages)`
+                    : ""}
                 </Text>
               </View>
 
@@ -276,13 +364,21 @@ export function QuestionDetailModal({
                 <View style={styles.taxonomyChipsContainer}>
                   {question.topics?.map((topic, idx) => (
                     <View key={`top-${idx}`} style={styles.topicChip}>
-                      <Ionicons name="layers-outline" size={11} color="#38BDF8" />
+                      <Ionicons
+                        name="layers-outline"
+                        size={11}
+                        color="#38BDF8"
+                      />
                       <Text style={styles.topicChipText}>{topic}</Text>
                     </View>
                   ))}
                   {question.subtopics?.map((subtop, idx) => (
                     <View key={`sub-${idx}`} style={styles.subtopicChip}>
-                      <Ionicons name="pricetag-outline" size={11} color="#14B8A6" />
+                      <Ionicons
+                        name="pricetag-outline"
+                        size={11}
+                        color="#14B8A6"
+                      />
                       <Text style={styles.subtopicChipText}>{subtop}</Text>
                     </View>
                   ))}
@@ -292,15 +388,26 @@ export function QuestionDetailModal({
               {/* Question Image(s) */}
               {questionImages.length === 0 ? (
                 <View style={styles.noImageNotice}>
-                  <Ionicons name="image-outline" size={20} color={colors.textMuted} />
-                  <Text style={[styles.noImageText, { color: colors.textMuted }]}>No question image provided</Text>
+                  <Ionicons
+                    name="image-outline"
+                    size={20}
+                    color={colors.textMuted}
+                  />
+                  <Text
+                    style={[styles.noImageText, { color: colors.textMuted }]}
+                  >
+                    No question image provided
+                  </Text>
                 </View>
               ) : questionImages.length === 1 ? (
                 <TouchableOpacity
                   activeOpacity={0.88}
                   style={[
                     styles.imageCardWrapper,
-                    { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                    {
+                      backgroundColor: colors.cardSecondary,
+                      borderColor: colors.cardSecondaryBorder,
+                    },
                   ]}
                   onPress={() => {
                     setZoomUri(questionImages[0]);
@@ -330,11 +437,16 @@ export function QuestionDetailModal({
                       activeOpacity={0.88}
                       style={[
                         styles.stripCard,
-                        { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                        {
+                          backgroundColor: colors.cardSecondary,
+                          borderColor: colors.cardSecondaryBorder,
+                        },
                       ]}
                       onPress={() => {
                         setZoomUri(uri);
-                        setZoomTitle(`${question.subject} Question (Page ${idx + 1})`);
+                        setZoomTitle(
+                          `${question.subject} Question (Page ${idx + 1})`,
+                        );
                       }}
                     >
                       <Image
@@ -352,11 +464,22 @@ export function QuestionDetailModal({
             </View>
 
             {/* ── Section 3: Solution & Answer (Below Question) ───────────── */}
-            <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <View
+              style={[
+                styles.sectionContainer,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
+            >
               <View style={styles.sectionHeaderRow}>
                 <Ionicons name="bulb" size={16} color="#10B981" />
                 <Text style={[styles.sectionHeading, { color: colors.text }]}>
-                  Solution & Answer {solutionImages.length > 1 ? `(${solutionImages.length} pages)` : ""}
+                  Solution & Answer{" "}
+                  {solutionImages.length > 1
+                    ? `(${solutionImages.length} pages)`
+                    : ""}
                 </Text>
               </View>
 
@@ -364,13 +487,27 @@ export function QuestionDetailModal({
               <View
                 style={[
                   styles.answerCard,
-                  { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                  {
+                    backgroundColor: colors.cardSecondary,
+                    borderColor: colors.cardSecondaryBorder,
+                  },
                 ]}
               >
-                <Text style={[styles.answerHeaderLabel, { color: colors.textMuted }]}>Correct Answer</Text>
+                <Text
+                  style={[
+                    styles.answerHeaderLabel,
+                    { color: colors.textMuted },
+                  ]}
+                >
+                  Correct Answer
+                </Text>
                 {question.questionType === "MCQ" && (
                   <View style={styles.optionPill}>
-                    <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={16}
+                      color="#10B981"
+                    />
                     <Text style={styles.optionPillText}>
                       Option {question.mcqAnswer ?? "—"}
                     </Text>
@@ -388,19 +525,36 @@ export function QuestionDetailModal({
                             size={14}
                             color="#10B981"
                           />
-                          <Text style={styles.optionPillText}>Option {opt}</Text>
+                          <Text style={styles.optionPillText}>
+                            Option {opt}
+                          </Text>
                         </View>
                       ))
                     ) : (
-                      <Text style={[styles.plainAnswerText, { color: colors.textMuted }]}>—</Text>
+                      <Text
+                        style={[
+                          styles.plainAnswerText,
+                          { color: colors.textMuted },
+                        ]}
+                      >
+                        —
+                      </Text>
                     )}
                   </View>
                 )}
 
                 {question.questionType === "NAT" && (
-                  <View style={[styles.natBox, { backgroundColor: colors.card }]}>
-                    <Text style={[styles.natLabel, { color: colors.textMuted }]}>Numerical Value:</Text>
-                    <Text style={[styles.natValueText, { color: colors.primary }]}>
+                  <View
+                    style={[styles.natBox, { backgroundColor: colors.card }]}
+                  >
+                    <Text
+                      style={[styles.natLabel, { color: colors.textMuted }]}
+                    >
+                      Numerical Value:
+                    </Text>
+                    <Text
+                      style={[styles.natValueText, { color: colors.primary }]}
+                    >
                       {question.natAnswer || "—"}
                     </Text>
                   </View>
@@ -413,7 +567,10 @@ export function QuestionDetailModal({
                   activeOpacity={0.88}
                   style={[
                     styles.imageCardWrapper,
-                    { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                    {
+                      backgroundColor: colors.cardSecondary,
+                      borderColor: colors.cardSecondaryBorder,
+                    },
                   ]}
                   onPress={() => {
                     setZoomUri(solutionImages[0]);
@@ -443,11 +600,16 @@ export function QuestionDetailModal({
                       activeOpacity={0.88}
                       style={[
                         styles.stripCard,
-                        { backgroundColor: colors.cardSecondary, borderColor: colors.cardSecondaryBorder },
+                        {
+                          backgroundColor: colors.cardSecondary,
+                          borderColor: colors.cardSecondaryBorder,
+                        },
                       ]}
                       onPress={() => {
                         setZoomUri(uri);
-                        setZoomTitle(`${question.subject} Solution (Page ${idx + 1})`);
+                        setZoomTitle(
+                          `${question.subject} Solution (Page ${idx + 1})`,
+                        );
                       }}
                     >
                       <Image
@@ -466,15 +628,33 @@ export function QuestionDetailModal({
 
             {/* ── Section 4: Personal Notes / Voice Note ─────────────────── */}
             {question.personalNote ? (
-              <View style={[styles.sectionContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+              <View
+                style={[
+                  styles.sectionContainer,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}
+              >
                 <View style={styles.sectionHeaderRow}>
                   <Ionicons
-                    name={isAudioPath(question.personalNote) ? "mic" : "document-text"}
+                    name={
+                      isAudioPath(question.personalNote)
+                        ? "mic"
+                        : "document-text"
+                    }
                     size={16}
-                    color={isAudioPath(question.personalNote) ? colors.primary : colors.warning}
+                    color={
+                      isAudioPath(question.personalNote)
+                        ? colors.primary
+                        : colors.warning
+                    }
                   />
                   <Text style={[styles.sectionHeading, { color: colors.text }]}>
-                    {isAudioPath(question.personalNote) ? "Voice Note" : "Personal Notes"}
+                    {isAudioPath(question.personalNote)
+                      ? "Voice Note"
+                      : "Personal Notes"}
                   </Text>
                 </View>
                 {isAudioPath(question.personalNote) ? (
@@ -490,7 +670,9 @@ export function QuestionDetailModal({
                       },
                     ]}
                   >
-                    <Text style={[styles.noteCardText, { color: colors.text }]}>{question.personalNote}</Text>
+                    <Text style={[styles.noteCardText, { color: colors.text }]}>
+                      {question.personalNote}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -572,17 +754,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerActionBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   closeBtn: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -590,15 +772,15 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 12,
     paddingTop: 8,
-    gap: 10,
+    gap: 8,
   },
   statsCard: {
     backgroundColor: "#202024",
-    borderRadius: 12,
+    borderRadius: 0,
     borderWidth: 1,
     borderColor: "#2E2E34",
-    padding: 10,
-    gap: 8,
+    padding: 9,
+    gap: 7,
   },
   statsCardHeader: {
     flexDirection: "row",
@@ -612,25 +794,28 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     color: "#F8FAFC",
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 12.5,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   stagePill: {
     backgroundColor: "rgba(59, 130, 246, 0.15)",
     borderColor: "rgba(59, 130, 246, 0.3)",
     borderWidth: 1,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 0,
   },
   stagePillText: {
     color: "#93C5FD",
-    fontSize: 10.5,
-    fontWeight: "600",
+    fontSize: 10,
+    fontWeight: "700",
+    textTransform: "uppercase",
   },
   barContainer: {
     width: "100%",
-    height: 8,
+    height: 6,
     marginVertical: 1,
   },
   statsLegendRow: {
@@ -645,11 +830,11 @@ const styles = StyleSheet.create({
   },
   legendText: {
     color: "#94A3B8",
-    fontSize: 11,
+    fontSize: 10.5,
   },
   boldWhite: {
     color: "#FFFFFF",
-    fontWeight: "600",
+    fontWeight: "700",
   },
   noAttemptsText: {
     color: "#64748B",
@@ -663,19 +848,19 @@ const styles = StyleSheet.create({
     gap: 5,
     borderTopWidth: 1,
     borderTopColor: "#2A2A30",
-    paddingTop: 6,
+    paddingTop: 5,
   },
   revisionDateText: {
     color: "#94A3B8",
-    fontSize: 11,
+    fontSize: 10.5,
   },
   sectionContainer: {
     backgroundColor: "#202024",
-    borderRadius: 12,
+    borderRadius: 0,
     borderWidth: 1,
     borderColor: "#2E2E34",
-    padding: 10,
-    gap: 8,
+    padding: 9,
+    gap: 7,
   },
   sectionHeaderRow: {
     flexDirection: "row",
@@ -684,7 +869,7 @@ const styles = StyleSheet.create({
   },
   sectionHeading: {
     color: "#F8FAFC",
-    fontSize: 13.5,
+    fontSize: 13,
     fontWeight: "700",
   },
   taxonomyChipsContainer: {
@@ -698,15 +883,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(56, 189, 248, 0.12)",
     borderColor: "rgba(56, 189, 248, 0.25)",
     borderWidth: 1,
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 0,
     gap: 3,
   },
   topicChipText: {
     color: "#BAE6FD",
-    fontSize: 11,
-    fontWeight: "500",
+    fontSize: 10.5,
+    fontWeight: "600",
   },
   subtopicChip: {
     flexDirection: "row",
@@ -714,21 +899,21 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(20, 184, 166, 0.12)",
     borderColor: "rgba(20, 184, 166, 0.25)",
     borderWidth: 1,
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 0,
     gap: 3,
   },
   subtopicChipText: {
     color: "#99F6E4",
-    fontSize: 11,
-    fontWeight: "500",
+    fontSize: 10.5,
+    fontWeight: "600",
   },
   imageCardWrapper: {
     width: "100%",
-    height: 160,
+    height: 150,
     backgroundColor: "#161618",
-    borderRadius: 10,
+    borderRadius: 0,
     borderWidth: 1,
     borderColor: "#333338",
     overflow: "hidden",
@@ -737,13 +922,13 @@ const styles = StyleSheet.create({
   multiImageStrip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     paddingVertical: 2,
   },
   stripCard: {
-    width: 110,
-    height: 110,
-    borderRadius: 10,
+    width: 100,
+    height: 100,
+    borderRadius: 0,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1,
@@ -756,16 +941,16 @@ const styles = StyleSheet.create({
   },
   stripBadge: {
     position: "absolute",
-    bottom: 4,
-    left: 4,
+    bottom: 3,
+    left: 3,
     backgroundColor: "rgba(0, 0, 0, 0.75)",
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 0,
   },
   stripBadgeText: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
   },
   previewImage: {
@@ -774,43 +959,43 @@ const styles = StyleSheet.create({
   },
   tapToZoomBadge: {
     position: "absolute",
-    bottom: 6,
-    right: 6,
+    bottom: 5,
+    right: 5,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.72)",
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    borderRadius: 0,
+    paddingHorizontal: 5,
+    paddingVertical: 2.5,
     gap: 4,
   },
   tapToZoomText: {
     color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "500",
+    fontSize: 9.5,
+    fontWeight: "600",
   },
   noImageNotice: {
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
   },
   noImageText: {
     color: "#64748B",
-    fontSize: 12,
+    fontSize: 11.5,
   },
   answerCard: {
     backgroundColor: "#161618",
-    borderRadius: 10,
-    padding: 8,
+    borderRadius: 0,
+    padding: 7,
     borderWidth: 1,
     borderColor: "#2E2E34",
-    gap: 6,
+    gap: 5,
   },
   answerHeaderLabel: {
     color: "#94A3B8",
-    fontSize: 10,
-    fontWeight: "600",
+    fontSize: 9.5,
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -820,15 +1005,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(16, 185, 129, 0.12)",
     borderColor: "rgba(16, 185, 129, 0.3)",
     borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 0,
+    gap: 5,
     alignSelf: "flex-start",
   },
   optionPillText: {
     color: "#34D399",
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: "700",
   },
   msqRow: {
@@ -840,36 +1025,38 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#202024",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 0,
+    gap: 5,
+    borderWidth: 1,
+    borderColor: "#2E2E34",
   },
   natLabel: {
     color: "#94A3B8",
-    fontSize: 11.5,
+    fontSize: 11,
   },
   natValueText: {
     color: "#38BDF8",
-    fontSize: 13.5,
+    fontSize: 13,
     fontWeight: "700",
   },
   plainAnswerText: {
     color: "#64748B",
-    fontSize: 13,
+    fontSize: 12.5,
   },
   noteCard: {
     backgroundColor: "rgba(245, 158, 11, 0.08)",
     borderColor: "rgba(245, 158, 11, 0.2)",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 0,
     padding: 8,
     borderLeftWidth: 3,
     borderLeftColor: "#F59E0B",
   },
   noteCardText: {
     color: "#FEF3C7",
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11.5,
+    lineHeight: 15,
   },
 });

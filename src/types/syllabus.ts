@@ -28,12 +28,22 @@ function getSubjectTopicsMap(
 }
 
 /**
+ * Helper to sort strings in natural lexicographic order (e.g. Unit 2 before Unit 10, case-insensitive).
+ */
+export const compareLexicographic = (a: string, b: string): number => {
+  return (
+    a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }) ||
+    a.localeCompare(b)
+  );
+};
+
+/**
  * Utility functions for extracting subjects, topics, and subtopics from any syllabus schema.
  * Can be used with local JSON files (like neet.json, gate_cs.json) or data fetched dynamically from an API.
  */
 export const getSubjects = (data: SyllabusSchema | null | undefined): string[] => {
   if (!data || !data.subjects) return [];
-  return Object.keys(data.subjects);
+  return Object.keys(data.subjects).sort(compareLexicographic);
 };
 
 export const getTopics = (
@@ -42,7 +52,9 @@ export const getTopics = (
 ): string[] => {
   const topicsObj = getSubjectTopicsMap(data, subject);
   if (!topicsObj) return [];
-  return Object.keys(topicsObj).filter((k) => k !== "topics");
+  return Object.keys(topicsObj)
+    .filter((k) => k !== "topics")
+    .sort(compareLexicographic);
 };
 
 export const getSubtopics = (
@@ -55,7 +67,7 @@ export const getSubtopics = (
   if (!topicsObj || !topicsObj[topic] || !Array.isArray(topicsObj[topic])) {
     return [];
   }
-  return topicsObj[topic] || [];
+  return [...(topicsObj[topic] || [])].sort(compareLexicographic);
 };
 
 export const getSubtopicsForTopics = (
@@ -81,5 +93,5 @@ export const getSubtopicsForTopics = (
       }
     }
   }
-  return result;
+  return result.sort(compareLexicographic);
 };

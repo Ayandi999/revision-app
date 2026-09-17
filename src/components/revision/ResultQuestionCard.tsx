@@ -361,38 +361,38 @@ export function ResultQuestionCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#1E2028",
-    borderRadius: 13,
+    borderRadius: 0,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
   // Header (collapsed view)
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 10,
     gap: 8,
   },
   headerLeft: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
   indexBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    borderWidth: 1.5,
+    width: 26,
+    height: 26,
+    borderRadius: 0,
+    borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.03)",
   },
   indexText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800",
   },
   headerInfo: {
@@ -405,12 +405,12 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   statusText: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: "700",
   },
   pointsText: {
     color: "#6B7280",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "500",
     marginLeft: 4,
   },
@@ -421,40 +421,40 @@ const styles = StyleSheet.create({
   },
   metaText: {
     color: "#6B7280",
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: "400",
   },
   typePill: {
     backgroundColor: "rgba(59, 130, 246, 0.1)",
-    paddingHorizontal: 5,
+    paddingHorizontal: 4,
     paddingVertical: 1,
-    borderRadius: 5,
+    borderRadius: 0,
   },
   typePillText: {
     color: "#3B82F6",
-    fontSize: 9.5,
+    fontSize: 9,
     fontWeight: "700",
   },
 
   // Thumbnail
   thumbnailWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 0,
     overflow: "hidden",
     backgroundColor: "#1E2028",
     position: "relative",
   },
   thumbnail: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
   },
   thumbnailCountBadge: {
     position: "absolute",
     bottom: 2,
     right: 2,
     backgroundColor: "rgba(11, 12, 16, 0.85)",
-    borderRadius: 5,
+    borderRadius: 0,
     paddingHorizontal: 3,
     paddingVertical: 1,
     borderWidth: 1,
@@ -462,12 +462,12 @@ const styles = StyleSheet.create({
   },
   thumbnailCountText: {
     color: "#14B8A6",
-    fontSize: 8.5,
+    fontSize: 8,
     fontWeight: "700",
   },
   thumbnailPlaceholder: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -479,13 +479,13 @@ const styles = StyleSheet.create({
   multiImageStrip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     paddingVertical: 2,
   },
   stripCard: {
-    width: 95,
-    height: 95,
-    borderRadius: 10,
+    width: 88,
+    height: 88,
+    borderRadius: 0,
     overflow: "hidden",
     position: "relative",
     borderWidth: 1,
@@ -498,38 +498,38 @@ const styles = StyleSheet.create({
   },
   stripBadge: {
     position: "absolute",
-    bottom: 4,
-    left: 4,
+    bottom: 3,
+    left: 3,
     backgroundColor: "rgba(0, 0, 0, 0.75)",
-    paddingHorizontal: 5,
+    paddingHorizontal: 4,
     paddingVertical: 1,
-    borderRadius: 4,
+    borderRadius: 0,
   },
   stripBadgeText: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
   },
 
   // Expanded body
   expandedBody: {
-    paddingHorizontal: 12,
-    paddingBottom: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 8,
     paddingTop: 0,
-    gap: 10,
+    gap: 8,
   },
 
   // Answer comparison
   answerRow: {
     flexDirection: "row",
     backgroundColor: "#1c1b1b",
-    borderRadius: 10,
+    borderRadius: 0,
     overflow: "hidden",
   },
   answerBlock: {
     flex: 1,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     alignItems: "center",
     gap: 2,
   },
@@ -539,19 +539,19 @@ const styles = StyleSheet.create({
   },
   answerLabel: {
     color: "#6B7280",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.4,
   },
   answerValue: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
   },
 
   // Solution section
   solutionSection: {
-    gap: 5,
+    gap: 4,
   },
   solutionHeaderRow: {
     flexDirection: "row",
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
   solutionLabel: {
     color: "#94A3B8",
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: "600",
   },
   tapToZoomBadge: {
@@ -568,18 +568,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 3,
     backgroundColor: "rgba(59, 130, 246, 0.12)",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 0,
   },
   tapToZoomText: {
     color: "#3B82F6",
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "600",
   },
   solutionImageWrapper: {
     backgroundColor: "#1E2028",
-    borderRadius: 10,
+    borderRadius: 0,
     borderWidth: 1,
     borderColor: "rgba(59, 130, 246, 0.1)",
     overflow: "hidden",
@@ -587,16 +587,16 @@ const styles = StyleSheet.create({
   },
   solutionImage: {
     width: "100%",
-    height: 160,
+    height: 150,
   },
   zoomIconOverlay: {
     position: "absolute",
     bottom: 6,
     right: 6,
     backgroundColor: "rgba(11, 12, 16, 0.75)",
-    borderRadius: 12,
-    width: 24,
-    height: 24,
+    borderRadius: 0,
+    width: 22,
+    height: 22,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
@@ -606,9 +606,9 @@ const styles = StyleSheet.create({
   // Notes section
   notesSection: {
     backgroundColor: "rgba(59, 130, 246, 0.06)",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    borderRadius: 0,
+    paddingVertical: 7,
+    paddingHorizontal: 9,
     gap: 3,
   },
   notesHeader: {
@@ -618,12 +618,14 @@ const styles = StyleSheet.create({
   },
   notesLabel: {
     color: "#3B82F6",
-    fontSize: 11.5,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   notesText: {
     color: "#D1D5DB",
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 11.5,
+    lineHeight: 16,
   },
 });

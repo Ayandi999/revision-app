@@ -65,8 +65,8 @@ export const NotificationCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
-    padding: 12,
+    borderRadius: 0,
+    padding: 11,
     borderWidth: 1,
   },
   headerRow: {
@@ -75,9 +75,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 9,
+    width: 28,
+    height: 28,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
     alignItems: "center",
     justifyContent: "center",
   },

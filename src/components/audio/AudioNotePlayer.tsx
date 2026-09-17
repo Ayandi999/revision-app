@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useTheme } from "@/context/ThemeContext";
 import { resolveAudioUri } from "@/functions/audioHelpers";
+import { hapticSelection } from "@/functions/hapticFeedback";
 
 interface AudioNotePlayerProps {
   audioUri: string | null | undefined;
@@ -46,6 +47,7 @@ export const AudioNotePlayer: React.FC<AudioNotePlayerProps> = ({
 
   const handleTogglePlay = () => {
     if (!resolvedUri) return;
+    hapticSelection();
     if (status.playing) {
       player.pause();
     } else {
@@ -59,6 +61,7 @@ export const AudioNotePlayer: React.FC<AudioNotePlayerProps> = ({
 
   const handleSeek = (percentage: number) => {
     if (durationSec > 0) {
+      hapticSelection();
       const target = (percentage / 100) * durationSec;
       player.seekTo(target);
     }
@@ -164,7 +167,10 @@ export const AudioNotePlayer: React.FC<AudioNotePlayerProps> = ({
         <TouchableOpacity
           style={[styles.deleteButton, { borderColor: colors.border }]}
           activeOpacity={0.7}
-          onPress={onDelete}
+          onPress={() => {
+            hapticSelection();
+            onDelete();
+          }}
         >
           <Ionicons name="trash-outline" size={16} color={colors.danger} />
         </TouchableOpacity>
@@ -177,33 +183,33 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 0,
     borderWidth: 1,
-    gap: 12,
+    gap: 10,
   },
   containerCompact: {
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 0,
     gap: 8,
   },
   playButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 32,
+    height: 32,
+    borderRadius: 0,
     alignItems: "center",
     justifyContent: "center",
   },
   playButtonCompact: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 26,
+    height: 26,
+    borderRadius: 0,
   },
   trackContent: {
     flex: 1,
-    gap: 6,
+    gap: 5,
   },
   topRow: {
     flexDirection: "row",
@@ -216,36 +222,37 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   voiceLabel: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 12.5,
+    fontWeight: "700",
   },
   voiceLabelCompact: {
-    fontSize: 11.5,
+    fontSize: 11,
+    fontWeight: "700",
   },
   timeText: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontVariant: ["tabular-nums"],
-    fontWeight: "500",
+    fontWeight: "600",
   },
   timeTextCompact: {
-    fontSize: 10.5,
+    fontSize: 10,
   },
   progressBarWrapper: {
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
   progressTrack: {
-    height: 5,
-    borderRadius: 3,
+    height: 4,
+    borderRadius: 0,
     overflow: "hidden",
   },
   progressFill: {
     height: "100%",
-    borderRadius: 3,
+    borderRadius: 0,
   },
   deleteButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 0,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,

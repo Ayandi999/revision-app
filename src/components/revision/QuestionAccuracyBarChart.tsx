@@ -1,10 +1,17 @@
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import Svg, { ClipPath, Defs, G, Line, Rect, Text as SvgText } from "react-native-svg";
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
 import type { QuestionResult } from "@/functions/scoreCalculator";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import Svg, {
+  ClipPath,
+  Defs,
+  G,
+  Line,
+  Rect,
+  Text as SvgText,
+} from "react-native-svg";
 
 interface QuestionAccuracyBarChartProps {
   questions: Question[];
@@ -83,20 +90,24 @@ export function QuestionAccuracyBarChart({
             Question Accuracy
           </Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            Historical & today's recall count
+            {"Historical & today's recall count"}
           </Text>
         </View>
 
         {/* Legend */}
         <View style={styles.legendRow}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendColor, { backgroundColor: "#10B981" }]} />
+            <View
+              style={[styles.legendColor, { backgroundColor: "#10B981" }]}
+            />
             <Text style={[styles.legendText, { color: colors.textSecondary }]}>
               Correct
             </Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendColor, { backgroundColor: "#EF4444" }]} />
+            <View
+              style={[styles.legendColor, { backgroundColor: "#EF4444" }]}
+            />
             <Text style={[styles.legendText, { color: colors.textSecondary }]}>
               Wrong
             </Text>
@@ -141,7 +152,8 @@ export function QuestionAccuracyBarChart({
             let incorrectHeight = 0;
 
             if (hasBoth) {
-              const rawCorrectHeight = (item.correct / item.total) * MAX_BAR_HEIGHT;
+              const rawCorrectHeight =
+                (item.correct / item.total) * MAX_BAR_HEIGHT;
               correctHeight = Math.round(rawCorrectHeight);
               // Ensure both segments have at least MIN_SEGMENT so text fits cleanly
               if (correctHeight < MIN_SEGMENT) {
@@ -206,8 +218,8 @@ export function QuestionAccuracyBarChart({
                           y={incorrectY}
                           width={BAR_WIDTH}
                           height={totalBarHeight}
-                          rx={5}
-                          ry={5}
+                          rx={0}
+                          ry={0}
                         />
                       </ClipPath>
                     </Defs>
@@ -265,8 +277,8 @@ export function QuestionAccuracyBarChart({
                       width={BAR_WIDTH}
                       height={correctHeight}
                       fill="#10B981"
-                      rx={5}
-                      ry={5}
+                      rx={0}
+                      ry={0}
                     />
                     <SvgText
                       x={x + BAR_WIDTH / 2}
@@ -290,8 +302,8 @@ export function QuestionAccuracyBarChart({
                       width={BAR_WIDTH}
                       height={incorrectHeight}
                       fill="#EF4444"
-                      rx={5}
-                      ry={5}
+                      rx={0}
+                      ry={0}
                     />
                     <SvgText
                       x={x + BAR_WIDTH / 2}
@@ -314,10 +326,14 @@ export function QuestionAccuracyBarChart({
                       y={baselineY - MAX_BAR_HEIGHT}
                       width={BAR_WIDTH}
                       height={MAX_BAR_HEIGHT}
-                      rx={5}
-                      ry={5}
-                      fill={isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"}
-                      stroke={isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"}
+                      rx={0}
+                      ry={0}
+                      fill={
+                        isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"
+                      }
+                      stroke={
+                        isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"
+                      }
                       strokeDasharray="3, 2"
                     />
                     <SvgText
@@ -369,7 +385,11 @@ export function QuestionAccuracyBarChart({
           <Text style={[styles.hintText, { color: colors.textTertiary }]}>
             Swipe horizontally to review all question bars
           </Text>
-          <Ionicons name="arrow-forward" size={11} color={colors.textTertiary} />
+          <Ionicons
+            name="arrow-forward"
+            size={11}
+            color={colors.textTertiary}
+          />
         </View>
       )}
     </View>
@@ -378,16 +398,16 @@ export function QuestionAccuracyBarChart({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 14,
-    marginBottom: 14,
+    padding: 12,
+    marginBottom: 10,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 14,
+    marginBottom: 12,
     flexWrap: "wrap",
     rowGap: 8,
   },
@@ -395,12 +415,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   title: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: "700",
     letterSpacing: -0.2,
   },
   subtitle: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: "500",
     marginTop: 2,
   },
@@ -417,7 +437,7 @@ const styles = StyleSheet.create({
   legendColor: {
     width: 8,
     height: 8,
-    borderRadius: 2,
+    borderRadius: 0,
   },
   legendText: {
     fontSize: 11,

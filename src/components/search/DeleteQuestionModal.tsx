@@ -1,5 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
+import { hapticSelection, hapticWarning } from "@/functions/hapticFeedback";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -112,7 +113,10 @@ export const DeleteQuestionModal: React.FC<DeleteQuestionModalProps> = ({
                 },
               ]}
               activeOpacity={0.75}
-              onPress={onClose}
+              onPress={() => {
+                hapticSelection();
+                onClose();
+              }}
               disabled={isDeleting}
             >
               <Text style={[styles.cancelButtonText, { color: colors.text }]}>
@@ -127,7 +131,10 @@ export const DeleteQuestionModal: React.FC<DeleteQuestionModalProps> = ({
                 isDeleting && styles.buttonDisabled,
               ]}
               activeOpacity={0.82}
-              onPress={onConfirm}
+              onPress={() => {
+                hapticWarning();
+                onConfirm();
+              }}
               disabled={isDeleting}
             >
               {isDeleting ? (
@@ -156,14 +163,14 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 295,
-    borderRadius: 16,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 16,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-    gap: 12,
+    padding: 14,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
+    gap: 10,
   },
   topRow: {
     flexDirection: "row",
@@ -171,9 +178,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -183,21 +190,21 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   title: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 14.5,
+    fontWeight: "800",
     letterSpacing: -0.2,
   },
   metaText: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: "500",
   },
   message: {
-    fontSize: 12,
+    fontSize: 11.5,
     lineHeight: 16,
   },
   snippetText: {
-    fontSize: 11.5,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 15,
     fontStyle: "italic",
   },
   buttonRow: {
@@ -207,20 +214,20 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    height: 36,
-    borderRadius: 9,
+    height: 34,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   cancelButtonText: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: "600",
   },
   deleteButton: {
     flex: 1,
-    height: 36,
-    borderRadius: 9,
+    height: 34,
+    borderRadius: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -228,8 +235,10 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: "#FFFFFF",
-    fontSize: 12.5,
-    fontWeight: "700",
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   buttonDisabled: {
     opacity: 0.7,

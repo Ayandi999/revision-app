@@ -66,8 +66,8 @@ export function CollapsibleSection({
 
 const styles = StyleSheet.create({
   collapsibleSection: {
-    marginTop: 14,
-    borderRadius: 14,
+    marginTop: 12,
+    borderRadius: 0,
     borderWidth: 1,
     overflow: "hidden",
   },
@@ -75,21 +75,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   sectionHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 9,
+    gap: 8,
   },
   sectionHeaderTitle: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "700",
     letterSpacing: 0.1,
   },
   sectionBody: {
-    paddingHorizontal: 14,
-    paddingBottom: 16,
+    paddingHorizontal: 12,
+    paddingBottom: 14,
   },
 });

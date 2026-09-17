@@ -216,10 +216,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderRadius: 12,
+    borderRadius: 0,
     borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
   },
   dropdownInputDisabled: {
     opacity: 0.45,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   dropdownMenu: {
-    borderRadius: 12,
+    borderRadius: 0,
     borderWidth: 1,
     overflow: "hidden",
   },
@@ -243,8 +243,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 11,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
     borderBottomWidth: 1,
   },
   lastDropdownItem: {
@@ -257,9 +257,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   typeBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 0,
     borderWidth: 1,
   },
   typeBadgeText: {

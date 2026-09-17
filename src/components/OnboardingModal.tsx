@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { EXAM_OPTIONS, EXAM_CATEGORIES, ExamOption, StreamOption } from "@/config/exams";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
+import { hapticSelection, hapticSuccess } from "@/functions/hapticFeedback";
 
 export function OnboardingModal() {
   const {
@@ -55,6 +56,7 @@ export function OnboardingModal() {
   );
 
   const handleSelectExam = (exam: ExamOption) => {
+    hapticSelection();
     setSelectedExamId(exam.id);
     if (exam.streams.length > 0) {
       setSelectedStreamId(exam.streams[0].id);
@@ -63,12 +65,14 @@ export function OnboardingModal() {
   };
 
   const handleSelectStream = (stream: StreamOption) => {
+    hapticSelection();
     setSelectedStreamId(stream.id);
     setIsStreamPickerOpen(false);
   };
 
   const handleContinue = async () => {
     if (!selectedExamId || !selectedStreamId) return;
+    hapticSuccess();
     await setExamAndStream(selectedExamId, selectedStreamId);
   };
 
@@ -98,7 +102,10 @@ export function OnboardingModal() {
 
           {isOnboardingCompleted && (
             <TouchableOpacity
-              onPress={closeExamSwitcher}
+              onPress={() => {
+                hapticSelection();
+                closeExamSwitcher();
+              }}
               style={styles.closeButton}
               activeOpacity={0.7}
             >
@@ -131,7 +138,10 @@ export function OnboardingModal() {
                 },
               ]}
               activeOpacity={0.8}
-              onPress={() => setIsExamPickerOpen(true)}
+              onPress={() => {
+                hapticSelection();
+                setIsExamPickerOpen(true);
+              }}
             >
               <View
                 style={[
@@ -190,7 +200,10 @@ export function OnboardingModal() {
                 },
               ]}
               activeOpacity={0.8}
-              onPress={() => setIsStreamPickerOpen(true)}
+              onPress={() => {
+                hapticSelection();
+                setIsStreamPickerOpen(true);
+              }}
             >
               <View
                 style={[
@@ -278,7 +291,10 @@ export function OnboardingModal() {
           <TouchableOpacity
             style={styles.modalOverlay}
             activeOpacity={1}
-            onPress={() => setIsExamPickerOpen(false)}
+            onPress={() => {
+              hapticSelection();
+              setIsExamPickerOpen(false);
+            }}
           >
             <View
               style={[
@@ -295,7 +311,10 @@ export function OnboardingModal() {
                   Select Target Exam
                 </Text>
                 <TouchableOpacity
-                  onPress={() => setIsExamPickerOpen(false)}
+                  onPress={() => {
+                    hapticSelection();
+                    setIsExamPickerOpen(false);
+                  }}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   <Ionicons name="close" size={18} color={colors.textMuted} />
@@ -404,7 +423,10 @@ export function OnboardingModal() {
           <TouchableOpacity
             style={styles.modalOverlay}
             activeOpacity={1}
-            onPress={() => setIsStreamPickerOpen(false)}
+            onPress={() => {
+              hapticSelection();
+              setIsStreamPickerOpen(false);
+            }}
           >
             <View
               style={[
@@ -421,7 +443,10 @@ export function OnboardingModal() {
                   Select Stream for {selectedExam.name}
                 </Text>
                 <TouchableOpacity
-                  onPress={() => setIsStreamPickerOpen(false)}
+                  onPress={() => {
+                    hapticSelection();
+                    setIsStreamPickerOpen(false);
+                  }}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   <Ionicons name="close" size={18} color={colors.textMuted} />
@@ -501,24 +526,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 8,
     borderBottomWidth: 1,
   },
   titleTextCol: {
     flex: 1,
   },
   headerEyebrow: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "700",
     letterSpacing: 0.8,
     textTransform: "uppercase",
-    marginBottom: 2,
+    marginBottom: 1,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "800",
     letterSpacing: -0.3,
   },
   closeButton: {
@@ -529,75 +554,75 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 16,
-    gap: 14,
+    padding: 12,
+    gap: 10,
   },
   subtitle: {
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 11.5,
+    lineHeight: 16,
   },
   dropdownSection: {
-    gap: 6,
+    gap: 4,
   },
   dropdownLabel: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11.5,
+    fontWeight: "700",
     marginLeft: 2,
   },
   dropdownCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 0,
     borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 7,
+    paddingHorizontal: 9,
   },
   shortBadgeLeft: {
-    minWidth: 50,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    borderRadius: 7,
+    minWidth: 42,
+    paddingHorizontal: 5,
+    paddingVertical: 2.5,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 10,
+    marginRight: 8,
   },
   shortBadgeLeftText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "800",
-    letterSpacing: 0.4,
+    letterSpacing: 0.3,
     textTransform: "uppercase",
   },
   dropdownTextGroup: {
     flex: 1,
   },
   dropdownTitle: {
-    fontSize: 13.5,
-    fontWeight: "600",
+    fontSize: 12.5,
+    fontWeight: "700",
   },
   dropdownSubtitle: {
-    fontSize: 11,
+    fontSize: 10,
     marginTop: 1,
   },
   infoPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 0,
     borderWidth: 1,
-    marginTop: 2,
+    marginTop: 0,
   },
   infoPillText: {
-    fontSize: 11,
+    fontSize: 10.5,
     flex: 1,
-    lineHeight: 15,
+    lineHeight: 14,
   },
   footer: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
     borderTopWidth: 1,
   },
   continueButton: {
@@ -605,13 +630,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 11,
-    borderRadius: 10,
+    height: 38,
+    borderRadius: 0,
   },
   continueButtonText: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 12.5,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
   },
   modalOverlay: {
     flex: 1,
@@ -620,97 +647,97 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sheetContent: {
-    borderRadius: 14,
+    borderRadius: 0,
     borderWidth: 1,
-    padding: 14,
-    maxHeight: "80%",
+    padding: 10,
+    maxHeight: "82%",
   },
   sheetHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 8,
     paddingBottom: 6,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.08)",
   },
   sheetTitle: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
   },
   pickerItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    paddingVertical: 5,
+    paddingHorizontal: 7,
+    borderRadius: 0,
     borderWidth: 1,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   pickerBadgeLeft: {
-    minWidth: 46,
-    paddingHorizontal: 5,
-    paddingVertical: 3,
-    borderRadius: 6,
+    minWidth: 38,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 0,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 9,
+    marginRight: 7,
   },
   pickerBadgeLeftText: {
-    fontSize: 10.5,
+    fontSize: 9.5,
     fontWeight: "800",
     letterSpacing: 0.3,
     textTransform: "uppercase",
   },
   pickerItemTitle: {
-    fontSize: 12.5,
-    fontWeight: "600",
+    fontSize: 11.5,
+    fontWeight: "700",
   },
   pickerItemSubtitle: {
-    fontSize: 10.5,
+    fontSize: 9.5,
     marginTop: 1,
   },
   categoryPillRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 2,
+    marginBottom: 1,
   },
   categoryTag: {
-    fontSize: 9.5,
-    fontWeight: "700",
+    fontSize: 8.5,
+    fontWeight: "800",
     letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   pickerSection: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   pickerSectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 4,
     paddingHorizontal: 2,
-    marginTop: 4,
+    marginTop: 2,
   },
   pickerSectionTitleRow: {
     flexDirection: "row",
     alignItems: "center",
   },
   pickerSectionTitle: {
-    fontSize: 10.5,
-    fontWeight: "700",
-    letterSpacing: 0.6,
+    fontSize: 9.5,
+    fontWeight: "800",
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   sectionCountBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: 8,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 0,
   },
   sectionCountText: {
-    fontSize: 9,
-    fontWeight: "700",
+    fontSize: 8,
+    fontWeight: "800",
     letterSpacing: 0.3,
   },
 });

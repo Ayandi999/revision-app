@@ -1,25 +1,26 @@
+import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ImagePickerModal } from "@/components/ImagePickerModal";
 import { MandatoryFieldsModal } from "@/components/MandatoryFieldsModal";
+import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
 import { StatusModal, StatusModalType } from "@/components/StatusModal";
 import { SyllabusDropdown } from "@/components/SyllabusDropdown";
+import type { ThemeColors } from "@/constants/theme";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
-import type { ThemeColors } from "@/constants/theme";
+import {
+  hapticError,
+  hapticImpactMedium,
+  hapticSelection,
+  hapticSuccess,
+  hapticWarning,
+} from "@/functions/hapticFeedback";
 import { resolveImageUri } from "@/functions/imageHelpers";
 import { insertIntoLocalDb } from "@/functions/queries";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { AddQuestionFormData, OptionLetter } from "@/types/question";
-import { ImageZoomModal } from "@/components/revision/ImageZoomModal";
-import { AudioNoteField } from "@/components/audio/AudioNoteField";
 import {
-  hapticError,
-  hapticImpactMedium,
-  hapticSuccess,
-  hapticWarning,
-} from "@/functions/hapticFeedback";
-import {
-  SyllabusSchema,
+  compareLexicographic,
   getSubjects,
   getSubtopicsForTopics,
   getTopics,
@@ -146,7 +147,7 @@ const AddQuestion = () => {
         prev.filter((sub) => stillAvailable.includes(sub)),
       );
     } else {
-      setSelectedTopics((prev) => [...prev, top]);
+      setSelectedTopics((prev) => [...prev, top].sort(compareLexicographic));
     }
   };
 
@@ -154,7 +155,7 @@ const AddQuestion = () => {
     setSelectedSubtopics((prev) =>
       prev.includes(subtop)
         ? prev.filter((s) => s !== subtop)
-        : [...prev, subtop],
+        : [...prev, subtop].sort(compareLexicographic),
     );
   };
 
@@ -276,7 +277,8 @@ const AddQuestion = () => {
   // ── Missing mandatory fields check ──────────────────────────────────────
   const getMissingFields = (): string[] => {
     const missing: string[] = [];
-    if (questionImageUris.length === 0) missing.push("Question image (at least 1)");
+    if (questionImageUris.length === 0)
+      missing.push("Question image (at least 1)");
     // Solution image is now optional per user request
     if (selectedType.key === "MCQ" && !mcqSelected)
       missing.push("Correct option");
@@ -407,7 +409,9 @@ const AddQuestion = () => {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <View style={styles.titleBlock}>
         <Text style={styles.title}>Add Question</Text>
-        <Text style={styles.titleSubtext}>Capture and categorize a new problem</Text>
+        <Text style={styles.titleSubtext}>
+          Capture and categorize a new problem
+        </Text>
       </View>
 
       <ScrollView
@@ -431,7 +435,8 @@ const AddQuestion = () => {
               </Text>
               {questionImageUris.length > 0 && (
                 <Text style={styles.imageCountBadge}>
-                  {questionImageUris.length} {questionImageUris.length === 1 ? "page" : "pages"}
+                  {questionImageUris.length}{" "}
+                  {questionImageUris.length === 1 ? "page" : "pages"}
                 </Text>
               )}
             </View>
@@ -440,7 +445,10 @@ const AddQuestion = () => {
               <TouchableOpacity
                 activeOpacity={0.7}
                 style={styles.iconBox}
-                onPress={() => setPickerTarget("question")}
+                onPress={() => {
+                  hapticSelection();
+                  setPickerTarget("question");
+                }}
                 disabled={questionPicker.isProcessing}
               >
                 {questionPicker.isProcessing ? (
@@ -448,7 +456,9 @@ const AddQuestion = () => {
                 ) : (
                   <>
                     <Ionicons name="camera-outline" size={38} color="#3B82F6" />
-                    <Text style={styles.emptyPickerHint}>Tap to add question image</Text>
+                    <Text style={styles.emptyPickerHint}>
+                      Tap to add question image
+                    </Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -461,45 +471,63 @@ const AddQuestion = () => {
                 {questionImageUris.map((uri, idx) => {
                   const displayUri = resolveImageUri(uri);
                   return (
-                  <TouchableOpacity
-                    key={`${uri}-${idx}`}
-                    activeOpacity={0.85}
-                    style={styles.multiImageCard}
-                    onPress={() => {
-                      setZoomImageUri(displayUri);
-                      setZoomTitle(`Question Image ${idx + 1}`);
-                    }}
-                  >
-                    <Image source={{ uri: displayUri! }} style={styles.multiImageThumb} contentFit="cover" />
-                    <View style={styles.pageNumberBadge}>
-                      <Text style={styles.pageNumberText}>#{idx + 1}</Text>
-                    </View>
                     <TouchableOpacity
-                      style={styles.multiImageDeleteBtn}
-                      activeOpacity={0.8}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        setQuestionImageUris((prev) => prev.filter((_, i) => i !== idx));
+                      key={`${uri}-${idx}`}
+                      activeOpacity={0.85}
+                      style={styles.multiImageCard}
+                      onPress={() => {
+                        setZoomImageUri(displayUri);
+                        setZoomTitle(`Question Image ${idx + 1}`);
                       }}
                     >
-                      <Ionicons name="close" size={18} color="#FFFFFF" style={styles.multiImageCloseIcon} />
+                      <Image
+                        source={{ uri: displayUri! }}
+                        style={styles.multiImageThumb}
+                        contentFit="cover"
+                      />
+                      <View style={styles.pageNumberBadge}>
+                        <Text style={styles.pageNumberText}>#{idx + 1}</Text>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.multiImageDeleteBtn}
+                        activeOpacity={0.8}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          setQuestionImageUris((prev) =>
+                            prev.filter((_, i) => i !== idx),
+                          );
+                        }}
+                      >
+                        <Ionicons
+                          name="close"
+                          size={18}
+                          color="#FFFFFF"
+                          style={styles.multiImageCloseIcon}
+                        />
+                      </TouchableOpacity>
                     </TouchableOpacity>
-                  </TouchableOpacity>
                   );
                 })}
 
                 <TouchableOpacity
                   style={styles.addMoreCard}
                   activeOpacity={0.75}
-                  onPress={() => setPickerTarget("question")}
+                  onPress={() => {
+                    hapticSelection();
+                    setPickerTarget("question");
+                  }}
                   disabled={questionPicker.isProcessing}
                 >
                   {questionPicker.isProcessing ? (
                     <ActivityIndicator size="small" color="#60A5FA" />
                   ) : (
                     <>
-                      <Ionicons name="add-circle-outline" size={20} color="#60A5FA" />
+                      <Ionicons
+                        name="add-circle-outline"
+                        size={20}
+                        color="#60A5FA"
+                      />
                       <Text style={styles.addMoreText}>+ Add page</Text>
                     </>
                   )}
@@ -616,7 +644,8 @@ const AddQuestion = () => {
               </Text>
               {solutionImageUris.length > 0 && (
                 <Text style={styles.imageCountBadge}>
-                  {solutionImageUris.length} {solutionImageUris.length === 1 ? "page" : "pages"}
+                  {solutionImageUris.length}{" "}
+                  {solutionImageUris.length === 1 ? "page" : "pages"}
                 </Text>
               )}
             </View>
@@ -625,7 +654,10 @@ const AddQuestion = () => {
               <TouchableOpacity
                 activeOpacity={0.7}
                 style={styles.solutionCameraBox}
-                onPress={() => setPickerTarget("solution")}
+                onPress={() => {
+                  hapticSelection();
+                  setPickerTarget("solution");
+                }}
                 disabled={solutionPicker.isProcessing}
               >
                 {solutionPicker.isProcessing ? (
@@ -648,45 +680,63 @@ const AddQuestion = () => {
                 {solutionImageUris.map((uri, idx) => {
                   const displayUri = resolveImageUri(uri);
                   return (
-                  <TouchableOpacity
-                    key={`${uri}-${idx}`}
-                    activeOpacity={0.85}
-                    style={styles.multiImageCard}
-                    onPress={() => {
-                      setZoomImageUri(displayUri);
-                      setZoomTitle(`Solution Image ${idx + 1}`);
-                    }}
-                  >
-                    <Image source={{ uri: displayUri! }} style={styles.multiImageThumb} contentFit="cover" />
-                    <View style={styles.pageNumberBadge}>
-                      <Text style={styles.pageNumberText}>#{idx + 1}</Text>
-                    </View>
                     <TouchableOpacity
-                      style={styles.multiImageDeleteBtn}
-                      activeOpacity={0.8}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        setSolutionImageUris((prev) => prev.filter((_, i) => i !== idx));
+                      key={`${uri}-${idx}`}
+                      activeOpacity={0.85}
+                      style={styles.multiImageCard}
+                      onPress={() => {
+                        setZoomImageUri(displayUri);
+                        setZoomTitle(`Solution Image ${idx + 1}`);
                       }}
                     >
-                      <Ionicons name="close" size={18} color="#FFFFFF" style={styles.multiImageCloseIcon} />
+                      <Image
+                        source={{ uri: displayUri! }}
+                        style={styles.multiImageThumb}
+                        contentFit="cover"
+                      />
+                      <View style={styles.pageNumberBadge}>
+                        <Text style={styles.pageNumberText}>#{idx + 1}</Text>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.multiImageDeleteBtn}
+                        activeOpacity={0.8}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          setSolutionImageUris((prev) =>
+                            prev.filter((_, i) => i !== idx),
+                          );
+                        }}
+                      >
+                        <Ionicons
+                          name="close"
+                          size={18}
+                          color="#FFFFFF"
+                          style={styles.multiImageCloseIcon}
+                        />
+                      </TouchableOpacity>
                     </TouchableOpacity>
-                  </TouchableOpacity>
                   );
                 })}
 
                 <TouchableOpacity
                   style={styles.addMoreCard}
                   activeOpacity={0.75}
-                  onPress={() => setPickerTarget("solution")}
+                  onPress={() => {
+                    hapticSelection();
+                    setPickerTarget("solution");
+                  }}
                   disabled={solutionPicker.isProcessing}
                 >
                   {solutionPicker.isProcessing ? (
                     <ActivityIndicator size="small" color="#60A5FA" />
                   ) : (
                     <>
-                      <Ionicons name="add-circle-outline" size={20} color="#60A5FA" />
+                      <Ionicons
+                        name="add-circle-outline"
+                        size={20}
+                        color="#60A5FA"
+                      />
                       <Text style={styles.addMoreText}>+ Add page</Text>
                     </>
                   )}
@@ -889,26 +939,26 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       backgroundColor: colors.bg,
     },
     scrollContent: {
-      paddingHorizontal: 16,
+      paddingHorizontal: 14,
       paddingTop: 8,
-      paddingBottom: 90, // clears the floating bottom tab bar
+      paddingBottom: 72, // clears docked tab bar
     },
     title: {
       color: colors.text,
-      fontSize: 22,
-      fontWeight: "700",
+      fontSize: 20,
+      fontWeight: "800",
       letterSpacing: -0.3,
     },
     titleSubtext: {
       color: colors.textMuted,
-      fontSize: 12,
-      fontWeight: "400",
-      marginTop: 3,
+      fontSize: 11.5,
+      fontWeight: "500",
+      marginTop: 2,
     },
     titleBlock: {
-      paddingHorizontal: 16,
-      paddingTop: 10,
-      paddingBottom: 6,
+      paddingHorizontal: 14,
+      paddingTop: 8,
+      paddingBottom: 4,
     },
     mandatoryAsterisk: {
       color: colors.danger,
@@ -923,20 +973,22 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     iconBox: {
       width: "100%",
-      height: 125,
-      borderWidth: 1.5,
-      borderStyle: "dotted",
-      borderColor: isDark ? "rgba(59, 130, 246, 0.35)" : "rgba(37, 99, 235, 0.3)",
-      borderRadius: 14,
+      height: 115,
+      borderWidth: 1,
+      borderStyle: "dashed",
+      borderColor: colors.border,
+      borderRadius: 0,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.04)" : "rgba(37, 99, 235, 0.04)",
-      gap: 8,
+      backgroundColor: colors.cardSecondary,
+      gap: 6,
     },
     emptyPickerHint: {
       color: colors.textMuted,
-      fontSize: 13,
+      fontSize: 12,
       fontWeight: "600",
+      textTransform: "uppercase",
+      letterSpacing: 0.3,
     },
     sectionLabelRow: {
       flexDirection: "row",
@@ -945,27 +997,28 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       width: "100%",
     },
     imageCountBadge: {
-      color: isDark ? "#14B8A6" : "#0D9488",
-      fontSize: 11,
+      color: colors.primary,
+      fontSize: 10.5,
       fontWeight: "700",
-      backgroundColor: isDark ? "rgba(20, 184, 166, 0.12)" : "rgba(13, 148, 136, 0.12)",
-      paddingHorizontal: 7,
-      paddingVertical: 2,
-      borderRadius: 6,
+      backgroundColor: colors.primaryLight,
+      paddingHorizontal: 6,
+      paddingVertical: 1.5,
+      borderRadius: 0,
+      textTransform: "uppercase",
     },
     multiImageScroll: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: 8,
       paddingVertical: 4,
     },
     multiImageCard: {
-      width: 105,
-      height: 105,
-      borderRadius: 12,
+      width: 95,
+      height: 95,
+      borderRadius: 0,
       overflow: "hidden",
       position: "relative",
-      borderWidth: 1.5,
+      borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.cardSecondary,
     },
@@ -975,24 +1028,24 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     pageNumberBadge: {
       position: "absolute",
-      bottom: 5,
-      left: 5,
+      bottom: 3,
+      left: 3,
       backgroundColor: "rgba(0, 0, 0, 0.75)",
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 5,
+      paddingHorizontal: 5,
+      paddingVertical: 1.5,
+      borderRadius: 0,
     },
     pageNumberText: {
       color: "#FFFFFF",
-      fontSize: 10,
+      fontSize: 9.5,
       fontWeight: "700",
     },
     multiImageDeleteBtn: {
       position: "absolute",
       top: 3,
       right: 3,
-      width: 26,
-      height: 26,
+      width: 22,
+      height: 22,
       alignItems: "center",
       justifyContent: "center",
       zIndex: 10,
@@ -1003,70 +1056,68 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
       textShadowRadius: 3,
     },
     addMoreCard: {
-      width: 85,
-      height: 105,
-      borderRadius: 12,
-      borderWidth: 1.5,
-      borderStyle: "dotted",
-      borderColor: isDark ? "rgba(59, 130, 246, 0.4)" : "rgba(37, 99, 235, 0.35)",
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.05)" : "rgba(37, 99, 235, 0.05)",
+      width: 80,
+      height: 95,
+      borderRadius: 0,
+      borderWidth: 1,
+      borderStyle: "dashed",
+      borderColor: colors.primary,
+      backgroundColor: colors.primaryLight,
       alignItems: "center",
       justifyContent: "center",
-      gap: 5,
+      gap: 4,
     },
     addMoreText: {
       color: colors.primary,
-      fontSize: 11,
-      fontWeight: "600",
+      fontSize: 10.5,
+      fontWeight: "700",
+      textTransform: "uppercase",
     },
     solutionCameraBox: {
       width: "100%",
-      height: 95,
-      borderWidth: 1.5,
-      borderStyle: "dotted",
-      borderColor: isDark ? "rgba(59, 130, 246, 0.35)" : "rgba(37, 99, 235, 0.3)",
-      borderRadius: 12,
+      height: 85,
+      borderWidth: 1,
+      borderStyle: "dashed",
+      borderColor: colors.border,
+      borderRadius: 0,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: isDark ? "rgba(59, 130, 246, 0.04)" : "rgba(37, 99, 235, 0.04)",
-      gap: 6,
+      backgroundColor: colors.cardSecondary,
+      gap: 5,
     },
     solutionCameraText: {
       color: colors.textMuted,
-      fontSize: 13,
-      fontWeight: "500",
-      letterSpacing: 0.1,
+      fontSize: 12,
+      fontWeight: "600",
+      letterSpacing: 0.2,
+      textTransform: "uppercase",
     },
     optionalLabel: {
       color: colors.textPlaceholder,
-      fontSize: 11.5,
+      fontSize: 11,
       fontWeight: "400",
     },
     // ── Submit button ────────────────────────────────────────────────────────
     submitButton: {
-      marginTop: 20,
-      marginBottom: 24,
+      marginTop: 18,
+      marginBottom: 20,
       backgroundColor: colors.primary,
-      borderRadius: 12,
-      height: 48,
+      borderRadius: 0,
+      height: 44,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
       gap: 8,
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 4,
     },
     submitButtonDisabled: {
       opacity: 0.6,
     },
     submitButtonText: {
       color: "#FFFFFF",
-      fontSize: 15,
-      fontWeight: "700",
-      letterSpacing: 0.2,
+      fontSize: 14,
+      fontWeight: "800",
+      letterSpacing: 0.4,
+      textTransform: "uppercase",
     },
     // ── Shared label/hint ────────────────────────────────────────────────────
     labelWithHint: {
@@ -1077,34 +1128,34 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     sectionLabel: {
       color: colors.textSecondary,
-      fontSize: 13,
-      fontWeight: "500",
+      fontSize: 12.5,
+      fontWeight: "600",
       letterSpacing: 0.1,
     },
     hintSubtle: {
       color: colors.textPlaceholder,
-      fontSize: 11.5,
+      fontSize: 11,
       fontWeight: "400",
     },
     badgeCounterText: {
       color: colors.primary,
-      fontSize: 11.5,
-      fontWeight: "600",
+      fontSize: 11,
+      fontWeight: "700",
     },
     // ── Subject preview inside trigger ──────────────────────────────────────
     selectedSyllabusPreview: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 7,
+      gap: 6,
     },
     syllabusIconTag: {
-      backgroundColor: isDark ? "rgba(20, 184, 166, 0.12)" : "rgba(13, 148, 136, 0.12)",
-      padding: 3.5,
-      borderRadius: 6,
+      backgroundColor: colors.primaryLight,
+      padding: 3,
+      borderRadius: 0,
     },
     selectedTypeDesc: {
       color: colors.text,
-      fontSize: 13,
+      fontSize: 12.5,
       fontWeight: "500",
     },
     // ── Question-type badge inside trigger ───────────────────────────────────
@@ -1115,47 +1166,47 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     typeBadge: {
       backgroundColor: colors.cardSecondary,
-      paddingHorizontal: 7,
-      paddingVertical: 2.5,
-      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 0,
       borderWidth: 1,
       borderColor: colors.border,
     },
     typeBadgeText: {
       color: colors.text,
-      fontSize: 11.5,
-      fontWeight: "700",
+      fontSize: 11,
+      fontWeight: "800",
       letterSpacing: 0.4,
+      textTransform: "uppercase",
     },
     // ── Chips ────────────────────────────────────────────────────────────────
     chipRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 7,
+      gap: 6,
       marginTop: 4,
     },
     dottedChip: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 5,
+      gap: 4,
       borderWidth: 1,
-      borderStyle: "dotted",
-      borderColor: isDark ? "rgba(20, 184, 166, 0.4)" : "rgba(13, 148, 136, 0.4)",
-      backgroundColor: isDark ? "rgba(20, 184, 166, 0.08)" : "rgba(13, 148, 136, 0.08)",
-      paddingVertical: 4,
-      paddingHorizontal: 9,
-      borderRadius: 8,
+      borderColor: colors.border,
+      backgroundColor: colors.cardSecondary,
+      paddingVertical: 3,
+      paddingHorizontal: 7,
+      borderRadius: 0,
     },
     dottedChipText: {
       color: colors.text,
-      fontSize: 11.5,
-      fontWeight: "500",
+      fontSize: 11,
+      fontWeight: "600",
       maxWidth: 200,
     },
     // ── Answer section ───────────────────────────────────────────────────────
     answerSection: {
-      marginTop: 16,
-      gap: 10,
+      marginTop: 14,
+      gap: 8,
     },
     answerHeader: {
       flexDirection: "row",
@@ -1164,20 +1215,20 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     answerHint: {
       color: colors.textPlaceholder,
-      fontSize: 11.5,
+      fontSize: 11,
       fontWeight: "500",
     },
     optionsRow: {
       flexDirection: "row",
       justifyContent: "space-between",
-      gap: 10,
+      gap: 8,
     },
     optionCircle: {
       flex: 1,
-      height: 46,
-      borderRadius: 12,
+      height: 42,
+      borderRadius: 0,
       backgroundColor: colors.cardSecondary,
-      borderWidth: 1.5,
+      borderWidth: 1,
       borderColor: colors.border,
       alignItems: "center",
       justifyContent: "center",
@@ -1188,8 +1239,8 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     },
     optionCircleText: {
       color: colors.textSecondary,
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: 15,
+      fontWeight: "800",
     },
     optionCircleTextSelected: {
       color: colors.primary,
@@ -1197,42 +1248,42 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     // ── NAT input ────────────────────────────────────────────────────────────
     natInputContainer: {
       backgroundColor: colors.cardSecondary,
-      borderRadius: 12,
-      borderWidth: 1.5,
+      borderRadius: 0,
+      borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 14,
-      height: 44,
+      paddingHorizontal: 12,
+      height: 40,
       justifyContent: "center",
     },
     natInput: {
       color: colors.text,
-      fontSize: 14,
+      fontSize: 13.5,
       fontWeight: "600",
       padding: 0,
     },
     // ── Personal note ────────────────────────────────────────────────────────
     noteSection: {
-      gap: 6,
-      marginTop: 14,
+      gap: 5,
+      marginTop: 12,
     },
     noteLabel: {
       color: colors.textSecondary,
-      fontSize: 12,
-      fontWeight: "500",
+      fontSize: 11.5,
+      fontWeight: "600",
     },
     noteInputContainer: {
       backgroundColor: colors.cardSecondary,
-      borderRadius: 12,
-      borderWidth: 1.5,
+      borderRadius: 0,
+      borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      minHeight: 85,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      minHeight: 80,
     },
     noteInput: {
       color: colors.text,
-      fontSize: 13,
-      lineHeight: 18,
+      fontSize: 12.5,
+      lineHeight: 17,
       padding: 0,
     },
   });
