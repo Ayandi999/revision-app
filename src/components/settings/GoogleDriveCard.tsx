@@ -48,7 +48,12 @@ export const GoogleDriveCard: React.FC = () => {
     signIn,
     signOut,
     restore,
+    refreshMetadata,
   } = useCloudSync();
+
+  React.useEffect(() => {
+    refreshMetadata();
+  }, [refreshMetadata, isSyncing]);
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
@@ -197,7 +202,7 @@ export const GoogleDriveCard: React.FC = () => {
             <View style={[styles.statDivider, { backgroundColor: colors.borderSubtle }]} />
             <View style={styles.statBox}>
               <Text style={[styles.statLabel, { color: colors.textMuted }]}>BACKUP SIZE</Text>
-              <Text style={[styles.statValue, { color: colors.text }]}>{lastBackupSize || "—"}</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{lastBackupSize || "0 B"}</Text>
             </View>
           </View>
 

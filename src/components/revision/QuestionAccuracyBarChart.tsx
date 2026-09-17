@@ -61,9 +61,6 @@ export function QuestionAccuracyBarChart({
 
   const MAX_BAR_HEIGHT = CHART_HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
-  // Find max attempts across questions to scale bar heights
-  const maxAttempts = Math.max(...questionData.map((d) => d.total), 1);
-
   const SVG_WIDTH =
     PADDING_LEFT * 2 + questionData.length * (BAR_WIDTH + BAR_GAP) - BAR_GAP;
 
@@ -133,32 +130,37 @@ export function QuestionAccuracyBarChart({
             const hasIncorrect = item.incorrect > 0;
             const hasBoth = hasCorrect && hasIncorrect;
 
-            // Minimum height so text count fits cleanly
+            // Minimum segment height so count number fits cleanly inside
             const MIN_SEGMENT = 18;
 
-            const heightFactor = Math.max(0.4, item.total / maxAttempts);
-            const baseTotalHeight = MAX_BAR_HEIGHT * heightFactor;
+            // All bars have uniform total height
+            const totalBarHeight = MAX_BAR_HEIGHT;
+            const topY = baselineY - totalBarHeight;
 
             let correctHeight = 0;
             let incorrectHeight = 0;
 
             if (hasBoth) {
-              const cRatio = item.correct / item.total;
-              const iRatio = item.incorrect / item.total;
-              correctHeight = Math.max(MIN_SEGMENT, baseTotalHeight * cRatio);
-              incorrectHeight = Math.max(MIN_SEGMENT, baseTotalHeight * iRatio);
+              const rawCorrectHeight = (item.correct / item.total) * MAX_BAR_HEIGHT;
+              correctHeight = Math.round(rawCorrectHeight);
+              // Ensure both segments have at least MIN_SEGMENT so text fits cleanly
+              if (correctHeight < MIN_SEGMENT) {
+                correctHeight = MIN_SEGMENT;
+              } else if (MAX_BAR_HEIGHT - correctHeight < MIN_SEGMENT) {
+                correctHeight = MAX_BAR_HEIGHT - MIN_SEGMENT;
+              }
+              incorrectHeight = MAX_BAR_HEIGHT - correctHeight;
             } else if (hasCorrect) {
-              correctHeight = Math.max(MIN_SEGMENT * 1.4, baseTotalHeight);
+              correctHeight = MAX_BAR_HEIGHT;
+              incorrectHeight = 0;
             } else if (hasIncorrect) {
-              incorrectHeight = Math.max(MIN_SEGMENT * 1.4, baseTotalHeight);
+              correctHeight = 0;
+              incorrectHeight = MAX_BAR_HEIGHT;
             }
-
-            const totalBarHeight = correctHeight + incorrectHeight;
 
             // Stacked bar coordinates: bottom is correct (green), top is incorrect (red)
             const correctY = baselineY - correctHeight;
             const incorrectY = baselineY - totalBarHeight;
-            const topY = baselineY - (hasBoth ? totalBarHeight : hasCorrect ? correctHeight : incorrectHeight);
 
             // Session outcome badge info below question label
             const outcomeText = item.sessionUnanswered
@@ -309,9 +311,9 @@ export function QuestionAccuracyBarChart({
                   <>
                     <Rect
                       x={x}
-                      y={baselineY - MIN_SEGMENT}
+                      y={baselineY - MAX_BAR_HEIGHT}
                       width={BAR_WIDTH}
-                      height={MIN_SEGMENT}
+                      height={MAX_BAR_HEIGHT}
                       rx={5}
                       ry={5}
                       fill={isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"}
@@ -320,7 +322,7 @@ export function QuestionAccuracyBarChart({
                     />
                     <SvgText
                       x={x + BAR_WIDTH / 2}
-                      y={baselineY - MIN_SEGMENT / 2 + 3.5}
+                      y={baselineY - MAX_BAR_HEIGHT / 2 + 4}
                       fontSize="10"
                       fontWeight="700"
                       fill={colors.textMuted}

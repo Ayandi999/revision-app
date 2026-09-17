@@ -34,6 +34,7 @@ import {
   setWifiOnly as saveWifiOnly,
 } from "@/services/backupSettingsRepo";
 import { isAuthError } from "@/services/googleDrive";
+import { getDeviceMediaStorageSize } from "@/functions/mediaStorage";
 
 async function withTokenRetry<T>(
   fn: (token: string) => Promise<T>,
@@ -71,6 +72,7 @@ export interface CloudSyncContextValue {
   toggleBackupEnabled: (val: boolean) => Promise<void>;
   toggleWifiOnly: (val: boolean) => Promise<void>;
   refreshPendingCount: () => Promise<void>;
+  refreshMetadata: () => Promise<void>;
   signIn: () => Promise<boolean>;
   signOut: () => Promise<void>;
   restore: () => Promise<RestoreResult | null>;
@@ -109,17 +111,23 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadMetadata = useCallback(async () => {
     const meta = await getSyncMetadata();
     setLastSyncAt(meta.lastSyncAt);
-    setLastBackupSize(meta.lastBackupSize);
+    try {
+      const mediaStorage = getDeviceMediaStorageSize();
+      setLastBackupSize(mediaStorage.formattedTotal);
+    } catch {
+      setLastBackupSize(meta.lastBackupSize);
+    }
   }, []);
 
   const refreshPendingCount = useCallback(async () => {
     try {
       const count = await getPendingCount();
       setPendingCount(count);
+      await loadMetadata();
     } catch (err) {
       console.warn("[CloudSyncContext] refreshPendingCount error:", err);
     }
-  }, []);
+  }, [loadMetadata]);
 
   const loadSettings = useCallback(async () => {
     try {
@@ -397,6 +405,7 @@ export const CloudSyncProvider: React.FC<{ children: React.ReactNode }> = ({
         toggleBackupEnabled,
         toggleWifiOnly,
         refreshPendingCount,
+        refreshMetadata: loadMetadata,
         signIn,
         signOut,
         restore,

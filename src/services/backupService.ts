@@ -31,6 +31,7 @@ import {
 } from "./imageBackupRepo";
 import { getBackupSettings } from "./backupSettingsRepo";
 import { toRelativePath } from "@/functions/imageHelpers";
+import { getDeviceMediaStorageSize } from "@/functions/mediaStorage";
 
 // ─── Concurrency Guard ────────────────────────────────────────────────────────
 
@@ -38,12 +39,15 @@ let isOperationInProgress = false;
 
 // ─── Format Utilities ─────────────────────────────────────────────────────────
 
-export function formatBytes(bytes: number, decimals = 1): string {
+export function formatBytes(bytes: number, decimals = 0): string {
   if (bytes <= 0) return "0 B";
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (dm === 0) {
+    return `${Math.round(bytes / Math.pow(k, i))} ${sizes[i]}`;
+  }
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
@@ -346,7 +350,8 @@ export async function syncDatabaseOnly(
     const uploadedFile = await uploadDatabaseOnly(token, dbBytes);
 
     const syncedAt = new Date().toISOString();
-    const sizeFormatted = formatBytes(dbBytes.byteLength);
+    const mediaStorage = getDeviceMediaStorageSize();
+    const sizeFormatted = mediaStorage.formattedTotal;
 
     await saveSyncMetadata({
       lastSyncAt: syncedAt,
@@ -577,7 +582,8 @@ export async function restoreFromManifest(
     }
 
     const restoredAt = new Date().toISOString();
-    const sizeFormatted = formatBytes(dbBytes.byteLength);
+    const mediaStorage = getDeviceMediaStorageSize();
+    const sizeFormatted = mediaStorage.formattedTotal;
 
     await saveSyncMetadata({
       lastSyncAt: restoredAt,

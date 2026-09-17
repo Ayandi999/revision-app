@@ -1,12 +1,15 @@
-import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { db } from "../database/db";
 import { questions, type Question } from "../database/schema";
+
+export type SearchSortBy = "most-correct" | "most-incorrect";
 
 export interface SearchFilters {
   query?: string;
   subject?: string | null;
   topics?: string[];
   subtopics?: string[];
+  sortBy?: SearchSortBy;
 }
 
 export interface SearchResult {
@@ -90,14 +93,19 @@ export async function searchQuestions(
       .select()
       .from(questions);
 
+    const orderClause =
+      filters.sortBy === "most-incorrect"
+        ? [desc(questions.incorrect), asc(questions.correct), desc(questions.createdAt)]
+        : [desc(questions.correct), asc(questions.incorrect), desc(questions.createdAt)];
+
     const rows = whereClause
       ? await baseQuery
           .where(whereClause)
-          .orderBy(desc(questions.createdAt))
+          .orderBy(...orderClause)
           .limit(pageSize)
           .offset(offset)
       : await baseQuery
-          .orderBy(desc(questions.createdAt))
+          .orderBy(...orderClause)
           .limit(pageSize)
           .offset(offset);
 

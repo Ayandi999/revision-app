@@ -17,12 +17,14 @@ import { deleteQuestionFromLocalDb } from "@/functions/queries";
 import {
   searchQuestions,
   type SearchFilters,
+  type SearchSortBy,
 } from "@/functions/searchQuestions";
 import {
   getSubjects,
   getSubtopicsForTopics,
   getTopics,
 } from "@/types/syllabus";
+import { hapticSelection } from "@/functions/hapticFeedback";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
@@ -65,6 +67,7 @@ export default function SearchScreen() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [selectedSubtopics, setSelectedSubtopics] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<SearchSortBy>("most-correct");
 
   // Reset syllabus filters when syllabus changes
   useEffect(() => {
@@ -159,6 +162,7 @@ export default function SearchScreen() {
 
   // ─── Filter Toggle & Reset Handlers ───────────────────────────────────────
   const toggleFilterPanel = () => {
+    hapticSelection();
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsFilterPanelOpen((prev) => !prev);
   };
@@ -204,6 +208,13 @@ export default function SearchScreen() {
     setIsSubtopicDropdownOpen(false);
   };
 
+  const handleToggleSort = () => {
+    hapticSelection();
+    setSortBy((prev) =>
+      prev === "most-correct" ? "most-incorrect" : "most-correct",
+    );
+  };
+
   // ─── Fetch Search Results ─────────────────────────────────────────────────
   const fetchResults = useCallback(
     async (pageToFetch: number, isInitial = false) => {
@@ -218,6 +229,7 @@ export default function SearchScreen() {
         subject: selectedSubject,
         topics: selectedTopics.length > 0 ? selectedTopics : undefined,
         subtopics: selectedSubtopics.length > 0 ? selectedSubtopics : undefined,
+        sortBy,
       };
 
       try {
@@ -238,7 +250,7 @@ export default function SearchScreen() {
         setIsRefreshing(false);
       }
     },
-    [debouncedQuery, selectedSubject, selectedTopics, selectedSubtopics],
+    [debouncedQuery, selectedSubject, selectedTopics, selectedSubtopics, sortBy],
   );
 
   // Re-fetch search results when tab is focused
@@ -708,18 +720,31 @@ export default function SearchScreen() {
 
       {/* ── Results Summary Header ─────────────────────────────────────────── */}
       <View style={styles.resultsHeader}>
-        <Text style={styles.resultsCountText}>
-          {isLoading
-            ? "Searching..."
-            : `${totalCount} question${totalCount === 1 ? "" : "s"} found`}
-        </Text>
-        {isLoading ? (
-          <ActivityIndicator
-            size="small"
-            color={colors.primary}
-            style={{ marginLeft: 8 }}
-          />
-        ) : null}
+        <View style={styles.resultsCountRow}>
+          <Text style={styles.resultsCountText}>
+            {isLoading
+              ? "Searching..."
+              : `${totalCount} question${totalCount === 1 ? "" : "s"} found`}
+          </Text>
+          {isLoading ? (
+            <ActivityIndicator
+              size="small"
+              color={colors.primary}
+              style={{ marginLeft: 6 }}
+            />
+          ) : null}
+        </View>
+
+        <TouchableOpacity
+          style={styles.sortTogglePill}
+          onPress={handleToggleSort}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="swap-vertical" size={13} color={colors.primary} />
+          <Text style={styles.sortToggleText}>
+            {sortBy === "most-correct" ? "Most Correct" : "Most Incorrect"}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* ── Question List / Results ────────────────────────────────────────── */}
@@ -1061,13 +1086,38 @@ const createStyles = (colors: ThemeColors, isDark: boolean) =>
     resultsHeader: {
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-between",
       paddingHorizontal: 16,
       paddingVertical: 8,
+    },
+    resultsCountRow: {
+      flexDirection: "row",
+      alignItems: "center",
     },
     resultsCountText: {
       color: colors.textMuted,
       fontSize: 13,
       fontWeight: "500",
+    },
+    sortTogglePill: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: isDark
+        ? "rgba(59, 130, 246, 0.12)"
+        : "rgba(37, 99, 235, 0.08)",
+      paddingHorizontal: 7,
+      paddingVertical: 3.5,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: isDark
+        ? "rgba(59, 130, 246, 0.25)"
+        : "rgba(37, 99, 235, 0.2)",
+    },
+    sortToggleText: {
+      color: colors.primary,
+      fontSize: 10.5,
+      fontWeight: "700",
     },
     listContent: {
       paddingHorizontal: 16,

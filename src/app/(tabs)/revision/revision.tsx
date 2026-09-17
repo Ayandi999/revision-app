@@ -37,6 +37,7 @@ import { calculateScores, type ScoreResult } from "@/functions/scoreCalculator";
 import { syncQuestionsToDB } from "@/functions/syncQuestion";
 import {
   hapticImpactMedium,
+  hapticSelection,
   hapticSuccess,
 } from "@/functions/hapticFeedback";
 
@@ -83,6 +84,7 @@ export default function RevisionScreen() {
 
   // ── Dismiss results handler ───────────────────────────────────────────────
   const handleDone = useCallback(async () => {
+    hapticSelection();
     const todayStr = new Date().toISOString().split("T")[0];
     try {
       await AsyncStorage.setItem("@revision_results_dismissed_today", todayStr);
@@ -598,7 +600,10 @@ export default function RevisionScreen() {
             {cache?.status === "completed" && scoreResult && (
               <TouchableOpacity
                 style={styles.reviewResultsBtn}
-                onPress={() => setPhase("results")}
+                onPress={() => {
+                  hapticSelection();
+                  setPhase("results");
+                }}
                 activeOpacity={0.8}
               >
                 <Ionicons

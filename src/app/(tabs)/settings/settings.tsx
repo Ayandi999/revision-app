@@ -8,6 +8,7 @@ import { EXAM_OPTIONS } from "@/config/exams";
 import { GoogleDriveCard } from "@/components/settings/GoogleDriveCard";
 import { NotificationCard } from "@/components/settings/NotificationCard";
 import type { ThemeMode } from "@/constants/theme";
+import { hapticSelection } from "@/functions/hapticFeedback";
 
 const Settings = () => {
   const { examId, streamTitle, examTitle, shortBadge, openExamSwitcher } =
@@ -90,7 +91,10 @@ const Settings = () => {
                       ],
                     ]}
                     activeOpacity={0.7}
-                    onPress={() => setThemeMode(opt.mode)}
+                    onPress={() => {
+                      hapticSelection();
+                      setThemeMode(opt.mode);
+                    }}
                   >
                     <Ionicons
                       name={opt.icon}
