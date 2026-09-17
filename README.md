@@ -295,8 +295,8 @@ native-app/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Ayandi999/revision-app.git
-   cd revision-app/native-app
+   git clone https://github.com/Ayandi999/revision-app.git 
+   cd revision-app
    ```
 
 2. **Install dependencies**:
