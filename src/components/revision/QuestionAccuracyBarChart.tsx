@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import Svg, { Line, Rect, Text as SvgText } from "react-native-svg";
+import Svg, { ClipPath, Defs, G, Line, Rect, Text as SvgText } from "react-native-svg";
 import { useTheme } from "@/context/ThemeContext";
 import type { Question } from "@/database/schema";
 import type { QuestionResult } from "@/functions/scoreCalculator";
@@ -19,19 +19,22 @@ export function QuestionAccuracyBarChart({
 
   if (!questions || questions.length === 0) return null;
 
-  // Process data per question
+  // Process data per question combining historical records + today's session
   const questionData = questions.map((q, idx) => {
     const res = questionResults[idx];
     const sessionCorrect = res?.isCorrect ?? false;
+    const sessionUnanswered = res?.isUnanswered ?? false;
 
-    // Cumulative historical attempts
-    let correct = q.correct || 0;
-    let incorrect = q.incorrect || 0;
+    // Historical attempts prior to today's session
+    let correct = q.correct ?? 0;
+    let incorrect = q.incorrect ?? 0;
 
-    // If both are 0 (e.g. first attempt before sync), count current session
-    if (correct === 0 && incorrect === 0) {
-      if (sessionCorrect) correct = 1;
-      else incorrect = 1;
+    // Incorporate today's attempt into all-time cumulative counts
+    if (sessionCorrect) {
+      correct += 1;
+    } else if (!sessionUnanswered) {
+      // User answered and got it wrong
+      incorrect += 1;
     }
 
     const total = correct + incorrect;
@@ -44,20 +47,21 @@ export function QuestionAccuracyBarChart({
       total,
       accuracy,
       sessionCorrect,
+      sessionUnanswered,
     };
   });
 
-  // Chart dimensions
-  const CHART_HEIGHT = 165;
-  const BAR_WIDTH = 28;
+  // Chart dimensions & layout
+  const CHART_HEIGHT = 175;
+  const BAR_WIDTH = 30;
   const BAR_GAP = 24;
-  const PADDING_TOP = 26;
-  const PADDING_BOTTOM = 38;
+  const PADDING_TOP = 28;
+  const PADDING_BOTTOM = 44;
   const PADDING_LEFT = 20;
 
   const MAX_BAR_HEIGHT = CHART_HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
-  // Find max attempts to scale bar heights dynamically (with a min height for visual balance)
+  // Find max attempts across questions to scale bar heights
   const maxAttempts = Math.max(...questionData.map((d) => d.total), 1);
 
   const SVG_WIDTH =
@@ -77,12 +81,12 @@ export function QuestionAccuracyBarChart({
     >
       {/* ── Header with Title & Legend ── */}
       <View style={styles.headerRow}>
-        <View>
+        <View style={styles.titleWrapper}>
           <Text style={[styles.title, { color: colors.text }]}>
             Question Accuracy
           </Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            Historical correct vs wrong recall count
+            Historical & today's recall count
           </Text>
         </View>
 
@@ -117,7 +121,7 @@ export function QuestionAccuracyBarChart({
             x2={Math.max(300, SVG_WIDTH)}
             y2={baselineY}
             stroke={
-              isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)"
+              isDark ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.08)"
             }
             strokeWidth="1"
           />
@@ -129,7 +133,7 @@ export function QuestionAccuracyBarChart({
             const hasIncorrect = item.incorrect > 0;
             const hasBoth = hasCorrect && hasIncorrect;
 
-            // Minimum height so the number fits cleanly inside
+            // Minimum height so text count fits cleanly
             const MIN_SEGMENT = 18;
 
             const heightFactor = Math.max(0.4, item.total / maxAttempts);
@@ -149,14 +153,134 @@ export function QuestionAccuracyBarChart({
               incorrectHeight = Math.max(MIN_SEGMENT * 1.4, baseTotalHeight);
             }
 
-            // Stacked bar: bottom is correct (green), top is incorrect (red)
+            const totalBarHeight = correctHeight + incorrectHeight;
+
+            // Stacked bar coordinates: bottom is correct (green), top is incorrect (red)
             const correctY = baselineY - correctHeight;
-            const incorrectY = correctY - incorrectHeight;
+            const incorrectY = baselineY - totalBarHeight;
+            const topY = baselineY - (hasBoth ? totalBarHeight : hasCorrect ? correctHeight : incorrectHeight);
+
+            // Session outcome badge info below question label
+            const outcomeText = item.sessionUnanswered
+              ? "skip"
+              : item.sessionCorrect
+                ? "pass"
+                : "fail";
+            const outcomeColor = item.sessionUnanswered
+              ? colors.textMuted
+              : item.sessionCorrect
+                ? "#10B981"
+                : "#EF4444";
 
             return (
               <React.Fragment key={idx}>
-                {/* 1. Top Bar Segment (Wrong / Red) */}
-                {hasIncorrect && (
+                {/* Accuracy percentage above the bar */}
+                {item.total > 0 && (
+                  <SvgText
+                    x={x + BAR_WIDTH / 2}
+                    y={topY - 6}
+                    fontSize="9.5"
+                    fontWeight="700"
+                    fill={
+                      item.accuracy >= 70
+                        ? "#10B981"
+                        : item.accuracy >= 40
+                          ? "#F59E0B"
+                          : "#EF4444"
+                    }
+                    textAnchor="middle"
+                  >
+                    {item.accuracy}%
+                  </SvgText>
+                )}
+
+                {/* Case 1: Both correct & incorrect attempts (Stacked Bar with ClipPath) */}
+                {hasBoth && (
+                  <>
+                    <Defs>
+                      <ClipPath id={`bar-clip-${idx}`}>
+                        <Rect
+                          x={x}
+                          y={incorrectY}
+                          width={BAR_WIDTH}
+                          height={totalBarHeight}
+                          rx={5}
+                          ry={5}
+                        />
+                      </ClipPath>
+                    </Defs>
+                    <G clipPath={`url(#bar-clip-${idx})`}>
+                      {/* Top segment: Wrong / Red */}
+                      <Rect
+                        x={x}
+                        y={incorrectY}
+                        width={BAR_WIDTH}
+                        height={incorrectHeight}
+                        fill="#EF4444"
+                      />
+                      {/* Bottom segment: Correct / Green */}
+                      <Rect
+                        x={x}
+                        y={correctY}
+                        width={BAR_WIDTH}
+                        height={correctHeight}
+                        fill="#10B981"
+                      />
+                    </G>
+
+                    {/* Number inside red segment */}
+                    <SvgText
+                      x={x + BAR_WIDTH / 2}
+                      y={incorrectY + incorrectHeight / 2 + 4}
+                      fontSize="10.5"
+                      fontWeight="800"
+                      fill="#FFFFFF"
+                      textAnchor="middle"
+                    >
+                      {item.incorrect}
+                    </SvgText>
+
+                    {/* Number inside green segment */}
+                    <SvgText
+                      x={x + BAR_WIDTH / 2}
+                      y={correctY + correctHeight / 2 + 4}
+                      fontSize="10.5"
+                      fontWeight="800"
+                      fill="#FFFFFF"
+                      textAnchor="middle"
+                    >
+                      {item.correct}
+                    </SvgText>
+                  </>
+                )}
+
+                {/* Case 2: Only correct attempts (All Green) */}
+                {hasCorrect && !hasIncorrect && (
+                  <>
+                    <Rect
+                      x={x}
+                      y={correctY}
+                      width={BAR_WIDTH}
+                      height={correctHeight}
+                      fill="#10B981"
+                      rx={5}
+                      ry={5}
+                    />
+                    <SvgText
+                      x={x + BAR_WIDTH / 2}
+                      y={correctY + correctHeight / 2 + 4}
+                      fontSize="10.5"
+                      fontWeight="800"
+                      fill="#FFFFFF"
+                      textAnchor="middle"
+                    >
+                      {item.correct}
+                    </SvgText>
+                  </>
+                )}
+
+                {/* Case 3: Only incorrect attempts (All Red) */}
+                {hasIncorrect && !hasCorrect && (
                   <>
                     <Rect
                       x={x}
@@ -164,10 +288,9 @@ export function QuestionAccuracyBarChart({
                       width={BAR_WIDTH}
                       height={incorrectHeight}
                       fill="#EF4444"
-                      rx={hasBoth ? 4 : 5}
-                      ry={hasBoth ? 4 : 5}
+                      rx={5}
+                      ry={5}
                     />
-                    {/* Number inside red segment */}
                     <SvgText
                       x={x + BAR_WIDTH / 2}
                       y={incorrectY + incorrectHeight / 2 + 4}
@@ -181,28 +304,29 @@ export function QuestionAccuracyBarChart({
                   </>
                 )}
 
-                {/* 2. Bottom Bar Segment (Correct / Green) */}
-                {hasCorrect && (
+                {/* Case 4: No attempts recorded (Placeholder ghost bar) */}
+                {item.total === 0 && (
                   <>
                     <Rect
                       x={x}
-                      y={correctY}
+                      y={baselineY - MIN_SEGMENT}
                       width={BAR_WIDTH}
-                      height={correctHeight}
-                      fill="#10B981"
-                      rx={hasBoth ? 0 : 5}
-                      ry={hasBoth ? 0 : 5}
+                      height={MIN_SEGMENT}
+                      rx={5}
+                      ry={5}
+                      fill={isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"}
+                      stroke={isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"}
+                      strokeDasharray="3, 2"
                     />
-                    {/* Number inside green segment */}
                     <SvgText
                       x={x + BAR_WIDTH / 2}
-                      y={correctY + correctHeight / 2 + 4}
-                      fontSize="10.5"
-                      fontWeight="800"
-                      fill="#FFFFFF"
+                      y={baselineY - MIN_SEGMENT / 2 + 3.5}
+                      fontSize="10"
+                      fontWeight="700"
+                      fill={colors.textMuted}
                       textAnchor="middle"
                     >
-                      {item.correct}
+                      —
                     </SvgText>
                   </>
                 )}
@@ -219,16 +343,16 @@ export function QuestionAccuracyBarChart({
                   Q{item.index}
                 </SvgText>
 
-                {/* Session outcome marker under label */}
+                {/* Today's session outcome tag */}
                 <SvgText
                   x={x + BAR_WIDTH / 2}
-                  y={baselineY + 28}
+                  y={baselineY + 29}
                   fontSize="9.5"
                   fontWeight="600"
-                  fill={item.sessionCorrect ? "#10B981" : "#EF4444"}
+                  fill={outcomeColor}
                   textAnchor="middle"
                 >
-                  {item.sessionCorrect ? "pass" : "fail"}
+                  {outcomeText}
                 </SvgText>
               </React.Fragment>
             );
@@ -261,7 +385,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 14,
+    flexWrap: "wrap",
+    rowGap: 8,
+  },
+  titleWrapper: {
+    marginRight: 8,
   },
   title: {
     fontSize: 15,
@@ -274,9 +403,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   legendRow: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
   legendItem: {
     flexDirection: "row",
@@ -300,7 +429,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    marginTop: 6,
+    marginTop: 8,
   },
   hintText: {
     fontSize: 10.5,
