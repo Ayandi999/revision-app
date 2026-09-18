@@ -29,7 +29,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -52,7 +52,7 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 30;
 
 export default function SearchScreen() {
   const { colors, isDark } = useTheme();
@@ -90,6 +90,10 @@ export default function SearchScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Pagination scroll refs: prevents premature loading before user reaches end
+  const onEndReachedCalledDuringMomentum = useRef(true);
+  const isFetchingRef = useRef(false);
 
   // ─── OCR Support Notice State ─────────────────────────────────────────────
   const [isOcrAvailable, setIsOcrAvailable] = useState<boolean | null>(null);
@@ -219,6 +223,9 @@ export default function SearchScreen() {
   // ─── Fetch Search Results ─────────────────────────────────────────────────
   const fetchResults = useCallback(
     async (pageToFetch: number, isInitial = false) => {
+      if (pageToFetch > 0 && isFetchingRef.current) return;
+      isFetchingRef.current = true;
+
       if (isInitial) {
         setIsLoading(true);
       } else {
@@ -249,6 +256,7 @@ export default function SearchScreen() {
         setIsLoading(false);
         setIsLoadingMore(false);
         setIsRefreshing(false);
+        isFetchingRef.current = false;
       }
     },
     [
@@ -263,22 +271,27 @@ export default function SearchScreen() {
   // Re-fetch search results when tab is focused
   useFocusEffect(
     useCallback(() => {
+      onEndReachedCalledDuringMomentum.current = true;
       fetchResults(0, false);
     }, [fetchResults]),
   );
 
   // Trigger search when query, filters, or cloud restore state changes
   useEffect(() => {
+    onEndReachedCalledDuringMomentum.current = true;
     fetchResults(0, true);
   }, [fetchResults, lastRestoredAt]);
 
   const handleRefresh = () => {
+    onEndReachedCalledDuringMomentum.current = true;
     setIsRefreshing(true);
     fetchResults(0, false);
   };
 
   const handleLoadMore = () => {
-    if (!isLoading && !isLoadingMore && hasMore) {
+    if (onEndReachedCalledDuringMomentum.current) return;
+    if (!isLoading && !isLoadingMore && hasMore && !isFetchingRef.current) {
+      onEndReachedCalledDuringMomentum.current = true;
       fetchResults(page + 1, false);
     }
   };
@@ -774,8 +787,16 @@ export default function SearchScreen() {
             colors={[colors.primary]}
           />
         }
+        initialNumToRender={30}
+        maxToRenderPerBatch={30}
+        onScrollBeginDrag={() => {
+          onEndReachedCalledDuringMomentum.current = false;
+        }}
+        onMomentumScrollBegin={() => {
+          onEndReachedCalledDuringMomentum.current = false;
+        }}
         onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.4}
+        onEndReachedThreshold={0.05}
         ListEmptyComponent={
           isLoading ? (
             <View style={styles.loadingContainer}>

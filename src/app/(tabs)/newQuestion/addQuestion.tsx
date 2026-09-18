@@ -324,7 +324,7 @@ const AddQuestion = () => {
         showStatusModal(
           "success",
           "Question Saved!",
-          "The question has been added to your revision bank successfully.",
+          "All added questions appear in the Search tab. 🔎",
           "Done",
           resetForm,
         );

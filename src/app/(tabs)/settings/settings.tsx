@@ -228,6 +228,7 @@ const Settings = () => {
           </TouchableOpacity>
         </View>
 
+
         {/* ─── Footer ─────────────────────────────────────────── */}
         <View style={styles.footerInfo}>
           <Ionicons

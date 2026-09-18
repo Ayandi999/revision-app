@@ -28,7 +28,7 @@ export interface SearchResult {
 export async function searchQuestions(
   filters: SearchFilters,
   page: number = 0,
-  pageSize: number = 20
+  pageSize: number = 30
 ): Promise<SearchResult> {
   try {
     const conditions = [];
