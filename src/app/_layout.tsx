@@ -14,6 +14,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ExamProvider } from "@/context/ExamContext";
 import { CloudSyncProvider } from "@/context/CloudSyncContext";
 import { OnboardingModal } from "@/components/OnboardingModal";
+import { TutorialProvider } from "@/context/TutorialContext";
+import { AppTutorialModal } from "@/components/AppTutorialModal";
 
 import { initNotifications } from "@/services/notificationService";
 import * as Notifications from "expo-notifications";
@@ -80,9 +82,12 @@ export default function RootLayout() {
         <ThemeProvider>
           <ExamProvider>
             <CloudSyncProvider>
-              <Slot />
-              <OnboardingModal />
-              <OtaUpdateNotification />
+              <TutorialProvider>
+                <Slot />
+                <OnboardingModal />
+                <AppTutorialModal />
+                <OtaUpdateNotification />
+              </TutorialProvider>
             </CloudSyncProvider>
           </ExamProvider>
         </ThemeProvider>

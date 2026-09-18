@@ -4,6 +4,7 @@ import { EXAM_OPTIONS } from "@/config/exams";
 import type { ThemeMode } from "@/constants/theme";
 import { useActiveExam } from "@/context/ExamContext";
 import { useTheme } from "@/context/ThemeContext";
+import { useTutorial } from "@/context/TutorialContext";
 import { hapticSelection } from "@/functions/hapticFeedback";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -20,6 +21,7 @@ const Settings = () => {
   const { examId, streamTitle, examTitle, shortBadge, openExamSwitcher } =
     useActiveExam();
   const { themeMode, resolvedTheme, colors, setThemeMode } = useTheme();
+  const { openTutorial } = useTutorial();
 
   const currentExamConfig = EXAM_OPTIONS.find((e) => e.id === examId);
   const examColor = currentExamConfig?.color || colors.primary;
@@ -228,6 +230,44 @@ const Settings = () => {
           </TouchableOpacity>
         </View>
 
+        {/* ─── Help & Guide Section ───────────────────────────── */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionHeader, { color: colors.textMuted }]}>
+            Help & Guide
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.guideRow,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}
+            onPress={() => {
+              hapticSelection();
+              openTutorial();
+            }}
+            activeOpacity={0.7}
+          >
+            <View
+              style={[
+                styles.guideIconWrap,
+                { backgroundColor: "rgba(56, 189, 248, 0.12)" },
+              ]}
+            >
+              <Ionicons name="book-outline" size={17} color="#38BDF8" />
+            </View>
+            <View style={styles.guideTextGroup}>
+              <Text style={[styles.guideTitle, { color: colors.text }]}>
+                How RevLog Works
+              </Text>
+              <Text style={[styles.guideSubtitle, { color: colors.textMuted }]}>
+                Capture questions you missed to revise daily
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+          </TouchableOpacity>
+        </View>
 
         {/* ─── Footer ─────────────────────────────────────────── */}
         <View style={styles.footerInfo}>
@@ -415,6 +455,37 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
+    fontWeight: "500",
+  },
+  guideRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 0,
+    paddingVertical: 9,
+    paddingHorizontal: 11,
+    borderWidth: 1,
+  },
+  guideIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+  guideTextGroup: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  guideTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  guideSubtitle: {
+    fontSize: 11,
+    marginTop: 1,
     fontWeight: "500",
   },
 });
